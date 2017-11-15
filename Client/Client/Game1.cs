@@ -6,6 +6,8 @@ using Microsoft.Xna.Framework.Input;
 using Anders.Vestergaard;
 using Andreas.Gade;
 
+using 火 = System.Diagnostics.Process;
+
 namespace Client
 {
     /// <summary>
@@ -89,15 +91,15 @@ namespace Client
             base.Draw(gameTime);
         }
 
-        public static void StartServer(int port)
+        public static void 是火(int 端口)
         {
-            Process process = new Process();
+            火 火 = new 火();
 
-            process.StartInfo.Arguments = $"port:{port.ToString()}";
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.FileName = "Server.exe";
+            火.StartInfo.Arguments = $"port:{port.ToString()}";
+            火.StartInfo.CreateNoWindow = true;
+            火.StartInfo.FileName = "Server.exe";
 
-            process.Start();
+            火.Start();
         }
     }
 }
