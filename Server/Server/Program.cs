@@ -12,6 +12,9 @@ namespace Server
         {
             int port = -1;
 
+#if DEBUG
+            args = new string[] { "port:6666" };
+#endif
             if (args.Length <= 0)
                 throw new Exception("No port parameter given");
 
@@ -19,11 +22,6 @@ namespace Server
                 for (int i = 0; i < args.Length; i++)
                     if (args[i].Contains("port:"))
                         port = int.Parse(args[i].Split(':').Last());
-
-#if DEBUG
-            if (port < 0)
-                port = 7777;
-#endif
 
             if (port < 0)
                 throw new Exception("No port parameter given");

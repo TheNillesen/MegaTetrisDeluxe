@@ -5,9 +5,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Anders.Vestergaard;
 using Andreas.Gade;
-
-using 火 = System.Diagnostics.Process;
-
 namespace Client
 {
     /// <summary>
@@ -38,6 +35,11 @@ namespace Client
             // TODO: Add your initialization logic here
 
             base.Initialize();
+
+#if DEBUG
+            GameClient gc = new GameClient();
+            new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
+#endif
         }
 
         /// <summary>
@@ -91,15 +93,15 @@ namespace Client
             base.Draw(gameTime);
         }
 
-        public static void 是火(int 端口)
+        public static void startServer(int port)
         {
-            火 火 = new 火();
+            Process process = new Process();
 
-            火.StartInfo.Arguments = $"port:{port.ToString()}";
-            火.StartInfo.CreateNoWindow = true;
-            火.StartInfo.FileName = "Server.exe";
+            process.StartInfo.Arguments = $"port:{port.ToString()}";
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.FileName = "Server.exe";
 
-            火.Start();
+            process.Start();
         }
     }
 }
