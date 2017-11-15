@@ -1,18 +1,25 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Diagnostics;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Anders.Vestergaard;
+using Andreas.Gade;
 
 namespace Client
 {
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Game1 : Game
+    public class Gameworld : Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        public Game1()
+        private bool hasRun = false;
+        private DateTime startup = DateTime.Now;
+
+        public Gameworld()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -65,6 +72,8 @@ namespace Client
             // TODO: Add your update logic here
 
             base.Update(gameTime);
+
+            
         }
 
         /// <summary>
@@ -78,6 +87,17 @@ namespace Client
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);
+        }
+
+        public static void StartServer(int port)
+        {
+            Process process = new Process();
+
+            process.StartInfo.Arguments = $"port:{port.ToString()}";
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.FileName = "Server.exe";
+
+            process.Start();
         }
     }
 }
