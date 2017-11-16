@@ -8,5 +8,11 @@ namespace Client
 {
     class GameObject
     {
+        private Transform transform;
+        private Spriterendere renderer;
+
+        public Transform Transform { get { return transform; } }
+        public Spriterendere Rendere { get { return renderer; } }
+
     }
 }

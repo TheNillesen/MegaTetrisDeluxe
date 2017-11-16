@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace Client
 {
-    class Collider
+    class Collider : Component
     {
+        public Collider(GameObject gameObject) : base(gameObject)
+        {
+
+        }
     }
 }

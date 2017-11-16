@@ -6,11 +6,7 @@ using System.Threading.Tasks;
 
 namespace Client
 {
-    class NetworkController : Component
+    interface ILoadable
     {
-        public NetworkController(GameObject gameObject) : base(gameObject)
-        {
-
-        }
     }
 }
