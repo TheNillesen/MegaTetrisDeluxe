@@ -13,15 +13,19 @@ namespace Client
 {
     class Transform : Component
     {
-        public Vector2 Position { get; set; }
+        //Vector2 array som holder styr på brikkens positioner, position [0] er det punkt resten bevæger sig ud fra.
+        public Vector2[] Position { get; set; }
+        
 
         public Transform(GameObject gameObject, Vector2 position) : base(gameObject)
         {
-            this.Position = position;
+            this.Position = new Vector2[4];
+            this.Position[0] = position;
         }
         public void Translate(Vector2 translation)
         {
-            Position += translation;
+            Position[0] += translation;
         }
+     
     }
 }
