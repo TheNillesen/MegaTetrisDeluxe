@@ -12,13 +12,13 @@ namespace Client
 {
     class GameMap
     {
-        private Vector2 offset; //The game areas position in the window.
-        private int gameAreaWidth;
-        private int gameAreaHeight;
+        private Vector2 offset;     //The game areas position in the window.
+        private int gameAreaWidth;  //The area width in which the game it self takes place.
+        private int gameAreaHeight; //The area height in which the game it self takes place.
 
-        public GameObject[,] map;
-        public float cellWidth;
-        public float cellHeight;
+        public GameObject[,] map; //The map grid.
+        public float cellWidth;   //The width of a cell.
+        public float cellHeight;  //The height of a cell.
 
         /// <summary>
         /// Auto generates the cells dimensions.
@@ -113,6 +113,32 @@ namespace Client
             temp = map[(int)posA.X, (int)posA.Y];
             map[(int)posA.X, (int)posA.Y] = null;
             map[(int)posB.X, (int)posB.Y] = temp;
+        }
+
+        /// <summary>
+        /// Checks if the given grid position is occupied.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public bool IsItOccupied(Vector2 pos)
+        {
+            if (map[(int)(pos.X), (int)(pos.Y)] != null)
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns the gameobject at the given grid position, if there is none, it returns null.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public GameObject GetObjAtPosition(Vector2 pos)
+        {
+            if(map[(int)(pos.X), (int)(pos.Y)] != null)
+                return map[(int)(pos.X), (int)(pos.Y)];
+
+            return null;
         }
     }
 }
