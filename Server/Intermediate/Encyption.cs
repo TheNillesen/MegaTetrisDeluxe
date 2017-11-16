@@ -38,12 +38,12 @@ namespace Intermediate
 
         public byte[] Encrypt(byte[] message)
         {
-            return rsa.EncryptValue(message);
+            return rsa.Encrypt(message, true);
         }
 
         public byte[] Decrypt(byte[] message)
         {
-            return rsa.DecryptValue(message);
+            return rsa.Decrypt(message, true);
         }
 
         public byte[] BitFlip(byte[] bytes)
