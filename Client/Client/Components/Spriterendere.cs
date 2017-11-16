@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace Client
 {
-    class Spriterendere : com
+    class Spriterendere : Component, IDrawable, ILoadable
     {
         private Rectangle rectangle;
         private Texture2D sprite;
@@ -62,8 +62,8 @@ namespace Client
 
         }
         public void Draw(SpriteBatch spriteBatch)
-        {
-            spriteBatch.Draw(sprite, GetGameObject().Transform.Position + Offset, Rectangle, Color.White);
+        {//Er ikke helt færdig den skal tage fat i gameobject.transfrom når transform er færdig.
+            spriteBatch.Draw(sprite, Rectangle, Color.White);
         }
 
     }
