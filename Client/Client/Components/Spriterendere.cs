@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace Client
 {
-    class Spriterendere
+    class Spriterendere : Component
     {
+        public Spriterendere(GameObject gameObject) : base(gameObject)
+        {
+
+        }
     }
 }

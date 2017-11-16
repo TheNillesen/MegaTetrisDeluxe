@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace Client
 {
-    class Transform
+    class Transform : Component
     {
+        public Transform(GameObject gameObject) : base(gameObject)
+        {
+
+        }
     }
 }

@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace Client
 {
-    class NetworkController
+    class NetworkController : Component
     {
+        public NetworkController(GameObject gameObject) : base(gameObject)
+        {
+
+        }
     }
 }
