@@ -114,5 +114,31 @@ namespace Client
             map[(int)posA.X, (int)posA.Y] = null;
             map[(int)posB.X, (int)posB.Y] = temp;
         }
+
+        /// <summary>
+        /// Checks if the given grid position is occupied.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public bool IsItOccupied(Vector2 pos)
+        {
+            if (map[(int)(pos.X), (int)(pos.Y)] != null)
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns the gameobject at the given grid position, if there is none, it returns null.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public GameObject GetObjAtPosition(Vector2 pos)
+        {
+            if(map[(int)(pos.X), (int)(pos.Y)] != null)
+                return map[(int)(pos.X), (int)(pos.Y)];
+
+            return null;
+        }
     }
 }
