@@ -46,7 +46,11 @@
     <Compile Include="Game1.cs" />
     <Compile Include="GameClient.cs" />
     <Compile Include="Components\GameObject.cs" />
+    <Compile Include="GameMap.cs" />
     <Compile Include="GamePacket.cs" />
+    <Compile Include="Interfaces\ILoadable.cs" />
+    <Compile Include="Interfaces\IDrawable.cs" />
+    <Compile Include="Interfaces\IUpdatable.cs" />
     <Compile Include="Namespaces.cs" />
     <Compile Include="Components\NetworkController.cs" />
     <Compile Include="Components\PlayerController.cs" />
