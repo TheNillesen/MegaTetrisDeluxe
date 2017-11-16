@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Component.cs" />
     <Compile Include="Components\Collider.cs" />
+    <Compile Include="Extensions\Vector2IExtension.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="GameClient.cs" />
     <Compile Include="Components\GameObject.cs" />

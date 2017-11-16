@@ -24,20 +24,14 @@ namespace Server
             if (port < 0)
                 throw new Exception("No port parameter given");
 
-            Encryption encr = new Encryption();
-            Encryption decr = new Encryption(encr.GetPublicKey());
+            Vector2I vec = new Vector2I(2, 5);
 
-            byte[] message = Encoding.ASCII.GetBytes("blaaah");
+            byte[] temp = vec.Serialize();
 
-            byte[] encryptedPublic = decr.Encrypt(message);
-            byte[] decryptedPrivate = encr.Decrypt(encryptedPublic);
+            Vector2I vecTemp = Vector2I.Deserialize(temp);
 
-            Console.WriteLine(Encoding.ASCII.GetString(message));
-
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(Encoding.ASCII.GetString(encryptedPublic));
-            Console.ForegroundColor = decryptedPrivate.All(o => message.Contains(o)) ? ConsoleColor.Green : ConsoleColor.Red;
-            Console.WriteLine(Encoding.ASCII.GetString(decryptedPrivate));
+            Console.WriteLine(Encoding.UTF8.GetString(temp));
+            Console.WriteLine($"{vecTemp.X}:{vecTemp.Y}");
 
             ConnectionHandler.Init(port);
 

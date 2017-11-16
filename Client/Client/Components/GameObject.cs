@@ -18,7 +18,27 @@ namespace Client
 
         public GameObject()
         {
-            components = new List<Component>();
+            this.components = new List<Component>();
+        }
+
+        public GameObject(params Component[] components)
+        {
+            this.components = new List<Component>(components);
+        }
+
+        public void AddComponent(Component component)
+        {
+            components.Add(component);
+        }
+
+        public void RemoveComponent(Component component)
+        {
+            components.Remove(component);
+        }
+
+        public void RemoveAllComponent<T>() where T : Component
+        {
+            components.RemoveAll(o => o is T);
         }
 
         public T GetComponent<T>() where T : Component
@@ -39,6 +59,21 @@ namespace Client
         public T[] GetComponents<T>() where T : Component
         {
             return (from Component comp in components where comp is T select comp as T).ToArray();
+        }
+
+        public T[] GetComponents<T>(Predicate<T> filter) where T : Component
+        {
+            return (from Component comp in components where comp is T && filter(comp as T) select comp as T).ToArray();
+        }
+
+        public Component[] Getcomponents(Predicate<Component> filter)
+        {
+            return components.FindAll(filter).ToArray();
+        }
+
+        public void Update()
+        {
+            
         }
     }
 }
