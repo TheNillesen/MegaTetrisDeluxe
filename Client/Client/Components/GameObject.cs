@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -73,7 +74,18 @@ namespace Client
 
         public void Update()
         {
-            
+            IUpdatable[] Updateables = (from Component component in components where component is IUpdatable select component as IUpdatable).ToArray();
+
+            foreach (IUpdatable Updateable in Updateables)
+                Updateable.Update();
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            IDrawable[] IDrawables = (from Component component in components where component is IDrawable select component as IDrawable).ToArray();
+
+            foreach (IDrawable IDrawable in IDrawables)
+                IDrawable.Draw(spriteBatch);
         }
     }
 }
