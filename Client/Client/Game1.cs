@@ -56,7 +56,7 @@ namespace Client
             new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
 #endif
             gameObjects = new List<GameObject>();
-            gameMap = new GameMap(50, 50, 1000, 1000, new Vector2(0, 0));
+            gameMap = new GameMap(50, 50, 500, 500, new Vector2(0, 0));
 
             //Test player
             player = new GameObject();

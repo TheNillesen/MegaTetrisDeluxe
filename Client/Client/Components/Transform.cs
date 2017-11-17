@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
-
+using Intermediate;
 
 namespace Client
 {
@@ -15,12 +15,27 @@ namespace Client
     {
         //Vector2 array som holder styr på brikkens positioner, position [0] er det punkt resten bevæger sig ud fra.
         public Vector2[] Position { get; set; }
-        
-        
+        // Shapes: I, L, Lightning, Lightning_invers, L_invers, Square, T, Polygon
+        public GameShapes shape;
+        public Vector2I[] ShapeCord
+        {
+            get
+            {
+                return GameShapeHelper.GetShape(shape);
+            }
+        }
+
         public Transform(GameObject gameObject, Vector2 position) : base(gameObject)
         {
             this.Position = new Vector2[4];
-            this.Position[0] = position;
+
+            Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(position);
+            for (int i = 0; i < Position.Count(); i++)
+                Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(tempPos.X + ShapeCord[i].X, tempPos.Y + ShapeCord[i].Y));
+
+
+            //For test, I have given a standard shape
+            shape = GameShapes.Lightning;
         }
         public void Translate(Vector2 translation)
         {
@@ -34,13 +49,14 @@ namespace Client
         public void MoveRight()
         {
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
-           
-            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2 (tempPos.X + 1,tempPos.Y)) == false )
+
+            if (!Gameworld.Instance.gameMap.IsOutOfBound(new Vector2(tempPos.X + 1, tempPos.Y), shape) && Gameworld.Instance.gameMap.IsItOccupied(new Vector2 (tempPos.X + 1, tempPos.Y), shape) == false)
             {
-                Gameworld.Instance.gameMap.EmptyPosition(tempPos);
+                Gameworld.Instance.gameMap.EmptyPosition(tempPos, shape);
                 tempPos += new Vector2(1, 0);
-                Gameworld.Instance.gameMap.PlaceGameObject(gameObject,tempPos);
-                Position[0] = Gameworld.Instance.gameMap.Position(tempPos);
+                Gameworld.Instance.gameMap.PlaceGameObject(gameObject, tempPos, shape);
+                for(int i = 0; i < Position.Count(); i++)
+                    Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(tempPos.X + ShapeCord[i].X, tempPos.Y + ShapeCord[i].Y));
             }
         }
         /// <summary>
@@ -50,12 +66,13 @@ namespace Client
         {
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
 
-            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2(tempPos.X - 1, tempPos.Y)) == false)
-            {
-                Gameworld.Instance.gameMap.EmptyPosition(tempPos);
-                tempPos += new Vector2(-1, 0);
-                Gameworld.Instance.gameMap.PlaceGameObject(gameObject, tempPos);
-                Position[0] = Gameworld.Instance.gameMap.Position(tempPos);
+                if (!Gameworld.Instance.gameMap.IsOutOfBound(new Vector2(tempPos.X - 1, tempPos.Y), shape) && Gameworld.Instance.gameMap.IsItOccupied(new Vector2(tempPos.X - 1, tempPos.Y), shape) == false)
+                {
+                    Gameworld.Instance.gameMap.EmptyPosition(tempPos, shape);
+                    tempPos += new Vector2(-1, 0);
+                    Gameworld.Instance.gameMap.PlaceGameObject(gameObject, tempPos, shape);
+                    for (int i = 0; i < Position.Count(); i++)
+                        Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(tempPos.X + ShapeCord[i].X, tempPos.Y + ShapeCord[i].Y));
             }
         }
         /// <summary>
@@ -65,11 +82,11 @@ namespace Client
         {
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
 
-            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2(tempPos.X, tempPos.Y + 1)) == false)
+            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2(tempPos.X, tempPos.Y + 1), shape) == false)
             {
-                Gameworld.Instance.gameMap.EmptyPosition(tempPos);
+                Gameworld.Instance.gameMap.EmptyPosition(tempPos, shape);
                 tempPos += new Vector2(0, 0);
-                Gameworld.Instance.gameMap.PlaceGameObject(gameObject, tempPos);
+                Gameworld.Instance.gameMap.PlaceGameObject(gameObject, tempPos, shape);
             }
         }
 
