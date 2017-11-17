@@ -11,7 +11,7 @@ namespace Client
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Gameworld : Game
+    class Gameworld : Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
