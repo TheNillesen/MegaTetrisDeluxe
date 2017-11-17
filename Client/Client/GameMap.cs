@@ -57,7 +57,7 @@ namespace Client
         }
 
         /// <summary>
-        /// Finds the width and height of the individual cells.
+        /// Sets the width and height of the individual cells.
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -105,17 +105,6 @@ namespace Client
         }
 
         /// <summary>
-        /// Moves the given GameObject from position a to b. Still WIP.
-        /// </summary>
-        public void MovePosition(Vector2 posA, Vector2 posB)
-        {
-            GameObject temp;
-            temp = map[(int)posA.X, (int)posA.Y];
-            map[(int)posA.X, (int)posA.Y] = null;
-            map[(int)posB.X, (int)posB.Y] = temp;
-        }
-
-        /// <summary>
         /// Checks if the given grid position is occupied.
         /// </summary>
         /// <param name="pos"></param>
@@ -139,6 +128,28 @@ namespace Client
                 return map[(int)(pos.X), (int)(pos.Y)];
 
             return null;
+        }
+
+        /// <summary>
+        /// Places the given gameobject at the given grid position, if the position is empty.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public void PlaceGameObject(GameObject obj, Vector2 pos)
+        {
+            if (map[(int)(pos.X), (int)(pos.Y)] == null)
+                map[(int)(pos.X), (int)(pos.Y)] = obj;
+        }
+
+        /// <summary>
+        /// Looks at the given position and if it isn't empty, it removes the gameobject at the position from the grid.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public void EmptyPosition(Vector2 pos)
+        {
+            if (map[(int)(pos.X), (int)(pos.Y)] != null)
+                map[(int)(pos.X), (int)(pos.Y)] = null;
         }
     }
 }
