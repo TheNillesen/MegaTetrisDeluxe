@@ -53,6 +53,14 @@ namespace Client
             new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
 #endif
             gameMap = new GameMap(20, 20, 100, 100, new Vector2(0, 0));
+
+            //Test player
+            GameObject player = new GameObject();
+            player.AddComponent(new Spriterendere(player, "GreyToneBlock.png", 1f));
+            player.AddComponent(new Transform(player, new Vector2(5, 5)));
+            player.AddComponent(new PlayerController(player));
+            player.LoadContent(this.Content);
+
         }
 
         /// <summary>
