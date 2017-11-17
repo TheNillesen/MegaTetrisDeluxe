@@ -26,19 +26,23 @@ namespace Client
         {
             Position[0] += translation;
         }
+        //function that checks the current gameobject position and if the tile on the right side is occupied or not, if its not , we move our gameobject to the new position and 
+        //sets the new position as occupied while the old tile loses its occupied status. same goes for the MoveLeft() fuction further down.
         public void MoveRight()
         {
             Gameworld.Instance.gameMap.MapPosition(Position[0]);
            
             if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2 (Position[0].X + 1)) == false )
             {
+                Gameworld.Instance.gameMap.EmptyPosition(Position[0]);
                 Position[0] += new Vector2(1, 0);
+                Gameworld.Instance.gameMap.PlaceGameObject(gameObject,Position[0]);
             }
             else
             {
                 Position[0] = new Vector2(0, 0);
+                Gameworld.Instance.gameMap.PlaceGameObject(gameObject, Position[0]);
             }
-            
         }
         public void MoveLeft()
         {
@@ -46,11 +50,14 @@ namespace Client
 
             if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2(Position[0].X - 1)) == false)
             {
+                Gameworld.Instance.gameMap.EmptyPosition(Position[0]);
                 Position[0] += new Vector2(-1, 0);
+                Gameworld.Instance.gameMap.PlaceGameObject(gameObject, Position[0]);
             }
             else
             {
                 Position[0] = new Vector2(0, 0);
+                Gameworld.Instance.gameMap.PlaceGameObject(gameObject, Position[0]);
             }
         }
      
