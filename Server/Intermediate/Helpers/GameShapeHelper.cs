@@ -26,6 +26,8 @@ namespace Intermediate
                     return new Vector2I[] { new Vector2I(0, 0), new Vector2I(0, 1), new Vector2I(1, 0), new Vector2I(1, 1) };
                 case GameShapes.T:
                     return new Vector2I[] { new Vector2I(0, 0), new Vector2I(1, 0), new Vector2I(-1, 0), new Vector2I(0, 1) };
+                case GameShapes.Polygon:
+                    return new Vector2I[] { new Vector2I(0, 0) };
                 default:
                     return null;
             }

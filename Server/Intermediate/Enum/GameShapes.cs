@@ -14,6 +14,7 @@ namespace Intermediate
         Square = 0x03,
         Lightning = 0x04,
         Lightning_Inverse = 0x05,
-        L_Inverse = 0x06
+        L_Inverse = 0x06,
+        Polygon = 0x07
     }
 }
