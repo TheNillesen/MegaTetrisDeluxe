@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace Client
 {
-    class Transform : Component
+    class Transform : Component, ITickable
     {
         //Vector2 array som holder styr på brikkens positioner, position [0] er det punkt resten bevæger sig ud fra.
         public Vector2[] Position { get; set; }
@@ -71,6 +71,11 @@ namespace Client
                 tempPos += new Vector2(0, 0);
                 Gameworld.Instance.gameMap.PlaceGameObject(gameObject, tempPos);
             }
+        }
+
+        public void OnTick()
+        {
+            MoveDown();
         }
      
     }

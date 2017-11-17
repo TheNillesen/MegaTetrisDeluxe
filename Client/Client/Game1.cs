@@ -64,6 +64,8 @@ namespace Client
             player.AddComponent(new Transform(player, new Vector2(100, 100)));
             player.AddComponent(new PlayerController(player));
             player.LoadContent(this.Content);
+
+            gameObjects.Add(player);
         }
 
         /// <summary>
@@ -136,6 +138,12 @@ namespace Client
             process.StartInfo.FileName = "Server.exe";
 
             process.Start();
+        }
+
+        public void OnTick()
+        {
+            foreach (GameObject go in gameObjects)
+                go.OnTick();
         }
     }
 }

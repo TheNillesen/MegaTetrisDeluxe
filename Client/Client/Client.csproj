@@ -50,6 +50,7 @@
     <Compile Include="GameMap.cs" />
     <Compile Include="Interfaces\ILoadable.cs" />
     <Compile Include="Interfaces\IDrawable.cs" />
+    <Compile Include="Interfaces\ITickable.cs" />
     <Compile Include="Interfaces\IUpdatable.cs" />
     <Compile Include="Namespaces.cs" />
     <Compile Include="Components\NetworkController.cs" />

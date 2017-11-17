@@ -82,6 +82,11 @@ namespace Server
                 byte[] packetBuffer = packet.Serialize();
                 byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt16(packetBuffer.Length));
 
+                if (BitConverter.IsLittleEndian)
+                {
+                    lengthBuffer.Reverse();
+                }
+
                 // Join the buffers
                 byte[] msgBuffer = new byte[lengthBuffer.Length + packetBuffer.Length];
                 lengthBuffer.CopyTo(msgBuffer, 0);
@@ -97,6 +102,13 @@ namespace Server
                 Console.WriteLine("Reason {0}", e.Message);
             }
         }
+
+        public static async Task SendPacketAll(NetworkPacket packet)
+        {
+            for (int i = 0; i < clients.Count; i++)
+                await SendPacket(clients[i], packet);
+        }
+
         public async static Task<NetworkPacket> ReceivePacket(TcpClient client)
         {
             NetworkPacket packet = null;
@@ -111,6 +123,12 @@ namespace Server
                 // There must be some incoming data, the first two bytes are the size of the Packet
                 byte[] lengthBuffer = new byte[2];
                 await msgStream.ReadAsync(lengthBuffer, 0, 2);
+
+                if (BitConverter.IsLittleEndian)
+                {
+                    lengthBuffer.Reverse();
+                }
+
                 ushort packetByteSize = BitConverter.ToUInt16(lengthBuffer, 0);
 
                 // Now read that many bytes from what's left in the stream, it must be the Packet

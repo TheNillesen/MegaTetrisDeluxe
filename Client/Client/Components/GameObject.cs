@@ -111,5 +111,13 @@ namespace Client
             foreach (ILoadable ILoadable in ILoadables)
                 ILoadable.LoadContent(content);
         }
+
+        public void OnTick()
+        {
+            ITickable[] ITickables = (from Component component in components where component is ITickable select component as ITickable).ToArray();
+
+            foreach (ITickable ITickable in ITickables)
+                ITickable.OnTick();
+        }
     }
 }

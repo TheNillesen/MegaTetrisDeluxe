@@ -46,8 +46,17 @@ namespace Client
 
                 commandHandlers["message"] = HandleMessage;
                 commandHandlers["input"] = HandleInput;
+                commandHandlers["Tick"] = HandleTick;
 
                 Run();
+            }
+        }
+
+        private async Task HandleTick(string s)
+        {
+            if (s == "Server")
+            {
+                Gameworld.Instance.OnTick();
             }
         }
 
@@ -60,6 +69,12 @@ namespace Client
                 {
                     // There must be some incoming data, the first two bytes are the size of the Packet
                     byte[] lengthBuffer = new byte[2];
+
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        lengthBuffer.Reverse();
+                    }
+
                     await ServerStream.ReadAsync(lengthBuffer, 0, 2);
                     ushort packetByteSize = BitConverter.ToUInt16(lengthBuffer, 0);
                     // Now read that many bytes from what's left in the stream, it must be the Packet
@@ -77,7 +92,7 @@ namespace Client
                     }
                 }
             }
-            catch (Exception) { }
+            catch (Exception ex) { }
         }
 
         private Task HandleMessage(string message)
@@ -102,6 +117,11 @@ namespace Client
                 // Convert JSON to buffer and its length to a 16 bit unsigned integer buffer
                 byte[] packetBytes = packet.Serialize();
                 byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt16(packetBytes.Length));
+
+                if (BitConverter.IsLittleEndian)
+                {
+                    lengthBuffer.Reverse();
+                }
 
                 // Join the buffers
                 byte[] packetBuffer = new byte[lengthBuffer.Length + packetBytes.Length];
