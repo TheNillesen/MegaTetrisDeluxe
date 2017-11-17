@@ -57,6 +57,24 @@ namespace Client
         }
 
         /// <summary>
+        /// Loads the map from a GridContainer received from Server
+        /// </summary>
+        /// <param name="gridContainer">The Gridcongainer received from the server</param>
+        public void FromContainer(Intermediate.Game.GridContainer gridContainer)
+        {
+            this.gameAreaWidth = gridContainer.Width;
+            this.gameAreaHeight = gridContainer.Height;
+
+            foreach(Intermediate.Game.GameObjectContainer gameObjectContainer in gridContainer.GameObjects)
+            {
+                //Please note, positions[0] is the only Global position, All other are positioned as if positions[0] is the center of the world
+                Intermediate.Vector2I[] positions = Intermediate.GameShapeHelper.GetShape(gameObjectContainer.Shape, gameObjectContainer.Postion);
+
+                //Spawn gameobjects and stuff
+            }
+        }
+
+        /// <summary>
         /// Sets the width and height of the individual cells.
         /// </summary>
         /// <param name="x"></param>
