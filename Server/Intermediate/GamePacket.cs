@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+//using Newtonsoft.Json;
+
+//FAQ HERAUS JSON!
 
 namespace Intermediate
 {
+    /*
     public class GamePacket
     {
         [JsonProperty("command")]
@@ -36,4 +39,5 @@ namespace Intermediate
             return JsonConvert.DeserializeObject<GamePacket>(jsonData);
         }
     }
+    */
 }

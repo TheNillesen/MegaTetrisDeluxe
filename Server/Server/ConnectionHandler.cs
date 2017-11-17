@@ -74,18 +74,18 @@ namespace Server
             //await Sendpacket(newClient, new GamePacket("message", msg));
         }
 
-        public static async Task SendPacket(TcpClient client, GamePacket packet)
+        public static async Task SendPacket(TcpClient client, NetworkPacket packet)
         {
             try
             {
                 // Convert JSON to buffer and its length to a 16 bit unsigned buffer
-                byte[] jsonBuffer = Encoding.UTF8.GetBytes(packet.ToJson());
-                byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt16(jsonBuffer.Length));
+                byte[] packetBuffer = packet.Serialize();
+                byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt16(packetBuffer.Length));
 
                 // Join the buffers
-                byte[] msgBuffer = new byte[lengthBuffer.Length + jsonBuffer.Length];
+                byte[] msgBuffer = new byte[lengthBuffer.Length + packetBuffer.Length];
                 lengthBuffer.CopyTo(msgBuffer, 0);
-                jsonBuffer.CopyTo(msgBuffer, lengthBuffer.Length);
+                packetBuffer.CopyTo(msgBuffer, lengthBuffer.Length);
 
                 // Send the packet
                 await client.GetStream().WriteAsync(msgBuffer, 0, msgBuffer.Length);
@@ -97,9 +97,9 @@ namespace Server
                 Console.WriteLine("Reason {0}", e.Message);
             }
         }
-        public async static Task<GamePacket> ReceivePacket(TcpClient client)
+        public async static Task<NetworkPacket> ReceivePacket(TcpClient client)
         {
-            GamePacket packet = null;
+            NetworkPacket packet = null;
             try
             {
                 // First check there is data available
@@ -114,12 +114,11 @@ namespace Server
                 ushort packetByteSize = BitConverter.ToUInt16(lengthBuffer, 0);
 
                 // Now read that many bytes from what's left in the stream, it must be the Packet
-                byte[] jsonBuffer = new byte[packetByteSize];
-                await msgStream.ReadAsync(jsonBuffer, 0, jsonBuffer.Length);
+                byte[] packetBuffer = new byte[packetByteSize];
+                await msgStream.ReadAsync(packetBuffer, 0, packetBuffer.Length);
 
                 // Convert it into a packet datatype
-                string jsonString = Encoding.UTF8.GetString(jsonBuffer);
-                packet = GamePacket.FromJson(jsonString);
+                packet = NetworkPacket.Deserialize(packetBuffer);
             }
             catch (Exception e)
             {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Intermediate;
 using Andreas.Gade;
 using Anders.Vestergaard;
 using Nikolaj.Er.Kongen.Men.Han.gider.Ikke.Vise.Det;
@@ -65,12 +66,11 @@ namespace Client
                     byte[] jsonBuffer = new byte[packetByteSize];
                     await ServerStream.ReadAsync(jsonBuffer, 0, jsonBuffer.Length);
                     // Convert it into a packet datatype
-                    string jsonString = Encoding.UTF8.GetString(jsonBuffer);
-                    GamePacket packet = GamePacket.FromJson(jsonString);
+                    NetworkPacket packet = NetworkPacket.Deserialize(jsonBuffer);
                     // Dispatch it
                     try
                     {
-                        await commandHandlers[packet.Command](packet.Message);
+                        await commandHandlers[packet.Head](packet.Sender);
                     }
                     catch (KeyNotFoundException)
                     {
@@ -91,22 +91,22 @@ namespace Client
             string responseMsg = "\n\n\n\n\n\0floof";
 
             // Send the response
-            GamePacket resp = new GamePacket("input", responseMsg);
+            NetworkPacket resp = new NetworkPacket("input", responseMsg);
             await SendPacket(resp);
         }
 
-        public async Task SendPacket(GamePacket packet)
+        public async Task SendPacket(NetworkPacket packet)
         {
             try
             {
                 // Convert JSON to buffer and its length to a 16 bit unsigned integer buffer
-                byte[] jsonBuffer = Encoding.UTF8.GetBytes(packet.ToJson());
-                byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt16(jsonBuffer.Length));
+                byte[] packetBytes = packet.Serialize();
+                byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt16(packetBytes.Length));
 
                 // Join the buffers
-                byte[] packetBuffer = new byte[lengthBuffer.Length + jsonBuffer.Length];
+                byte[] packetBuffer = new byte[lengthBuffer.Length + packetBytes.Length];
                 lengthBuffer.CopyTo(packetBuffer, 0);
-                jsonBuffer.CopyTo(packetBuffer, lengthBuffer.Length);
+                packetBytes.CopyTo(packetBuffer, lengthBuffer.Length);
 
                 // Send the packet
                 await ServerStream.WriteAsync(packetBuffer, 0, packetBuffer.Length);
