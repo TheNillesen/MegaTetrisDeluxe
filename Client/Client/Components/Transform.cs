@@ -26,6 +26,14 @@ namespace Client
         {
             Position[0] += translation;
         }
+        public void MoveRight()
+        {
+
+        }
+        public void MoveLeft()
+        {
+
+        }
      
     }
 }
