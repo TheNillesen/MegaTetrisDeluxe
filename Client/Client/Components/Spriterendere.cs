@@ -59,17 +59,12 @@ namespace Client
         public void LoadContent(ContentManager content)
         {
             sprite = content.Load<Texture2D>(spriteName);
-
+            rectangle = new Rectangle(0, 0, sprite.Width, sprite.Height);
         }
         public void Draw(SpriteBatch spriteBatch)
-        {//Er ikke helt færdig den skal tage fat i gameobject.transfrom når transform er færdig..
+        {
             spriteBatch.Draw(sprite, gameObject.GetComponent<Transform>().Position[0] /*gameObject.Transform.Position[0]*/, Rectangle, Color.White);
         }
-
     }
-
-
-
-
 }
 
