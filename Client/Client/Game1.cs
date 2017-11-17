@@ -60,9 +60,10 @@ namespace Client
 
             //Test player
             player = new GameObject();
-            player.AddComponent(new Spriterendere(player, "GreyToneBlock.png", 1f));
-            player.AddComponent(new Transform(player, new Vector2(5, 5)));
+            player.AddComponent(new Spriterendere(player, "GreyToneBlock", 1f));
+            player.AddComponent(new Transform(player, new Vector2(100, 100)));
             player.AddComponent(new PlayerController(player));
+            player.LoadContent(this.Content);
         }
 
         /// <summary>
@@ -73,8 +74,6 @@ namespace Client
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            player.LoadContent(this.Content);
 
             // TODO: use this.Content to load your game content here
         }
@@ -117,9 +116,13 @@ namespace Client
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+            spriteBatch.Begin();
+
             for (int i = 0; i < gameObjects.Count; i++)
                 gameObjects[i].Draw(spriteBatch);
             player.Draw(spriteBatch);
+
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
