@@ -40,6 +40,7 @@ namespace Client
                 Gameworld.Instance.gameMap.EmptyPosition(tempPos);
                 tempPos += new Vector2(1, 0);
                 Gameworld.Instance.gameMap.PlaceGameObject(gameObject,tempPos);
+                Position[0] = Gameworld.Instance.gameMap.Position(tempPos);
             }
         }
         /// <summary>
@@ -54,6 +55,7 @@ namespace Client
                 Gameworld.Instance.gameMap.EmptyPosition(tempPos);
                 tempPos += new Vector2(-1, 0);
                 Gameworld.Instance.gameMap.PlaceGameObject(gameObject, tempPos);
+                Position[0] = Gameworld.Instance.gameMap.Position(tempPos);
             }
         }
         /// <summary>
