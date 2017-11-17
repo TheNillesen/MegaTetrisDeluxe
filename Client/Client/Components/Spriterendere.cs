@@ -62,7 +62,7 @@ namespace Client
 
         }
         public void Draw(SpriteBatch spriteBatch)
-        {//Er ikke helt færdig den skal tage fat i gameobject.transfrom når transform er færdig..
+        {//Er ikke helt færdig den skal tage fat i gameobject.transfrom når transform er færdig...
             spriteBatch.Draw(sprite, gameObject.GetComponent<Transform>().Position[0] /*gameObject.Transform.Position[0]*/, Rectangle, Color.White);
         }
 
