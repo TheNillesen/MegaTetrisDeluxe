@@ -26,11 +26,14 @@ namespace Client
             keyLast = keyCurrent;
             keyCurrent = Keyboard.GetState();
 
+            if (keyCurrent.IsKeyDown(Keys.Right) && !keyLast.IsKeyDown(Keys.Right))
+                gameObject.Transform.MoveRight();
+            if (keyCurrent.IsKeyDown(Keys.Left) && !keyLast.IsKeyDown(Keys.Left))
+                gameObject.Transform.MoveLeft();
+            if (keyCurrent.IsKeyDown(Keys.Space) && !keyLast.IsKeyDown(Keys.Space))
+            {
 
-            //if (state.IsKeyDown(Keys.Right))
-            //    gameObject.Transform.MoveRight();
-            //if (state.IsKeyDown(Keys.Left))
-            //    gameObject.Transform.MoveLeft();
+            }
         }
     }
 }
