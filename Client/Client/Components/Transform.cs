@@ -33,18 +33,13 @@ namespace Client
         /// </summary>
         public void MoveRight()
         {
-            Gameworld.Instance.gameMap.MapPosition(Position[0]);
+            Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
            
-            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2 (Position[0].X + 1,Position[0].Y)) == false )
+            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2 (tempPos.X + 1,tempPos.Y)) == false )
             {
-                Gameworld.Instance.gameMap.EmptyPosition(Position[0]);
-                Position[0] += new Vector2(1, 0);
-                Gameworld.Instance.gameMap.PlaceGameObject(gameObject,Position[0]);
-            }
-            else
-            {
-                Position[0] = new Vector2(0, 0);
-                Gameworld.Instance.gameMap.PlaceGameObject(gameObject, Position[0]);
+                Gameworld.Instance.gameMap.EmptyPosition(tempPos);
+                tempPos += new Vector2(1, 0);
+                Gameworld.Instance.gameMap.PlaceGameObject(gameObject,tempPos);
             }
         }
         /// <summary>
@@ -52,18 +47,13 @@ namespace Client
         /// </summary>
         public void MoveLeft()
         {
-            Gameworld.Instance.gameMap.MapPosition(Position[0]);
+            Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
 
-            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2(Position[0].X - 1, Position[0].Y)) == false)
+            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2(tempPos.X - 1, tempPos.Y)) == false)
             {
-                Gameworld.Instance.gameMap.EmptyPosition(Position[0]);
-                Position[0] += new Vector2(-1, 0);
-                Gameworld.Instance.gameMap.PlaceGameObject(gameObject, Position[0]);
-            }
-            else
-            {
-                Position[0] = new Vector2(0, 0);
-                Gameworld.Instance.gameMap.PlaceGameObject(gameObject, Position[0]);
+                Gameworld.Instance.gameMap.EmptyPosition(tempPos);
+                tempPos += new Vector2(-1, 0);
+                Gameworld.Instance.gameMap.PlaceGameObject(gameObject, tempPos);
             }
         }
         /// <summary>
@@ -71,17 +61,13 @@ namespace Client
         /// </summary>
         public void MoveDown()
         {
-            Gameworld.Instance.gameMap.MapPosition(Position[0]);
-            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2(Position[0].X , Position[0].Y + 1)) == false)
+            Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
+
+            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2(tempPos.X, tempPos.Y + 1)) == false)
             {
-                Gameworld.Instance.gameMap.EmptyPosition(Position[0]);
-                Position[0] += new Vector2(0, 1);
-                Gameworld.Instance.gameMap.PlaceGameObject(gameObject, Position[0]);
-            }
-            else
-            {
-                Position[0] = new Vector2(0, 0);
-                Gameworld.Instance.gameMap.PlaceGameObject(gameObject, Position[0]);
+                Gameworld.Instance.gameMap.EmptyPosition(tempPos);
+                tempPos += new Vector2(0, 0);
+                Gameworld.Instance.gameMap.PlaceGameObject(gameObject, tempPos);
             }
         }
      
