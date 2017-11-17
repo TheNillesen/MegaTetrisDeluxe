@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Anders.Vestergaard;
 using Andreas.Gade;
+using System.Collections.Generic;
 
 namespace Client
 {
@@ -27,8 +28,10 @@ namespace Client
 
         private bool hasRun = false;
         private DateTime startup = DateTime.Now;
+        private List<GameObject> gameObjects;     
 
         public GameMap gameMap;
+        public GameObject player;
 
         private Gameworld()
         {
@@ -52,7 +55,15 @@ namespace Client
             GameClient gc = new GameClient();
             new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
 #endif
+            gameObjects = new List<GameObject>();
             gameMap = new GameMap(20, 20, 100, 100, new Vector2(0, 0));
+
+            //Test player
+            player = new GameObject();
+            player.AddComponent(new Spriterendere(player, "GreyToneBlock", 1f));
+            player.AddComponent(new Transform(player, new Vector2(100, 100)));
+            player.AddComponent(new PlayerController(player));
+            player.LoadContent(this.Content);
         }
 
         /// <summary>
@@ -87,6 +98,9 @@ namespace Client
                 Exit();
 
             // TODO: Add your update logic here
+            for (int i = 0; i < gameObjects.Count; i++)
+                gameObjects[i].Update();
+            player.Update();
 
             base.Update(gameTime);
 
@@ -102,6 +116,13 @@ namespace Client
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+            spriteBatch.Begin();
+
+            for (int i = 0; i < gameObjects.Count; i++)
+                gameObjects[i].Draw(spriteBatch);
+            player.Draw(spriteBatch);
+
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
