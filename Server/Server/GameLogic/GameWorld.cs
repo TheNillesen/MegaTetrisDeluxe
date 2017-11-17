@@ -38,7 +38,7 @@ namespace Server.GameLogic
 
         public static void OnTick()
         {
-            
+            grid.Objects.ForEach(o => o.Position += new Intermediate.Vector2I(0, 1));
         }
     }
 }
