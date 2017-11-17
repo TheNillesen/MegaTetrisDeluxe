@@ -31,16 +31,31 @@ namespace Client
         public void AddComponent(Component component)
         {
             components.Add(component);
+
+            if (component is Transform)
+                transform = component as Transform;
+            else if (component is Spriterendere)
+                renderer = component as Spriterendere;
         }
 
         public void RemoveComponent(Component component)
         {
             components.Remove(component);
+
+            if (component == transform)
+                transform = GetComponent<Transform>();
+            else if (component == renderer)
+                renderer = GetComponent<Spriterendere>();
         }
 
         public void RemoveAllComponent<T>() where T : Component
         {
             components.RemoveAll(o => o is T);
+
+            if (typeof(T) == typeof(Transform))
+                transform = null;
+            else if (typeof(T) == typeof(Spriterendere))
+                renderer = null;
         }
 
         public T GetComponent<T>() where T : Component
