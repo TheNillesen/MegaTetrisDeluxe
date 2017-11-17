@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Intermediate.Enum;
 
-namespace Intermediate.Helpers
+namespace Intermediate
 {
     public static class GameShapeHelper
     {

@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Intermediate;
-using Intermediate.Game;
 
-namespace Server
+namespace Intermediate.Game
 {
-    class GameObject
+    [Serializable]
+    public class GameObjectContainer
     {
         private Vector2I position;
         private GameShapes shape;
         private string guid;
 
-        public Vector2I Position
+        public Vector2I Postion
         {
             get
             {
@@ -25,6 +24,7 @@ namespace Server
                 position = value;
             }
         }
+
         public GameShapes Shape
         {
             get
@@ -36,6 +36,7 @@ namespace Server
                 shape = value;
             }
         }
+
         public string Guid
         {
             get
@@ -48,19 +49,11 @@ namespace Server
             }
         }
 
-        public void Translate(Vector2I direction)
+        public GameObjectContainer(Vector2I position, GameShapes shape, string guid)
         {
-            position += direction;
-        }
-
-        public bool ValidateMove(Vector2I direction)
-        {
-            return true;
-        }
-
-        public GameObjectContainer ToGameObjectContainer()
-        {
-            return new GameObjectContainer(position, shape, guid);
+            this.position = position;
+            this.shape = shape;
+            this.guid = guid;
         }
     }
 }

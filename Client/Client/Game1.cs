@@ -124,11 +124,11 @@ namespace Client
             base.Draw(gameTime);
         }
 
-        public static void startServer(int port)
+        public static void startServer(int port, int gridWidth, int gridHeight, long tickCount)
         {
             Process process = new Process();
 
-            process.StartInfo.Arguments = $"port:{port.ToString()}";
+            process.StartInfo.Arguments = $"port:{port.ToString()} width:{gridWidth} height:{gridHeight} tickCount:{tickCount}";
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.FileName = "Server.exe";
 

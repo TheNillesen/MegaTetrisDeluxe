@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Intermediate.Game;
 
-namespace Server
+namespace Intermediate.Game
 {
-    class Grid
+    [Serializable]
+    public struct GridContainer
     {
         private int width;
         private int height;
-        private List<GameObject> objects;
+        private List<GameObjectContainer> gameObjects;
 
         public int Width
         {
@@ -24,6 +24,7 @@ namespace Server
                 width = value;
             }
         }
+
         public int Height
         {
             get
@@ -36,26 +37,29 @@ namespace Server
             }
         }
 
-        public List<GameObject> Objects
+        public List<GameObjectContainer> GameObjects
         {
-            get { return objects; }
+            get
+            {
+                return gameObjects;
+            }
+            set
+            {
+                gameObjects = value;
+            }
         }
 
-        public Grid(int width, int height)
+        public GridContainer(int width, int height)
         {
             this.width = width;
             this.height = height;
-            this.objects = new List<GameObject>();
+            this.gameObjects = new List<GameObjectContainer>();
         }
 
-        public GridContainer ToGridContainer()
+        public GridContainer(int width, int height, params GameObjectContainer[] gameObjects)
+            : this(width, height)
         {
-            List<GameObjectContainer> gameObjectContainers = new List<GameObjectContainer>();
-
-            for (int i = 0; i < objects.Count; i++)
-                gameObjectContainers.Add(objects[i].ToGameObjectContainer());
-
-            return new GridContainer(width, height, gameObjectContainers.ToArray());
+            this.gameObjects.AddRange(gameObjects);
         }
     }
 }

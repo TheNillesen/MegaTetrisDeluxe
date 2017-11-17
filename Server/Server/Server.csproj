@@ -48,8 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionHandler.cs" />
+    <Compile Include="GameLogic\GameWorld.cs" />
     <Compile Include="GameObject\GameObject.cs" />
-    <Compile Include="Grid.cs" />
+    <Compile Include="GameLogic\Grid.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

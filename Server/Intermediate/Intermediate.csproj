@@ -44,6 +44,8 @@
     <Compile Include="Encyption.cs" />
     <Compile Include="Enum\GameShapes.cs" />
     <Compile Include="GamePacket.cs" />
+    <Compile Include="Game\GameObjectContainer.cs" />
+    <Compile Include="Game\GridContainer.cs" />
     <Compile Include="Helpers\GameShapeHelper.cs" />
     <Compile Include="NetworkPacket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
