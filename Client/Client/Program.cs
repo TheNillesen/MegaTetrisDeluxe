@@ -14,7 +14,7 @@ namespace Client
         [STAThread]
         static void Main()
         {
-            Gameworld.startServer(6666);
+            Gameworld.startServer(6666, 50, 50, 100);
 
             using (var game = Gameworld.Instance)
                 game.Run();
