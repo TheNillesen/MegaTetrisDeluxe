@@ -12,28 +12,34 @@ namespace Server
         static void Main(params string[] args)
         {
             int port = -1;
+            int gridWidth = -1;
+            int gridHeight = -1;
+            long tickCount = -1;
 
 #if DEBUG
-            args = new string[] { "port:6666" };
+            if (args.Length < 4)
+                args = new string[] { "port:6666", "width:50", "height:50", "tickCount:100" };
 #endif
 
             for (int i = 0; i < args.Length; i++)
+            {
                 if (args[i].Contains("port:"))
                     port = int.Parse(args[i].Split(':').Last());
+                else if (args[i].Contains("width:"))
+                    gridWidth = int.Parse(args[i].Split(':').Last());
+                else if (args[i].Contains("height:"))
+                    gridHeight = int.Parse(args[i].Split(':').Last());
+                else if (args[i].Contains("tickCount:"))
+                    tickCount = long.Parse(args[i].Split(':').Last());
+            }
 
-            if (port < 0)
+            if (port < 0 || gridWidth < 0 || gridHeight < 0 || tickCount < 0)
                 throw new Exception("No port parameter given");
 
-            Vector2I vec = new Vector2I(2, 5);
-
-            byte[] temp = vec.Serialize();
-
-            Vector2I vecTemp = Vector2I.Deserialize(temp);
-
-            Console.WriteLine(Encoding.UTF8.GetString(temp));
-            Console.WriteLine($"{vecTemp.X}:{vecTemp.Y}");
+            Console.WriteLine($"Starting server on port {port}, with a grid {gridWidth} wide and {gridHeight} heigh, one tick is {tickCount} ticks long");
 
             ConnectionHandler.Init(port);
+            GameLogic.GameWorld.Init(gridWidth, gridHeight, tickCount);
 
             Console.ReadKey();
         }
