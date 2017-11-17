@@ -29,14 +29,29 @@ namespace Client
         public void MoveRight()
         {
             Gameworld.Instance.gameMap.MapPosition(Position[0]);
-
+           
+            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2 (Position[0].X + 1)) == false )
+            {
+                Position[0] += new Vector2(1, 0);
+            }
+            else
+            {
+                Position[0] = new Vector2(0, 0);
+            }
             
-
         }
         public void MoveLeft()
         {
-            Vector2 translation = Vector2.Zero;
-            translation += new Vector2(-1, 0);
+            Gameworld.Instance.gameMap.MapPosition(Position[0]);
+
+            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2(Position[0].X - 1)) == false)
+            {
+                Position[0] += new Vector2(-1, 0);
+            }
+            else
+            {
+                Position[0] = new Vector2(0, 0);
+            }
         }
      
     }
