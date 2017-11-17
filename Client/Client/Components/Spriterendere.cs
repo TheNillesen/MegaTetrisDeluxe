@@ -65,7 +65,8 @@ namespace Client
         }
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(sprite, gameObject.GetComponent<Transform>().Position[0], Rectangle, Color.White, 0f, Vector2.Zero, scaleFactor, SpriteEffects.None,layerDepth);
+            for(int i = 0; i < gameObject.Transform.Position.Count(); i++)
+                spriteBatch.Draw(sprite, gameObject.Transform.Position[i], Rectangle, Color.White, 0f, Vector2.Zero, scaleFactor, SpriteEffects.None, layerDepth);
         }
     }
 }
