@@ -169,5 +169,17 @@ namespace Client
             if (map[(int)(pos.X), (int)(pos.Y)] != null)
                 map[(int)(pos.X), (int)(pos.Y)] = null;
         }
+
+        /// <summary>
+        /// Checks if the given grid position is out of bound.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public bool IsOutOfBound(Vector2 pos)
+        {
+            if (map.GetLength(0) < pos.X && map.GetLength(1) < pos.Y && pos.X < 0 && pos.Y < 0)
+                return true;
+            return false;
+        }
     }
 }
