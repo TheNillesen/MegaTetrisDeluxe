@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,6 +87,14 @@ namespace Client
 
             foreach (IDrawable IDrawable in IDrawables)
                 IDrawable.Draw(spriteBatch);
+        }
+
+        public void LoadContent(ContentManager content)
+        {
+            ILoadable[] ILoadables = (from Component component in components where component is ILoadable select component as ILoadable).ToArray();
+
+            foreach (ILoadable ILoadable in ILoadables)
+                ILoadable.LoadContent(content);
         }
     }
 }
