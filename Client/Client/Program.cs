@@ -16,7 +16,7 @@ namespace Client
         {
             Gameworld.startServer(6666);
 
-            using (var game = new Gameworld())
+            using (var game = Gameworld.Instance)
                 game.Run();
         }
     }

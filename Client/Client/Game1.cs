@@ -11,15 +11,26 @@ namespace Client
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Gameworld : Game
+    class Gameworld : Game
     {
+        private static Gameworld instance;
+        public static Gameworld Instance
+        {
+            get
+            {
+                return instance == null ? instance = new Gameworld() : instance;
+            }
+        }
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
         private bool hasRun = false;
         private DateTime startup = DateTime.Now;
 
-        public Gameworld()
+        public GameMap gameMap;
+
+        private Gameworld()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -41,6 +52,7 @@ namespace Client
             GameClient gc = new GameClient();
             new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
 #endif
+            gameMap = new GameMap(20, 20, 100, 100, new Vector2(0, 0));
         }
 
         /// <summary>
