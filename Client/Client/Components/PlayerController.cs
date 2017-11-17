@@ -23,7 +23,8 @@ namespace Client
 
         public void Update()
         {
-
+            keyLast = keyCurrent;
+            keyCurrent = Keyboard.GetState();
 
 
             //if (state.IsKeyDown(Keys.Right))
