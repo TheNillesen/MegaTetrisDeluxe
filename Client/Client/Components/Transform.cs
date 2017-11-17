@@ -28,11 +28,14 @@ namespace Client
         }
         public void MoveRight()
         {
-
+            Vector2 translation = Vector2.Zero;
+            translation += new Vector2(1, 0);
+            if(gameMap.)
         }
         public void MoveLeft()
         {
-
+            Vector2 translation = Vector2.Zero;
+            translation += new Vector2(-1, 0);
         }
      
     }
