@@ -28,9 +28,10 @@ namespace Client
         }
         public void MoveRight()
         {
-            Vector2 translation = Vector2.Zero;
-            translation += new Vector2(1, 0);
-            if(gameMap.)
+            Gameworld.Instance.gameMap.MapPosition(Position[0]);
+
+            
+
         }
         public void MoveLeft()
         {
