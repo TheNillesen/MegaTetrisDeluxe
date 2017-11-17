@@ -36,7 +36,7 @@ namespace Server
             if (port < 0 || gridWidth < 0 || gridHeight < 0 || tickCount < 0)
                 throw new Exception("No port parameter given");
 
-            Console.WriteLine($"Starting server on port {port}, with a grid {gridWidth} wide and {gridHeight} heigh, one tick is {tickCount} ticks long");
+            Console.WriteLine($"Starting server on port {port}, with a grid {gridWidth} wide and {gridHeight} high, one tick is {tickCount} ticks long");
 
             ConnectionHandler.Init(port);
             GameLogic.GameWorld.Init(gridWidth, gridHeight, tickCount);
