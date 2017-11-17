@@ -16,21 +16,12 @@ namespace Client
 {
     class GameClient
     {
-        private static GameClient instance = null;
-        public static GameClient Instance
-        {
-            get
-            {
-                return instance == null ? instance = new GameClient() : instance;
-            }
-        }
-
         private Dictionary<string, Func<string, Task>> commandHandlers;
         private TcpClient Client;
         private NetworkStream ServerStream = null;
         private bool jogging = false;
 
-        private GameClient()
+        public GameClient()
         {
             commandHandlers = new Dictionary<string, Func<string, Task>>();
             Client = new TcpClient();                       

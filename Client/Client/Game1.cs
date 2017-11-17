@@ -13,6 +13,15 @@ namespace Client
     /// </summary>
     class Gameworld : Game
     {
+        private static Gameworld instance;
+        public static Gameworld Instance
+        {
+            get
+            {
+                return instance == null ? instance = new Gameworld() : instance;
+            }
+        }
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
@@ -21,7 +30,7 @@ namespace Client
 
         public GameMap gameMap;
 
-        public Gameworld()
+        private Gameworld()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
