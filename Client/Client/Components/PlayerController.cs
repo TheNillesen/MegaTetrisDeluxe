@@ -23,9 +23,11 @@ namespace Client
 
         public void Update()
         {
+            //the key states
             keyLast = keyCurrent;
             keyCurrent = Keyboard.GetState();
 
+            //Handles the players input
             if (keyCurrent.IsKeyDown(Keys.Right) && !keyLast.IsKeyDown(Keys.Right))
                 gameObject.Transform.MoveRight();
             if (keyCurrent.IsKeyDown(Keys.Left) && !keyLast.IsKeyDown(Keys.Left))
