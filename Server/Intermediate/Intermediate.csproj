@@ -42,7 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Encyption.cs" />
+    <Compile Include="Enum\GameShapes.cs" />
     <Compile Include="GamePacket.cs" />
+    <Compile Include="Helpers\GameShapeHelper.cs" />
     <Compile Include="NetworkPacket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Vector2I.cs" />
