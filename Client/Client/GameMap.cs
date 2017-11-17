@@ -177,7 +177,7 @@ namespace Client
         /// <returns></returns>
         public bool IsOutOfBound(Vector2 pos)
         {
-            if (map.GetLength(0) < pos.X && map.GetLength(1) < pos.Y && pos.X < 0 && pos.Y < 0)
+            if ((map.GetLength(0) - 1) < pos.X || (map.GetLength(1) - 1) < pos.Y || pos.X < 0 || pos.Y < 0)
                 return true;
             return false;
         }

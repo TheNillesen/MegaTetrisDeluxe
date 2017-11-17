@@ -35,7 +35,7 @@ namespace Client
         {
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
            
-            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2 (tempPos.X + 1,tempPos.Y)) == false )
+            if (!Gameworld.Instance.gameMap.IsOutOfBound(new Vector2(tempPos.X + 1, tempPos.Y)) && Gameworld.Instance.gameMap.IsItOccupied(new Vector2 (tempPos.X + 1,tempPos.Y)) == false)
             {
                 Gameworld.Instance.gameMap.EmptyPosition(tempPos);
                 tempPos += new Vector2(1, 0);
@@ -49,8 +49,7 @@ namespace Client
         public void MoveLeft()
         {
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
-
-            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2(tempPos.X - 1, tempPos.Y)) == false)
+            if (!Gameworld.Instance.gameMap.IsOutOfBound(new Vector2(tempPos.X - 1, tempPos.Y)) && Gameworld.Instance.gameMap.IsItOccupied(new Vector2(tempPos.X - 1, tempPos.Y)) == false)
             {
                 Gameworld.Instance.gameMap.EmptyPosition(tempPos);
                 tempPos += new Vector2(-1, 0);

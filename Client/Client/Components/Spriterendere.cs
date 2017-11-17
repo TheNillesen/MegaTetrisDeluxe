@@ -16,6 +16,7 @@ namespace Client
         private Texture2D sprite;
         private string spriteName;
         private float layerDepth;
+        private Vector2 scaleFactor;
         public Vector2 Offset { get; set; }
 
         public Rectangle Rectangle
@@ -48,7 +49,6 @@ namespace Client
         {
             this.spriteName = spriteName;
             this.layerDepth = layerDepth;
-
         }
 
         public void update()
@@ -59,11 +59,13 @@ namespace Client
         public void LoadContent(ContentManager content)
         {
             sprite = content.Load<Texture2D>(spriteName);
+            scaleFactor.X = Gameworld.Instance.gameMap.cellWidth / sprite.Width;
+            scaleFactor.Y = Gameworld.Instance.gameMap.cellHeight / sprite.Height;
             rectangle = new Rectangle(0, 0, sprite.Width, sprite.Height);
         }
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(sprite, gameObject.GetComponent<Transform>().Position[0] /*gameObject.Transform.Position[0]*/, Rectangle, Color.White);
+            spriteBatch.Draw(sprite, gameObject.GetComponent<Transform>().Position[0], Rectangle, Color.White, 0f, Vector2.Zero, scaleFactor, SpriteEffects.None,layerDepth);
         }
     }
 }
