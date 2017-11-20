@@ -43,7 +43,7 @@ namespace Client
             Position[0] += translation;
         }
         //function that checks the current gameobject position and if the tile on the right side is occupied or not, if its not , we move our gameobject to the new position and 
-        //sets the new position as occupied while the old tile loses its occupied status. same goes for the MoveLeft() fuction further down.
+        //sets the new position as occupied while the old tile loses its occupied status. same goes for the MoveLeft() fuction further down..
         /// <summary>
         /// moves the character right
         /// </summary>
