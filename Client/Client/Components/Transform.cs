@@ -76,17 +76,19 @@ namespace Client
             }
         }
         /// <summary>
-        /// moves the character one tile down. not finished
+        /// moves the character one tile down.
         /// </summary>
         public void MoveDown()
         {
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
 
-            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2(tempPos.X, tempPos.Y + 1), shape) == false)
+            if (!Gameworld.Instance.gameMap.IsOutOfBound(new Vector2(tempPos.X - 1, tempPos.Y), shape) && Gameworld.Instance.gameMap.IsItOccupied(new Vector2(tempPos.X - 1, tempPos.Y), shape) == false)
             {
                 Gameworld.Instance.gameMap.EmptyPosition(tempPos, shape);
-                tempPos += new Vector2(0, 0);
+                tempPos += new Vector2(0, 1);
                 Gameworld.Instance.gameMap.PlaceGameObject(gameObject, tempPos, shape);
+                for (int i = 0; i < Position.Count(); i++)
+                    Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(tempPos.X + ShapeCord[i].X, tempPos.Y + ShapeCord[i].Y));
             }
         }
 
