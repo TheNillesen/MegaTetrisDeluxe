@@ -68,7 +68,7 @@ namespace Client
                 if (Client.Available > 0)
                 {
                     // There must be some incoming data, the first two bytes are the size of the Packet
-                    byte[] lengthBuffer = new byte[2];
+                    byte[] lengthBuffer = new byte[sizeof(ulong)];
 
                     if (BitConverter.IsLittleEndian)
                     {
@@ -76,12 +76,12 @@ namespace Client
                     }
 
                     await ServerStream.ReadAsync(lengthBuffer, 0, 2);
-                    ushort packetByteSize = BitConverter.ToUInt16(lengthBuffer, 0);
+                    ulong packetByteSize = BitConverter.ToUInt64(lengthBuffer, 0);
                     // Now read that many bytes from what's left in the stream, it must be the Packet
-                    byte[] jsonBuffer = new byte[packetByteSize];
-                    await ServerStream.ReadAsync(jsonBuffer, 0, jsonBuffer.Length);
+                    byte[] packetBuffer = new byte[packetByteSize];
+                    await ServerStream.ReadAsync(packetBuffer, 0, packetBuffer.Length);
                     // Convert it into a packet datatype
-                    NetworkPacket packet = NetworkPacket.Deserialize(jsonBuffer);
+                    NetworkPacket packet = NetworkPacket.Deserialize(packetBuffer);
                     // Dispatch it
                     try
                     {
@@ -116,7 +116,7 @@ namespace Client
             {
                 // Convert JSON to buffer and its length to a 16 bit unsigned integer buffer
                 byte[] packetBytes = packet.Serialize();
-                byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt16(packetBytes.Length));
+                byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt64(packetBytes.Length));
 
                 if (BitConverter.IsLittleEndian)
                 {
@@ -131,7 +131,7 @@ namespace Client
                 // Send the packet
                 await ServerStream.WriteAsync(packetBuffer, 0, packetBuffer.Length);
             }
-            catch (Exception) { }
+            catch (Exception ex) { }
         }
 
         public void Run()
