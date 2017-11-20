@@ -24,6 +24,7 @@ namespace Client
                 return GameShapeHelper.GetShape(shape);
             }
         }
+        private float angle;
 
         public Transform(GameObject gameObject, Vector2 position) : base(gameObject)
         {
@@ -33,9 +34,9 @@ namespace Client
             for (int i = 0; i < Position.Count(); i++)
                 Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(tempPos.X + ShapeCord[i].X, tempPos.Y + ShapeCord[i].Y));
 
-
             //For test, I have given a standard shape
             shape = GameShapes.Lightning;
+            angle = 0f;
         }
         public void Translate(Vector2 translation)
         {
@@ -90,6 +91,14 @@ namespace Client
                 for (int i = 0; i < Position.Count(); i++)
                     Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(tempPos.X + ShapeCord[i].X, tempPos.Y + ShapeCord[i].Y));
             }
+        }
+
+        /// <summary>
+        /// Roteates the character left.
+        /// </summary>
+        public void RotateLeft()
+        {
+
         }
 
         public void OnTick()

@@ -142,10 +142,6 @@ namespace Client
             if (num >= 4)
                 return true;
             return false;
-
-            //if (map[(int)(pos.X), (int)(pos.Y)] != null)
-            //    return true;
-            //return false;
         }
 
         /// <summary>
@@ -172,10 +168,6 @@ namespace Client
 
             for (int i = 0; i < shapeCord.Count(); i++)
                 map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] = obj;
-
-
-            //if (map[(int)(pos.X), (int)(pos.Y)] == null)
-            //    map[(int)(pos.X), (int)(pos.Y)] = obj;
         }
 
         /// <summary>
@@ -189,10 +181,6 @@ namespace Client
 
             for(int i = 0; i < shapeCord.Count(); i++)
                 map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] = null;
-
-
-            //if (map[(int)(pos.X), (int)(pos.Y)] != null)
-            //    map[(int)(pos.X), (int)(pos.Y)] = null;
         }
 
         /// <summary>
@@ -208,14 +196,9 @@ namespace Client
                 if ((map.GetLength(0) - 1) < (pos.X + shapeCord[i].X) || (map.GetLength(1) - 1) < (pos.Y + shapeCord[i].Y) || (pos.X + shapeCord[i].X) < 0 || (pos.Y + shapeCord[i].Y) < 0)
                     num++;
 
-            if (num >= 4)
+            if (num >= 1)
                 return true;
             return false;
-
-
-            //if ((map.GetLength(0) - 1) < pos.X || (map.GetLength(1) - 1) < pos.Y || pos.X < 0 || pos.Y < 0)
-            //    return true;
-            //return false;
         }
     }
 }
