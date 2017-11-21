@@ -60,6 +60,7 @@
     <Compile Include="Components\Spriterendere.cs" />
     <Compile Include="Components\Transform.cs" />
     <Compile Include="RotPointsAroundPointMath.cs" />
+    <Compile Include="SFX.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Intermediate, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">

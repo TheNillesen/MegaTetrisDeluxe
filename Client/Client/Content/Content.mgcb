@@ -37,3 +37,9 @@
 /processorParam:TextureFormat=Color
 /build:RedBlock.png
 
+#begin Original Tetris Theme.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Original Tetris Theme.mp3
+
