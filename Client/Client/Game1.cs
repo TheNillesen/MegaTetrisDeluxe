@@ -28,10 +28,11 @@ namespace Client
 
         private bool hasRun = false;
         private DateTime startup = DateTime.Now;
-        private List<GameObject> gameObjects;     
 
+        public List<GameObject> gameObjects;     
         public GameMap gameMap;
         public GameObject player;
+        public Vector2 playerStartPosition;
 
         private Gameworld()
         {
@@ -51,17 +52,21 @@ namespace Client
 
             base.Initialize();
 
+            //graphics.PreferredBackBufferWidth = 500;  // set this value to the desired width of your window
+            //graphics.PreferredBackBufferHeight = 500;   // set this value to the desired height of your window
+            //graphics.ApplyChanges();
 #if DEBUG
             GameClient gc = new GameClient();
             new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
 #endif
             gameObjects = new List<GameObject>();
-            gameMap = new GameMap(50, 50, 500, 500, new Vector2(0, 0));
+            gameMap = new GameMap(50, 40, 500, 400, new Vector2(0, 0));
+            playerStartPosition = new Vector2(25, 4);
 
             //Test player
             player = new GameObject();
             player.AddComponent(new Spriterendere(player, "GreyToneBlock", 1f));
-            player.AddComponent(new Transform(player, new Vector2(100, 100)));
+            player.AddComponent(new Transform(player, playerStartPosition));
             player.AddComponent(new PlayerController(player));
             player.LoadContent(this.Content);
 

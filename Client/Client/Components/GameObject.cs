@@ -15,12 +15,17 @@ namespace Client
 
         public Transform Transform { get { return transform; } }
         public Spriterendere Rendere { get { return renderer; } }
+        public bool placedBlock;
 
         private List<Component> components;
 
+        /// <summary>
+        /// PlacedBlock variable automatical false.
+        /// </summary>
         public GameObject()
         {
             this.components = new List<Component>();
+            placedBlock = false;
         }
 
         public GameObject(params Component[] components)

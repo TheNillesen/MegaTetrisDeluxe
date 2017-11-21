@@ -198,5 +198,65 @@ namespace Client
                 return true;
             return false;
         }
+
+        /// <summary>
+        /// Checks if the given grid positions is such the blocks should be placed, because of blocks underneath.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public bool IsBlockPlaced(Vector2 pos, Vector2[] shape)
+        {
+            Vector2[] shapeCord = shape;
+
+            ////Moves blocks one down to see if there are any.
+            //for(int i = 0; i < shapeCord.Count(); i++)
+            //    shapeCord[i] += new Vector2(0, 1);
+
+            //Checks if the blocks have hit a placed block.
+            for (int i = 0; i < shapeCord.Count(); i++)
+                if (map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] != null && map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)].placedBlock)
+                    return true;
+
+            return false;
+        }
+        /// <summary>
+        /// Checks if the given grid positions is at the bottom.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public bool IsItBottom(Vector2 pos, Vector2[] shape)
+        {
+            Vector2[] shapeCord = shape;
+
+            //Checks if the blocks have hit the bottom.
+            for (int i = 0; i < shapeCord.Count(); i++)
+                if ((pos.Y + shapeCord[i].Y) == (map.GetLength(1) - 1))
+                    return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Place the given blocks at the given grid position.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public void PlaceBlocks(Vector2 pos, Vector2[] shape, Color color)
+        {
+            Vector2[] shapeCord = shape;
+
+            //Moves blocks one down to see if there are any.
+            for (int i = 0; i < shapeCord.Count(); i++)
+            {
+                GameObject obj = new GameObject();
+                obj.AddComponent(new Spriterendere(obj, "GreyToneBlock", 1f, color));
+                obj.AddComponent(new Transform(obj, new Vector2((int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)), true));
+                obj.LoadContent(Gameworld.Instance.Content);
+
+                Gameworld.Instance.gameObjects.Add(obj);
+
+                map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] = obj;
+            }
+        }
     }
 }
