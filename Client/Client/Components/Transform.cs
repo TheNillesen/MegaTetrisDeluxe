@@ -16,7 +16,6 @@ namespace Client
         //Vector2 array som holder styr på brikkens positioner, position [0] er det punkt resten bevæger sig ud fra.
         public Vector2[] Position { get; set; }
         
-        
         public Transform(GameObject gameObject, Vector2 position) : base(gameObject)
         {
             this.Position = new Vector2[4];
@@ -35,7 +34,7 @@ namespace Client
         {
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
            
-            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2 (tempPos.X + 1,tempPos.Y)) == false )
+            if (Gameworld.Instance.gameMap.IsItOccupied(new Vector2 (tempPos.X + 1,tempPos.Y)) == false  )
             {
                 Gameworld.Instance.gameMap.EmptyPosition(tempPos);
                 tempPos += new Vector2(1, 0);
@@ -70,6 +69,5 @@ namespace Client
                 Gameworld.Instance.gameMap.PlaceGameObject(gameObject, tempPos);
             }
         }
-     
     }
 }
