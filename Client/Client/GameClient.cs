@@ -92,7 +92,8 @@ namespace Client
                     }
                 }
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            { }
         }
 
         private Task HandleMessage(string message)
