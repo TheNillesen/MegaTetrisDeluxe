@@ -18,6 +18,7 @@ namespace Client
         private float layerDepth;
         private Vector2 scaleFactor;
         public Vector2 Offset { get; set; }
+        public Color color;
 
         public Rectangle Rectangle
         {
@@ -49,6 +50,7 @@ namespace Client
         {
             this.spriteName = spriteName;
             this.layerDepth = layerDepth;
+            color = Color.Red;
         }
 
         public void update()
@@ -66,7 +68,7 @@ namespace Client
         public void Draw(SpriteBatch spriteBatch)
         {
             for(int i = 0; i < gameObject.Transform.Position.Count(); i++)
-                spriteBatch.Draw(sprite, gameObject.Transform.Position[i], Rectangle, Color.White, 0f, Vector2.Zero, scaleFactor, SpriteEffects.None, layerDepth);
+                spriteBatch.Draw(sprite, gameObject.Transform.Position[i], Rectangle, color, 0f, Vector2.Zero, scaleFactor, SpriteEffects.None, layerDepth);
         }
     }
 }
