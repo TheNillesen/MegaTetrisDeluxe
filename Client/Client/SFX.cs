@@ -27,11 +27,11 @@ namespace Client
         }
         public void MusicVolumeDown()
         {
-            MediaPlayer.Volume -= -0.2f;
+            MediaPlayer.Volume -= 0.01f;
         }
         public void MusicVolumeUp()
         {
-            MediaPlayer.Volume += +0.2f;
+            MediaPlayer.Volume += 0.01f;
         }
 
     }

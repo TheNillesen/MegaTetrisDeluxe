@@ -84,6 +84,7 @@ namespace Client
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             backGroundMusic = Content.Load<Song>("Original Tetris Theme");
+            
            
             // TODO: use this.Content to load your game content here
         }
