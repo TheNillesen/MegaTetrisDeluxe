@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Intermediate;
 
 namespace Client
 {
@@ -88,7 +89,7 @@ namespace Client
         /// <summary>
         /// Finds the world position from the map grid position.
         /// </summary>
-        /// <param name="objPos"></param>
+        /// <param name="pos"></param>
         /// <returns></returns>
         public Vector2 Position(Vector2 objPos)
         {
@@ -127,11 +128,17 @@ namespace Client
         /// </summary>
         /// <param name="pos"></param>
         /// <returns></returns>
-        public bool IsItOccupied(Vector2 pos)
+        public bool IsItOccupied(Vector2 pos, Vector2[] shape)
         {
-            if (map[(int)(pos.X), (int)(pos.Y)] != null)
+            Vector2[] shapeCord = shape;
+            int num = 0;
+            for (int i = 0; i < shapeCord.Count(); i++)
+            {
+                if (new Vector2(pos.X + shapeCord[i].X, pos.Y + shapeCord[i].Y) == null)
+                    num++;
+            }
+            if (num >= 4)
                 return true;
-
             return false;
         }
 
@@ -149,25 +156,47 @@ namespace Client
         }
 
         /// <summary>
-        /// Places the given gameobject at the given grid position, if the position is empty.
+        /// Places the given gameobject at the given grid positions.
         /// </summary>
         /// <param name="pos"></param>
         /// <returns></returns>
-        public void PlaceGameObject(GameObject obj, Vector2 pos)
+        public void PlaceGameObject(GameObject obj, Vector2 pos, Vector2[] shape)
         {
-            if (map[(int)(pos.X), (int)(pos.Y)] == null)
-                map[(int)(pos.X), (int)(pos.Y)] = obj;
+            Vector2[] shapeCord = shape;
+
+            for (int i = 0; i < shapeCord.Count(); i++)
+                map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] = obj;
         }
 
         /// <summary>
-        /// Looks at the given position and if it isn't empty, it removes the gameobject at the position from the grid.
+        /// It removes the gameobject at the grid positions from the grid.
         /// </summary>
         /// <param name="pos"></param>
         /// <returns></returns>
-        public void EmptyPosition(Vector2 pos)
+        public void EmptyPosition(Vector2 pos, Vector2[] shape)
         {
-            if (map[(int)(pos.X), (int)(pos.Y)] != null)
-                map[(int)(pos.X), (int)(pos.Y)] = null;
+            Vector2[] shapeCord = shape;
+
+            for (int i = 0; i < shapeCord.Count(); i++)
+                map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] = null;
+        }
+
+        /// <summary>
+        /// Checks if the given grid positions is out of bound.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public bool IsOutOfBound(Vector2 pos, Vector2[] shape)
+        {
+            Vector2[] shapeCord = shape;
+            int num = 0;
+            for (int i = 0; i < shapeCord.Count(); i++)
+                if ((map.GetLength(0) - 1) < (pos.X + shapeCord[i].X) || (map.GetLength(1) - 1) < (pos.Y + shapeCord[i].Y) || (pos.X + shapeCord[i].X) < 0 || (pos.Y + shapeCord[i].Y) < 0)
+                    num++;
+
+            if (num >= 1)
+                return true;
+            return false;
         }
     }
 }

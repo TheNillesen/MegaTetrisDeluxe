@@ -56,7 +56,10 @@ namespace Intermediate
             this.head = head;
             this.sender = sender;
 
-            Data = objects.ToList();
+            if (objects == null)
+                data = new List<object>();
+            else
+                data = objects.ToList();
         }
 
         public byte[] Serialize()
@@ -79,10 +82,8 @@ namespace Intermediate
             BinaryFormatter bf = new BinaryFormatter();
             NetworkPacket result;
 
-            using (MemoryStream memStream = new MemoryStream())
+            using (MemoryStream memStream = new MemoryStream(package))
             {
-                memStream.Write(package, 0, package.Length);
-
                 result = (NetworkPacket)bf.Deserialize(memStream);
             }
 

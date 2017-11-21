@@ -14,11 +14,11 @@ namespace Server
             int port = -1;
             int gridWidth = -1;
             int gridHeight = -1;
-            long tickCount = -1;
+            int tickCount = -1;
 
 #if DEBUG
             if (args.Length < 4)
-                args = new string[] { "port:6666", "width:50", "height:50", "tickCount:100" };
+                args = new string[] { "port:6666", "width:50", "height:50", "tickCount:2" };
 #endif
 
             for (int i = 0; i < args.Length; i++)
@@ -30,16 +30,16 @@ namespace Server
                 else if (args[i].Contains("height:"))
                     gridHeight = int.Parse(args[i].Split(':').Last());
                 else if (args[i].Contains("tickCount:"))
-                    tickCount = long.Parse(args[i].Split(':').Last());
+                    tickCount = int.Parse(args[i].Split(':').Last());
             }
 
             if (port < 0 || gridWidth < 0 || gridHeight < 0 || tickCount < 0)
                 throw new Exception("No port parameter given");
 
-            Console.WriteLine($"Starting server on port {port}, with a grid {gridWidth} wide and {gridHeight} heigh, one tick is {tickCount} ticks long");
+            Console.WriteLine($"Starting server on port {port}, with a grid {gridWidth} wide and {gridHeight} high, one tick is {tickCount} ticks long");
 
-            ConnectionHandler.Init(port);
             GameLogic.GameWorld.Init(gridWidth, gridHeight, tickCount);
+            ConnectionHandler.Init(port);
 
             Console.ReadKey();
         }
