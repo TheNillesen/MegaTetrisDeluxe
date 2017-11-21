@@ -14,11 +14,13 @@ namespace Client
     {
         KeyboardState keyCurrent;
         KeyboardState keyLast;
+        SFX sfxHandler;
 
         public PlayerController(GameObject gameObject) : base(gameObject)
         {
             keyLast = Keyboard.GetState();
             keyLast = Keyboard.GetState();
+            sfxHandler = new SFX();
         }
 
         public void Update()
@@ -39,6 +41,25 @@ namespace Client
             if (keyCurrent.IsKeyDown(Keys.E) && !keyLast.IsKeyDown(Keys.E))
                 gameObject.Transform.RotateRight();
             if (keyCurrent.IsKeyDown(Keys.Space) && !keyLast.IsKeyDown(Keys.Space))
+            {
+
+            }
+            if(keyCurrent.IsKeyDown(Keys.P))
+            {
+                sfxHandler.PlayMusic();
+            }
+            if (keyCurrent.IsKeyDown(Keys.O))
+            {
+                sfxHandler.PauseMusic();
+            }
+            if (keyCurrent.IsKeyDown(Keys.K))
+            {
+                sfxHandler.MusicVolumeUp();
+            }
+            if (keyCurrent.IsKeyDown(Keys.L))
+            {
+                sfxHandler.MusicVolumeDown();
+            }
                 gameObject.Transform.PlaceBlockNow();
         }
     }

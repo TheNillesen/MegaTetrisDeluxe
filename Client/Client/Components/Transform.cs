@@ -40,6 +40,20 @@ namespace Client
             for (int i = 0; i < Position.Count(); i++)
                 Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(position.X + ShapeCord[i].X, position.Y + ShapeCord[i].Y));         
         }
+        public Transform(GameObject gameObject, Vector2I position, GameShapes shape) 
+            : base(gameObject)
+        {
+            Vector2I[] tempPos = GameShapeHelper.GetShape(shape, position);
+
+            Position = new Vector2[tempPos.Length];
+
+            for(int i = 0; i < tempPos.Length; i++)
+            {
+                Position[i] = tempPos[i].ToVector2();
+            }
+
+            this.shape = shape;
+        }
         public Transform(GameObject gameObject, Vector2 position, bool placed) : base(gameObject)
         {
             placedBlockPosition = Gameworld.Instance.gameMap.Position(position);
@@ -69,7 +83,7 @@ namespace Client
         /// <summary>
         /// moves the character one tile down.
         /// </summary>
-        public void MoveDown()
+        public void MoveDown(bool enforced = false)
         {
             BlockPlaceCheck();
             Move(new Vector2(0, 1));
@@ -226,7 +240,7 @@ namespace Client
 
         public void OnTick()
         {
-            MoveDown();
+            MoveDown(true);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using Anders.Vestergaard;
 using Andreas.Gade;
 using System.Collections.Generic;
@@ -28,7 +29,9 @@ namespace Client
 
         private bool hasRun = false;
         private DateTime startup = DateTime.Now;
+        private List<GameObject> gameObjects;     
 
+        public Song backGroundMusic;
         public List<GameObject> gameObjects;     
         public GameMap gameMap;
         public GameObject player;
@@ -69,8 +72,13 @@ namespace Client
             player.AddComponent(new Transform(player, playerStartPosition));
             player.AddComponent(new PlayerController(player));
             player.LoadContent(this.Content);
-
             gameObjects.Add(player);
+            
+        }
+
+        public GameObject GetGameobject(Predicate<GameObject> filter)
+        {
+            return gameObjects.Find(filter);
         }
 
         /// <summary>
@@ -81,7 +89,9 @@ namespace Client
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            backGroundMusic = Content.Load<Song>("Original Tetris Theme");
+            
+           
             // TODO: use this.Content to load your game content here
         }
 
@@ -149,6 +159,11 @@ namespace Client
         {
             foreach (GameObject go in gameObjects)
                 go.OnTick();
+        }
+
+        public void AddGameObject(GameObject go)
+        {
+            gameObjects.Add(go);
         }
     }
 }

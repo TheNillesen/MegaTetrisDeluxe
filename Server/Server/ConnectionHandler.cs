@@ -45,7 +45,7 @@ namespace Server
             listner.Start();
             serverRunning = true;
 
-            new System.Threading.Thread(ServerLoop).Start();
+            new Thread(ServerLoop).Start();
         }
 
         public static void ServerLoop()
@@ -80,7 +80,7 @@ namespace Server
             {
                 // Convert JSON to buffer and its length to a 16 bit unsigned buffer
                 byte[] packetBuffer = packet.Serialize();
-                byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt16(packetBuffer.Length));
+                byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt64(packetBuffer.Length));
 
                 if (BitConverter.IsLittleEndian)
                 {
@@ -97,6 +97,9 @@ namespace Server
             }
             catch (Exception e)
             {
+                if (!client.Connected)
+                    clients.Remove(client);
+
                 // There was and issue when sending
                 Console.WriteLine("There was an issue receiving a packet.");
                 Console.WriteLine("Reason {0}", e.Message);
@@ -121,15 +124,15 @@ namespace Server
                 NetworkStream msgStream = client.GetStream();
 
                 // There must be some incoming data, the first two bytes are the size of the Packet
-                byte[] lengthBuffer = new byte[2];
-                await msgStream.ReadAsync(lengthBuffer, 0, 2);
+                byte[] lengthBuffer = new byte[sizeof(ulong)];
+                await msgStream.ReadAsync(lengthBuffer, 0, sizeof(ulong));
 
                 if (BitConverter.IsLittleEndian)
                 {
                     lengthBuffer.Reverse();
                 }
 
-                ushort packetByteSize = BitConverter.ToUInt16(lengthBuffer, 0);
+                ulong packetByteSize = BitConverter.ToUInt64(lengthBuffer, 0);
 
                 // Now read that many bytes from what's left in the stream, it must be the Packet
                 byte[] packetBuffer = new byte[packetByteSize];
