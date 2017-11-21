@@ -68,6 +68,11 @@ namespace Client
             gameObjects.Add(player);
         }
 
+        public GameObject GetGameobject(Predicate<GameObject> filter)
+        {
+            return gameObjects.Find(filter);
+        }
+
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.

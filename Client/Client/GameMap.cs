@@ -89,7 +89,7 @@ namespace Client
         /// <summary>
         /// Finds the world position from the map grid position.
         /// </summary>
-        /// <param name="objPos"></param>
+        /// <param name="pos"></param>
         /// <returns></returns>
         public Vector2 Position(Vector2 objPos)
         {
@@ -128,12 +128,10 @@ namespace Client
         /// </summary>
         /// <param name="pos"></param>
         /// <returns></returns>
-        public bool IsItOccupied(Vector2 pos, GameShapes shape)
+        public bool IsItOccupied(Vector2 pos, Vector2[] shape)
         {
-            Vector2I[] shapeCord = GameShapeHelper.GetShape(shape);
-
+            Vector2[] shapeCord = shape;
             int num = 0;
-
             for (int i = 0; i < shapeCord.Count(); i++)
             {
                 if (new Vector2(pos.X + shapeCord[i].X, pos.Y + shapeCord[i].Y) == null)
@@ -162,9 +160,9 @@ namespace Client
         /// </summary>
         /// <param name="pos"></param>
         /// <returns></returns>
-        public void PlaceGameObject(GameObject obj, Vector2 pos, GameShapes shape)
+        public void PlaceGameObject(GameObject obj, Vector2 pos, Vector2[] shape)
         {
-            Vector2I[] shapeCord = GameShapeHelper.GetShape(shape);
+            Vector2[] shapeCord = shape;
 
             for (int i = 0; i < shapeCord.Count(); i++)
                 map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] = obj;
@@ -175,11 +173,11 @@ namespace Client
         /// </summary>
         /// <param name="pos"></param>
         /// <returns></returns>
-        public void EmptyPosition(Vector2 pos, GameShapes shape)
+        public void EmptyPosition(Vector2 pos, Vector2[] shape)
         {
-            Vector2I[] shapeCord = GameShapeHelper.GetShape(shape);
+            Vector2[] shapeCord = shape;
 
-            for(int i = 0; i < shapeCord.Count(); i++)
+            for (int i = 0; i < shapeCord.Count(); i++)
                 map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] = null;
         }
 
@@ -188,9 +186,9 @@ namespace Client
         /// </summary>
         /// <param name="pos"></param>
         /// <returns></returns>
-        public bool IsOutOfBound(Vector2 pos, GameShapes shape)
+        public bool IsOutOfBound(Vector2 pos, Vector2[] shape)
         {
-            Vector2I[] shapeCord = GameShapeHelper.GetShape(shape);
+            Vector2[] shapeCord = shape;
             int num = 0;
             for (int i = 0; i < shapeCord.Count(); i++)
                 if ((map.GetLength(0) - 1) < (pos.X + shapeCord[i].X) || (map.GetLength(1) - 1) < (pos.Y + shapeCord[i].Y) || (pos.X + shapeCord[i].X) < 0 || (pos.Y + shapeCord[i].Y) < 0)
