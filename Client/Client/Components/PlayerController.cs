@@ -41,10 +41,9 @@ namespace Client
             if (keyCurrent.IsKeyDown(Keys.E) && !keyLast.IsKeyDown(Keys.E))
                 gameObject.Transform.RotateRight();
             if (keyCurrent.IsKeyDown(Keys.Space) && !keyLast.IsKeyDown(Keys.Space))
-            {
+                gameObject.Transform.PlaceBlockNow();
 
-            }
-            if(keyCurrent.IsKeyDown(Keys.P))
+            if (keyCurrent.IsKeyDown(Keys.P))
             {
                 sfxHandler.PlayMusic();
             }
@@ -60,7 +59,6 @@ namespace Client
             {
                 sfxHandler.MusicVolumeDown();
             }
-                gameObject.Transform.PlaceBlockNow();
         }
     }
 }
