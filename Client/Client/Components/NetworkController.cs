@@ -8,9 +8,23 @@ namespace Client
 {
     class NetworkController : Component
     {
-        public NetworkController(GameObject gameObject) : base(gameObject)
-        {
+        private Guid id;
 
+        public Guid ID
+        {
+            get
+            {
+                return id;
+            }
+            set
+            {
+                id = value;
+            }
+        }
+
+        public NetworkController(GameObject gameObject, Guid id) : base(gameObject)
+        {
+            this.id = id;
         }
     }
 }
