@@ -70,6 +70,11 @@ namespace Client
             
         }
 
+        public GameObject GetGameobject(Predicate<GameObject> filter)
+        {
+            return gameObjects.Find(filter);
+        }
+
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.
@@ -118,7 +123,7 @@ namespace Client
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             // TODO: Add your drawing code here
             spriteBatch.Begin();
@@ -147,6 +152,11 @@ namespace Client
         {
             foreach (GameObject go in gameObjects)
                 go.OnTick();
+        }
+
+        public void AddGameObject(GameObject go)
+        {
+            gameObjects.Add(go);
         }
     }
 }

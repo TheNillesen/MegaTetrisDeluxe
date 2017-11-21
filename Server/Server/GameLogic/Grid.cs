@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Intermediate.Game;
+using Intermediate;
 
 namespace Server
 {
@@ -12,6 +13,7 @@ namespace Server
         private int width;
         private int height;
         private List<GameObject> objects;
+        private GameObject[,] grid;
 
         public int Width
         {
@@ -36,6 +38,18 @@ namespace Server
             }
         }
 
+        public GameObject this [Vector2I position]
+        {
+            get
+            {
+                return grid[position.X, position.Y];
+            }
+            set
+            {
+                grid[position.X, position.Y] = value;
+            }
+        }
+
         public List<GameObject> Objects
         {
             get { return objects; }
@@ -46,6 +60,7 @@ namespace Server
             this.width = width;
             this.height = height;
             this.objects = new List<GameObject>();
+            this.grid = new GameObject[width, height];
         }
 
         public GridContainer ToGridContainer()
@@ -56,6 +71,33 @@ namespace Server
                 gameObjectContainers.Add(objects[i].ToGameObjectContainer());
 
             return new GridContainer(width, height, gameObjectContainers.ToArray());
+        }
+
+        private void AddGameObject(GameObject go)
+        {
+            Vector2I[] positions = GameShapeHelper.GetShape(go.Shape, go.Position);
+
+            for(int i = 0; i < positions.Length; i++)
+            {
+                if (this[positions[i]] != null)
+                    return;
+            }
+
+            for(int i = 0; i < positions.Length; i++)
+            {
+                this[positions[i]] = go;
+            }
+        }
+
+        private bool ValidatePosition(GameShapes shape, Vector2I position)
+        {
+            Vector2I[] positions = GameShapeHelper.GetShape(shape, position);
+
+            for (int i = 0; i < positions.Length; i++)
+                if (this[positions[i]] != null)
+                    return false;
+
+            return true;
         }
     }
 }
