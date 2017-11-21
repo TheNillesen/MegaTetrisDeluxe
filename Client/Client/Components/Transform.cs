@@ -20,13 +20,15 @@ namespace Client
         public Vector2[] ShapeCord;
 
         private float angle;
+        private Random rnd;
 
         public Transform(GameObject gameObject, Vector2 position) : base(gameObject)
         {
             this.Position = new Vector2[4];
+            rnd = new Random();
 
             //For test, I have given a standard shape
-            Shape();
+            ShapeAndColor();
             angle = 0f;
             //The shape's coordinates
             Vector2I[] tempShapeCord = GameShapeHelper.GetShape(shape);
@@ -37,6 +39,20 @@ namespace Client
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(position);
             for (int i = 0; i < Position.Count(); i++)
                 Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(tempPos.X + ShapeCord[i].X, tempPos.Y + ShapeCord[i].Y));
+        }
+        public Transform(GameObject gameObject, Vector2I position, GameShapes shape) 
+            : base(gameObject)
+        {
+            Vector2I[] tempPos = GameShapeHelper.GetShape(shape, position);
+
+            Position = new Vector2[tempPos.Length];
+
+            for(int i = 0; i < tempPos.Length; i++)
+            {
+                Position[i] = tempPos[i].ToVector2();
+            }
+
+            this.shape = shape;
         }
         public void Translate(Vector2 translation)
         {
@@ -117,36 +133,43 @@ namespace Client
         /// <summary>
         /// Sets a random shape.
         /// </summary>
-        public void Shape()
+        public void ShapeAndColor()
         {
-            Random rnd = new Random();
             int num = rnd.Next(1, 8);
             //Their are 7 shapes in total.
             switch (num)
             {
                 case 1:
                     shape = GameShapes.I;
+                    gameObject.GetComponent<Spriterendere>().color = Color.Red;
                     break;
                 case 2:
                     shape = GameShapes.L;
+                    gameObject.GetComponent<Spriterendere>().color = Color.Pink;
                     break;
                 case 3:
                     shape = GameShapes.Lightning;
+                    gameObject.GetComponent<Spriterendere>().color = Color.Green;
                     break;
                 case 4:
                     shape = GameShapes.Lightning_Inverse;
+                    gameObject.GetComponent<Spriterendere>().color = Color.LightBlue;
                     break;
                 case 5:
                     shape = GameShapes.L_Inverse;
+                    gameObject.GetComponent<Spriterendere>().color = Color.White;
                     break;
                 case 6:
                     shape = GameShapes.Square;
+                    gameObject.GetComponent<Spriterendere>().color = Color.Blue;
                     break;
                 case 7:
                     shape = GameShapes.T;
+                    gameObject.GetComponent<Spriterendere>().color = Color.Brown;
                     break;
                 default:
                     shape = GameShapes.I;
+                    gameObject.GetComponent<Spriterendere>().color = Color.Red;
                     break;
             }
 
@@ -161,6 +184,5 @@ namespace Client
         {
             MoveDown(true);
         }
-     
     }
 }

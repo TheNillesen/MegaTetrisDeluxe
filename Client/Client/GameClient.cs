@@ -69,6 +69,16 @@ namespace Client
                 tf.Position[0] += ((Vector2I)packet.Data[0]).ToVector2();
         }
 
+        private async Task HandleSpawn(NetworkPacket packet)
+        {
+            GameObject go = new GameObject();
+
+            go.AddComponent(new Transform(go, (Vector2I)packet.Data[0], (GameShapes)packet.Data[1]));
+            go.AddComponent(new NetworkController(go, new Guid(packet.Sender)));
+
+            Gameworld.Instance.AddGameObject(go);
+        }
+
         private async Task HandleIncomingPackets()
         {
             try

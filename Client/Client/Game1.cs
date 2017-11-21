@@ -150,5 +150,10 @@ namespace Client
             foreach (GameObject go in gameObjects)
                 go.OnTick();
         }
+
+        public void AddGameObject(GameObject go)
+        {
+            gameObjects.Add(go);
+        }
     }
 }
