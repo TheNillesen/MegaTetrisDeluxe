@@ -170,6 +170,5 @@ namespace Client
         {
             MoveDown();
         }
-     
     }
 }
