@@ -29,7 +29,6 @@ namespace Client
 
         private bool hasRun = false;
         private DateTime startup = DateTime.Now;
-        private List<GameObject> gameObjects;     
 
         public Song backGroundMusic;
         public List<GameObject> gameObjects;     
@@ -63,8 +62,8 @@ namespace Client
             new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
 #endif
             gameObjects = new List<GameObject>();
-            gameMap = new GameMap(50, 40, 500, 400, new Vector2(0, 0));
-            playerStartPosition = new Vector2(25, 4);
+            gameMap = new GameMap(20, 20, 500, 400, new Vector2(0, 0));
+            playerStartPosition = new Vector2(10, 4);
 
             //Test player
             player = new GameObject();
@@ -164,6 +163,11 @@ namespace Client
         public void AddGameObject(GameObject go)
         {
             gameObjects.Add(go);
+        }
+
+        public void RemoveObject(GameObject go)
+        {
+            gameObjects.Remove(go);
         }
     }
 }

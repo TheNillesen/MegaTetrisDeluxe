@@ -131,14 +131,11 @@ namespace Client
         public bool IsItOccupied(Vector2 pos, Vector2[] shape)
         {
             Vector2[] shapeCord = shape;
-            int num = 0;
             for (int i = 0; i < shapeCord.Count(); i++)
             {
-                if (new Vector2(pos.X + shapeCord[i].X, pos.Y + shapeCord[i].Y) == null)
-                    num++;
+                if (map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] != null && map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)].placedBlock == true)
+                    return true;
             }
-            if (num >= 4)
-                return true;
             return false;
         }
 
@@ -256,6 +253,47 @@ namespace Client
                 Gameworld.Instance.gameObjects.Add(obj);
 
                 map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] = obj;
+            }
+
+            //Handles if there is a complete line of blocks.
+            int line = 0;
+            int lineMax = map.GetLength(0);
+            for(int y = 0; y < map.GetLength(1); y++)
+            {
+                for (int x = 0; x < map.GetLength(0); x++)
+                {
+                    if (map[x, y] != null && map[x, y].placedBlock == true)
+                        line++;
+                    if (line >= lineMax)
+                        RemoveLine(y);
+                }
+                line = 0;
+            }
+        }
+        /// <summary>
+        /// Slave function to PlaceBlocks. This removes a line and moves all above blocks 1 line down.
+        /// </summary>
+        /// <param name="line"></param>
+        private void RemoveLine(int line)
+        {
+            for(int i = 0; i < map.GetLength(0); i++)
+            {
+                Gameworld.Instance.RemoveObject(map[i, line]);
+                map[i, line] = null;
+            }
+            //Moves the above block one row down. 
+            for (int y = line; y > 0; y--)
+            {
+                for (int x = 0; x < map.GetLength(0); x++)
+                {
+                    if(map[x, y] != null && map[x, y].placedBlock == true)
+                    {
+                        GameObject tempObj = map[x, y];
+                        map[x, y] = null;
+                        map[x, y + 1] = tempObj;
+                        tempObj.GetComponent<Transform>().placedBlockPosition = Position(new Vector2(x, y + 1));
+                    }
+                }
             }
         }
     }

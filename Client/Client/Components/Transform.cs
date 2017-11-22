@@ -93,7 +93,8 @@ namespace Client
         {
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
 
-            if (!Gameworld.Instance.gameMap.IsOutOfBound(new Vector2(tempPos.X, tempPos.Y) + move, ShapeCord) && Gameworld.Instance.gameMap.IsItOccupied(new Vector2(tempPos.X, tempPos.Y) + move, ShapeCord) == false)
+            if (!Gameworld.Instance.gameMap.IsOutOfBound(tempPos + move, ShapeCord) 
+                && Gameworld.Instance.gameMap.IsItOccupied(tempPos + move, ShapeCord) == false)
             {
                 Gameworld.Instance.gameMap.EmptyPosition(tempPos, ShapeCord);
                 tempPos += move;
@@ -127,7 +128,8 @@ namespace Client
 
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
 
-            if (!Gameworld.Instance.gameMap.IsOutOfBound(tempPos, temp) && Gameworld.Instance.gameMap.IsItOccupied(tempPos, temp) == false)
+            if (!Gameworld.Instance.gameMap.IsOutOfBound(tempPos, temp) 
+                && Gameworld.Instance.gameMap.IsItOccupied(tempPos, temp) == false)
             {
                 ShapeCord = temp;
                 Gameworld.Instance.gameMap.EmptyPosition(tempPos, ShapeCord);
