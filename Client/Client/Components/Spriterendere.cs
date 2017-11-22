@@ -52,6 +52,12 @@ namespace Client
             this.layerDepth = layerDepth;
             color = Color.Red;
         }
+        public Spriterendere(GameObject gameObject, string spriteName, float layerDepth, Color color) : base(gameObject)
+        {
+            this.spriteName = spriteName;
+            this.layerDepth = layerDepth;
+            this.color = color;
+        }
 
         public void update()
         {
@@ -67,8 +73,15 @@ namespace Client
         }
         public void Draw(SpriteBatch spriteBatch)
         {
-            for(int i = 0; i < gameObject.Transform.Position.Count(); i++)
-                spriteBatch.Draw(sprite, gameObject.Transform.Position[i], Rectangle, color, 0f, Vector2.Zero, scaleFactor, SpriteEffects.None, layerDepth);
+            //Checks if the block is placed or not.
+            if (!gameObject.placedBlock)
+            {
+                for (int i = 0; i < gameObject.Transform.Position.Count(); i++)
+                    spriteBatch.Draw(sprite, gameObject.Transform.Position[i], Rectangle, color, 0f, Vector2.Zero, scaleFactor, SpriteEffects.None, layerDepth);
+            }
+            if(gameObject.placedBlock)
+                spriteBatch.Draw(sprite, gameObject.Transform.placedBlockPosition, Rectangle, color, 0f, Vector2.Zero, scaleFactor, SpriteEffects.None, layerDepth);
+
         }
     }
 }

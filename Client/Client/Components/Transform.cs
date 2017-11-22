@@ -15,6 +15,7 @@ namespace Client
     {
         //Vector2 array som holder styr på brikkens positioner, position [0] er det punkt resten bevæger sig ud fra.
         public Vector2[] Position { get; set; }
+        public Vector2 placedBlockPosition;
         // Shapes: I, L, Lightning, Lightning_invers, L_invers, Square, T, Polygon
         public GameShapes shape;
         public Vector2[] ShapeCord;
@@ -36,9 +37,8 @@ namespace Client
             for(int i = 0; i < ShapeCord.Count(); i++)
                 ShapeCord[i] = new Vector2(tempShapeCord[i].X, tempShapeCord[i].Y);
 
-            Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(position);
             for (int i = 0; i < Position.Count(); i++)
-                Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(tempPos.X + ShapeCord[i].X, tempPos.Y + ShapeCord[i].Y));
+                Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(position.X + ShapeCord[i].X, position.Y + ShapeCord[i].Y));         
         }
         public Transform(GameObject gameObject, Vector2I position, GameShapes shape) 
             : base(gameObject)
@@ -54,6 +54,12 @@ namespace Client
 
             this.shape = shape;
         }
+        public Transform(GameObject gameObject, Vector2 position, bool placed) : base(gameObject)
+        {
+            placedBlockPosition = Gameworld.Instance.gameMap.Position(position);
+            gameObject.placedBlock = true;
+        }
+
         public void Translate(Vector2 translation)
         {
             Position[0] += translation;
@@ -79,6 +85,7 @@ namespace Client
         /// </summary>
         public void MoveDown(bool enforced = false)
         {
+            BlockPlaceCheck();
             Move(new Vector2(0, 1));
         }
 
@@ -86,7 +93,8 @@ namespace Client
         {
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
 
-            if (!Gameworld.Instance.gameMap.IsOutOfBound(new Vector2(tempPos.X, tempPos.Y) + move, ShapeCord) && Gameworld.Instance.gameMap.IsItOccupied(new Vector2(tempPos.X, tempPos.Y) + move, ShapeCord) == false)
+            if (!Gameworld.Instance.gameMap.IsOutOfBound(tempPos + move, ShapeCord) 
+                && Gameworld.Instance.gameMap.IsItOccupied(tempPos + move, ShapeCord) == false)
             {
                 Gameworld.Instance.gameMap.EmptyPosition(tempPos, ShapeCord);
                 tempPos += move;
@@ -120,7 +128,8 @@ namespace Client
 
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
 
-            if (!Gameworld.Instance.gameMap.IsOutOfBound(tempPos, temp) && Gameworld.Instance.gameMap.IsItOccupied(tempPos, temp) == false)
+            if (!Gameworld.Instance.gameMap.IsOutOfBound(tempPos, temp) 
+                && Gameworld.Instance.gameMap.IsItOccupied(tempPos, temp) == false)
             {
                 ShapeCord = temp;
                 Gameworld.Instance.gameMap.EmptyPosition(tempPos, ShapeCord);
@@ -128,6 +137,57 @@ namespace Client
                 for (int i = 0; i < Position.Count(); i++)
                     Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(tempPos.X + ShapeCord[i].X, tempPos.Y + ShapeCord[i].Y));
             }
+        }
+
+        /// <summary>
+        /// Checks if the blocks shuold be placed and if so, places the blocks and gives the player a new block.
+        /// </summary>
+        private void BlockPlaceCheck()
+        {
+            bool placed = false;
+            Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
+            //We move the blocks one down, as we need to check the next position befor we move to it
+            tempPos += new Vector2(0, 1);
+
+            //Checks if the blocks should be placed.
+            if (Gameworld.Instance.gameMap.IsBlockPlaced(tempPos, ShapeCord))
+            {
+                ////Since there is blocks at the new position, then we move the blocks one tick up.
+                //for (int i = 0; i < ShapeCord.Count(); i++)
+                //    ShapeCord[i] += new Vector2(0, -1);
+                ////Places the blocks.
+                //Gameworld.Instance.gameMap.PlaceBlocks(tempPos, ShapeCord);
+
+                //Since there is blocks at the new position, then we move the blocks one tick up.
+                tempPos += new Vector2(0, -1);
+                //Places the blocks.
+                Gameworld.Instance.gameMap.PlaceBlocks(tempPos, ShapeCord, gameObject.GetComponent<Spriterendere>().color);
+
+                placed = true;
+            }
+            //Checks if the blocks have hit the bottom and should be placed.
+            if (Gameworld.Instance.gameMap.IsItBottom(tempPos, ShapeCord))
+            {
+                //Places the blocks.
+                Gameworld.Instance.gameMap.PlaceBlocks(tempPos, ShapeCord, gameObject.GetComponent<Spriterendere>().color);
+                placed = true;
+            }
+            //If the blocks do get placed
+            if (placed)
+            {
+                //New shape and color.
+                ShapeAndColor();
+
+                //Moves back to start position.
+                Vector2 newPos = Gameworld.Instance.playerStartPosition;
+                for (int i = 0; i < Position.Count(); i++)
+                    Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(newPos.X + ShapeCord[i].X, newPos.Y + ShapeCord[i].Y));
+            }
+        }
+
+        public void PlaceBlockNow()
+        {
+
         }
 
         /// <summary>

@@ -131,14 +131,11 @@ namespace Client
         public bool IsItOccupied(Vector2 pos, Vector2[] shape)
         {
             Vector2[] shapeCord = shape;
-            int num = 0;
             for (int i = 0; i < shapeCord.Count(); i++)
             {
-                if (new Vector2(pos.X + shapeCord[i].X, pos.Y + shapeCord[i].Y) == null)
-                    num++;
+                if (map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] != null && map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)].placedBlock == true)
+                    return true;
             }
-            if (num >= 4)
-                return true;
             return false;
         }
 
@@ -197,6 +194,107 @@ namespace Client
             if (num >= 1)
                 return true;
             return false;
+        }
+
+        /// <summary>
+        /// Checks if the given grid positions is such the blocks should be placed, because of blocks underneath.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public bool IsBlockPlaced(Vector2 pos, Vector2[] shape)
+        {
+            Vector2[] shapeCord = shape;
+
+            ////Moves blocks one down to see if there are any.
+            //for(int i = 0; i < shapeCord.Count(); i++)
+            //    shapeCord[i] += new Vector2(0, 1);
+
+            //Checks if the blocks have hit a placed block.
+            for (int i = 0; i < shapeCord.Count(); i++)
+                if (map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] != null && map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)].placedBlock)
+                    return true;
+
+            return false;
+        }
+        /// <summary>
+        /// Checks if the given grid positions is at the bottom.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public bool IsItBottom(Vector2 pos, Vector2[] shape)
+        {
+            Vector2[] shapeCord = shape;
+
+            //Checks if the blocks have hit the bottom.
+            for (int i = 0; i < shapeCord.Count(); i++)
+                if ((pos.Y + shapeCord[i].Y) == (map.GetLength(1) - 1))
+                    return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Place the given blocks at the given grid position.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public void PlaceBlocks(Vector2 pos, Vector2[] shape, Color color)
+        {
+            Vector2[] shapeCord = shape;
+
+            //Moves blocks one down to see if there are any.
+            for (int i = 0; i < shapeCord.Count(); i++)
+            {
+                GameObject obj = new GameObject();
+                obj.AddComponent(new Spriterendere(obj, "GreyToneBlock", 1f, color));
+                obj.AddComponent(new Transform(obj, new Vector2((int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)), true));
+                obj.LoadContent(Gameworld.Instance.Content);
+
+                Gameworld.Instance.gameObjects.Add(obj);
+
+                map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] = obj;
+            }
+
+            //Handles if there is a complete line of blocks.
+            int line = 0;
+            int lineMax = map.GetLength(0);
+            for(int y = 0; y < map.GetLength(1); y++)
+            {
+                for (int x = 0; x < map.GetLength(0); x++)
+                {
+                    if (map[x, y] != null && map[x, y].placedBlock == true)
+                        line++;
+                    if (line >= lineMax)
+                        RemoveLine(y);
+                }
+                line = 0;
+            }
+        }
+        /// <summary>
+        /// Slave function to PlaceBlocks. This removes a line and moves all above blocks 1 line down.
+        /// </summary>
+        /// <param name="line"></param>
+        private void RemoveLine(int line)
+        {
+            for(int i = 0; i < map.GetLength(0); i++)
+            {
+                Gameworld.Instance.RemoveObject(map[i, line]);
+                map[i, line] = null;
+            }
+            //Moves the above block one row down. 
+            for (int y = line; y > 0; y--)
+            {
+                for (int x = 0; x < map.GetLength(0); x++)
+                {
+                    if(map[x, y] != null && map[x, y].placedBlock == true)
+                    {
+                        GameObject tempObj = map[x, y];
+                        map[x, y] = null;
+                        map[x, y + 1] = tempObj;
+                        tempObj.GetComponent<Transform>().placedBlockPosition = Position(new Vector2(x, y + 1));
+                    }
+                }
+            }
         }
     }
 }
