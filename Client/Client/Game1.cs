@@ -63,7 +63,7 @@ namespace Client
 #endif
             gameObjects = new List<GameObject>();
             gameMap = new GameMap(20, 20, 500, 400, new Vector2(0, 0));
-            gameMap.Borders();
+            gameMap.Borders(Color.White);
 
             playerStartPosition = new Vector2(10, 4);
 
