@@ -105,7 +105,7 @@ namespace Server
         /// </summary>
         /// <param name="shape"></param>
         /// <param name="position"></param>
-        private void IsItBottom(GameShapes shape, Vector2I position)
+        private bool IsItBottom(GameShapes shape, Vector2I position)
         {
             Vector2I[] positions = GameShapeHelper.GetShape(shape, position);
 
