@@ -217,7 +217,31 @@ namespace Client
 
         public void PlaceBlockNow()
         {
+            Vector2 move = new Vector2(0, 1);
 
+            Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
+
+            for (int i = 0; i < Gameworld.Instance.gameMap.map.GetLength(0); i++)
+            {
+                move = new Vector2(0, 1 + i);
+
+                if (Gameworld.Instance.gameMap.IsOutOfBound(tempPos + move, ShapeCord))
+                {
+                    tempPos += move - new Vector2(0, 2);
+                    for (int j = 0; j < Position.Count(); j++)
+                        Position[j] = Gameworld.Instance.gameMap.Position(new Vector2(tempPos.X + ShapeCord[j].X, tempPos.Y + ShapeCord[j].Y));
+                    BlockPlaceCheck();
+                    return;
+                }
+                if (Gameworld.Instance.gameMap.IsItOccupied(tempPos + move, ShapeCord) == true)
+                {
+                    tempPos += move - new Vector2(0, 1);
+                    for (int j = 0; j < Position.Count(); j++)
+                        Position[j] = Gameworld.Instance.gameMap.Position(new Vector2(tempPos.X + ShapeCord[j].X, tempPos.Y + ShapeCord[j].Y));
+                    BlockPlaceCheck();
+                    return;
+                }
+            }
         }
 
         /// <summary>
