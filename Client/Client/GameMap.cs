@@ -205,10 +205,6 @@ namespace Client
         {
             Vector2[] shapeCord = shape;
 
-            ////Moves blocks one down to see if there are any.
-            //for(int i = 0; i < shapeCord.Count(); i++)
-            //    shapeCord[i] += new Vector2(0, 1);
-
             //Checks if the blocks have hit a placed block.
             for (int i = 0; i < shapeCord.Count(); i++)
                 if (map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] != null && map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)].placedBlock)

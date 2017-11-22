@@ -148,7 +148,7 @@ namespace Client
 
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
 
-            if (!Gameworld.Instance.gameMap.IsOutOfBound(tempPos, temp) 
+            if (!Gameworld.Instance.gameMap.IsOutOfBound(tempPos, temp)
                 && Gameworld.Instance.gameMap.IsItOccupied(tempPos, temp) == false)
             {
                 ShapeCord = temp;
