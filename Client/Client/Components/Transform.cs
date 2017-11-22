@@ -56,8 +56,28 @@ namespace Client
         }
         public Transform(GameObject gameObject, Vector2 position, bool placed) : base(gameObject)
         {
-            placedBlockPosition = Gameworld.Instance.gameMap.Position(position);
-            gameObject.placedBlock = true;
+            if (placed)
+            {
+                placedBlockPosition = Gameworld.Instance.gameMap.Position(position);
+                gameObject.placedBlock = true;
+            }
+            else
+            {
+                this.Position = new Vector2[4];
+                rnd = new Random();
+
+                //For test, I have given a standard shape
+                ShapeAndColor();
+                angle = 0f;
+                //The shape's coordinates
+                Vector2I[] tempShapeCord = GameShapeHelper.GetShape(shape);
+                ShapeCord = new Vector2[4];
+                for (int i = 0; i < ShapeCord.Count(); i++)
+                    ShapeCord[i] = new Vector2(tempShapeCord[i].X, tempShapeCord[i].Y);
+
+                for (int i = 0; i < Position.Count(); i++)
+                    Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(position.X + ShapeCord[i].X, position.Y + ShapeCord[i].Y));
+            }
         }
 
         public void Translate(Vector2 translation)
