@@ -163,6 +163,9 @@ namespace Client
                 Gameworld.Instance.gameMap.PlaceGameObject(gameObject, tempPos, ShapeCord);
                 for (int i = 0; i < Position.Count(); i++)
                     Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(tempPos.X + ShapeCord[i].X, tempPos.Y + ShapeCord[i].Y));
+                angle += rotationAngle;
+                if (angle == 360)
+                    angle = 0;
             }
         }
 
