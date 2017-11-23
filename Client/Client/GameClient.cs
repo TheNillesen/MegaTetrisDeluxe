@@ -48,6 +48,8 @@ namespace Client
                 commandHandlers["message"] = HandleMessage;
                 commandHandlers["input"] = HandleInput;
                 commandHandlers["Tick"] = HandleTick;
+                commandHandlers["Move"] = HandleMove;
+                commandHandlers["Spawn"] = HandleSpawn;
 
                 Run();
             }
