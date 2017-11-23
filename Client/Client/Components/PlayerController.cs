@@ -42,7 +42,7 @@ namespace Client
                 gameObject.Transform.RotateRight();
             if (keyCurrent.IsKeyDown(Keys.Space) && !keyLast.IsKeyDown(Keys.Space))
                 gameObject.Transform.PlaceBlockNow();
-
+            //music controls
             if (keyCurrent.IsKeyDown(Keys.P))
             {
                 sfxHandler.PlayMusic();
