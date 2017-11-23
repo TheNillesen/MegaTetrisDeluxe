@@ -74,7 +74,7 @@ namespace Client
             textFieldActive = false;
             textField = new TextField("Border", gameMap.gameAreaWidth / 2, gameMap.gameAreaHeight / 2, new Vector2(5, 1));
             textField.LoadContent(this.Content);
-            text = new Text(Color.White, 20, new Vector2(20, - 220));
+            text = new Text(Color.White, 20, new Vector2(20, - 300));
             text.LoadContent(this.Content);
 
             //Test player
