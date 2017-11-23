@@ -13,8 +13,7 @@ namespace Client
 {
     class GameMap
     {
-        private Vector2 offset;     //The game areas position in the window.
-
+        public Vector2 offset;     //The game areas position in the window.
         public int gameAreaWidth;  //The area width in which the game it self takes place.
         public int gameAreaHeight; //The area height in which the game it self takes place.
         public GameObject[,] map; //The map grid.

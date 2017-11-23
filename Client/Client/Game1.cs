@@ -30,6 +30,7 @@ namespace Client
         private bool hasRun = false;
         private DateTime startup = DateTime.Now;
         private TextField textField;
+        private Text text;
 
         public Song backGroundMusic;
         public List<GameObject> gameObjects;     
@@ -73,6 +74,8 @@ namespace Client
             textFieldActive = false;
             textField = new TextField("Border", gameMap.gameAreaWidth / 2, gameMap.gameAreaHeight / 2, new Vector2(5, 1));
             textField.LoadContent(this.Content);
+            text = new Text(Color.White, 20, new Vector2(20, - 100));
+            text.LoadContent(this.Content);
 
             //Test player
             player = new GameObject();
@@ -128,6 +131,7 @@ namespace Client
             player.Update();
             if (textFieldActive)
                 textField.Update();
+            text.Update();
 
             base.Update(gameTime);
 
@@ -150,6 +154,7 @@ namespace Client
             player.Draw(spriteBatch);
             if (textFieldActive)
                 textField.Draw(spriteBatch);
+            text.Draw(spriteBatch);
 
             spriteBatch.End();
 

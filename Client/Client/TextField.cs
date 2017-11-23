@@ -23,7 +23,6 @@ namespace Client
         private string text;
         private Vector2 scaleFactor;
 
-        public string PlayerName { get { return text; } }
         public SpriteFont Font { get; }
 
         KeyboardState keyCurrent;
