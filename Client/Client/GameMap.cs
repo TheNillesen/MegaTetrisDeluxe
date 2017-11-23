@@ -14,9 +14,9 @@ namespace Client
     class GameMap
     {
         private Vector2 offset;     //The game areas position in the window.
-        private int gameAreaWidth;  //The area width in which the game it self takes place.
-        private int gameAreaHeight; //The area height in which the game it self takes place.
 
+        public int gameAreaWidth;  //The area width in which the game it self takes place.
+        public int gameAreaHeight; //The area height in which the game it self takes place.
         public GameObject[,] map; //The map grid.
         public float cellWidth;   //The width of a cell.
         public float cellHeight;  //The height of a cell.

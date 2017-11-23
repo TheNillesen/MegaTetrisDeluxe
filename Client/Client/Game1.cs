@@ -29,12 +29,15 @@ namespace Client
 
         private bool hasRun = false;
         private DateTime startup = DateTime.Now;
+        private TextField textField;
 
         public Song backGroundMusic;
         public List<GameObject> gameObjects;     
         public GameMap gameMap;
         public GameObject player;
         public Vector2 playerStartPosition;
+        public bool textFieldActive;
+        public string IPForServerConnection;
 
         private Gameworld()
         {
@@ -57,6 +60,7 @@ namespace Client
             //graphics.PreferredBackBufferWidth = 500;  // set this value to the desired width of your window
             //graphics.PreferredBackBufferHeight = 500;   // set this value to the desired height of your window
             //graphics.ApplyChanges();
+            Gameworld.Instance.IsMouseVisible = true; //Makes the mouse visible within the gamewindow
 //#if DEBUG
 //            GameClient gc = new GameClient();
 //            new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
@@ -66,6 +70,9 @@ namespace Client
             gameMap.Borders(Color.White);
 
             playerStartPosition = new Vector2(10, 4);
+            textFieldActive = false;
+            textField = new TextField("Border", gameMap.gameAreaWidth / 2, gameMap.gameAreaHeight / 2, new Vector2(5, 1));
+            textField.LoadContent(this.Content);
 
             //Test player
             player = new GameObject();
@@ -119,6 +126,8 @@ namespace Client
             for (int i = 0; i < gameObjects.Count; i++)
                 gameObjects[i].Update();
             player.Update();
+            if (textFieldActive)
+                textField.Update();
 
             base.Update(gameTime);
 
@@ -139,6 +148,8 @@ namespace Client
             for (int i = 0; i < gameObjects.Count; i++)
                 gameObjects[i].Draw(spriteBatch);
             player.Draw(spriteBatch);
+            if (textFieldActive)
+                textField.Draw(spriteBatch);
 
             spriteBatch.End();
 
