@@ -50,6 +50,10 @@ namespace Client
             spriteBatch.DrawString(font, "Place now: Space", keyPos + new Vector2(0, 4 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
             spriteBatch.DrawString(font, "Host a game press H", keyPos + new Vector2(0, 5 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
             spriteBatch.DrawString(font, "Connect to a host press J", keyPos + new Vector2(0, 6 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+            spriteBatch.DrawString(font, "Turn music on: P", keyPos + new Vector2(0, 7 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+            spriteBatch.DrawString(font, "Pause music: O", keyPos + new Vector2(0, 8 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+            spriteBatch.DrawString(font, "Turn music down: L", keyPos + new Vector2(0, 9 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+            spriteBatch.DrawString(font, "Turn music Up: K", keyPos + new Vector2(0, 10 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
         }
     }
 }
