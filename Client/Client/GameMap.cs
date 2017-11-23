@@ -57,6 +57,41 @@ namespace Client
             map = new GameObject[(int)(gameAreaWidth / cellWidth), (int)(gameAreaHeight / cellHeight)];
         }
 
+        public void Borders(Color color)
+        {
+            //Top
+            GameObject go = new GameObject();
+            go.AddComponent(new Spriterendere(go, "Border", 0.8f, color, true, new Vector2(gameAreaWidth, 1), true, new Rectangle(0, 0, 1, 1)));
+            go.AddComponent(new Transform(go, offset, false, true));
+            Gameworld.Instance.AddGameObject(go);
+            go.LoadContent(Gameworld.Instance.Content);
+
+            //Bottom
+            GameObject go1 = new GameObject();
+            go1.AddComponent(new Spriterendere(go1, "Border", 0.8f, color, true, new Vector2(gameAreaWidth, 1), true, new Rectangle(0, 0, 1, 1)));
+            Vector2 temp = offset;
+            temp.Y += gameAreaHeight;
+            go1.AddComponent(new Transform(go1, temp, false, true));
+            Gameworld.Instance.AddGameObject(go1);
+            go1.LoadContent(Gameworld.Instance.Content);
+
+            //Left
+            GameObject go2 = new GameObject();
+            go2.AddComponent(new Spriterendere(go2, "Border", 0.8f, color, true, new Vector2(1, gameAreaHeight), true, new Rectangle(0, 0, 1, 1)));
+            go2.AddComponent(new Transform(go2, offset - new Vector2(1, 0), false, true));
+            Gameworld.Instance.AddGameObject(go2);
+            go2.LoadContent(Gameworld.Instance.Content);
+
+            //Right
+            GameObject go3 = new GameObject();
+            go3.AddComponent(new Spriterendere(go3, "Border", 0.8f, color, true, new Vector2(1, gameAreaHeight), true, new Rectangle(0, 0, 1, 1)));
+            temp = offset;
+            temp.X += gameAreaWidth;
+            go3.AddComponent(new Transform(go3, temp, false, true));
+            Gameworld.Instance.AddGameObject(go3);
+            go3.LoadContent(Gameworld.Instance.Content);
+        }
+
         /// <summary>
         /// Loads the map from a GridContainer received from Server
         /// </summary>
@@ -205,10 +240,6 @@ namespace Client
         {
             Vector2[] shapeCord = shape;
 
-            ////Moves blocks one down to see if there are any.
-            //for(int i = 0; i < shapeCord.Count(); i++)
-            //    shapeCord[i] += new Vector2(0, 1);
-
             //Checks if the blocks have hit a placed block.
             for (int i = 0; i < shapeCord.Count(); i++)
                 if (map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] != null && map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)].placedBlock)
@@ -247,7 +278,7 @@ namespace Client
             {
                 GameObject obj = new GameObject();
                 obj.AddComponent(new Spriterendere(obj, "GreyToneBlock", 1f, color));
-                obj.AddComponent(new Transform(obj, new Vector2((int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)), true));
+                obj.AddComponent(new Transform(obj, new Vector2((int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)), true, false));
                 obj.LoadContent(Gameworld.Instance.Content);
 
                 Gameworld.Instance.gameObjects.Add(obj);

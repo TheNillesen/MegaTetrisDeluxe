@@ -99,5 +99,20 @@ namespace Server
 
             return true;
         }
+
+        /// <summary>
+        /// Returns true if it touches the bottom row.
+        /// </summary>
+        /// <param name="shape"></param>
+        /// <param name="position"></param>
+        private bool IsItBottom(GameShapes shape, Vector2I position)
+        {
+            Vector2I[] positions = GameShapeHelper.GetShape(shape, position);
+
+            for(int i = 0; i < positions.Count(); i++)
+                if(positions[i].Y == (grid.GetLength(1) - 1))
+                    return true;
+            return false;
+        }
     }
 }

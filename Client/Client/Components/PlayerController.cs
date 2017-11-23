@@ -29,6 +29,16 @@ namespace Client
             keyLast = keyCurrent;
             keyCurrent = Keyboard.GetState();
 
+            //Host server
+            if (keyCurrent.IsKeyDown(Keys.H) && !keyLast.IsKeyDown(Keys.H))
+            {
+                //Starts server
+                Gameworld.startServer(6666, Gameworld.Instance.gameMap.map.GetLength(0), Gameworld.Instance.gameMap.map.GetLength(1), 2);
+                //Starts game client
+                GameClient gc = new GameClient();
+                new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
+            }
+
             //Handles the players input
             if (keyCurrent.IsKeyDown(Keys.Right) && !keyLast.IsKeyDown(Keys.Right) || keyCurrent.IsKeyDown(Keys.D) && !keyLast.IsKeyDown(Keys.D))
                 gameObject.Transform.MoveRight();

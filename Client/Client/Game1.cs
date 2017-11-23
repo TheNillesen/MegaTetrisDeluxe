@@ -57,12 +57,14 @@ namespace Client
             //graphics.PreferredBackBufferWidth = 500;  // set this value to the desired width of your window
             //graphics.PreferredBackBufferHeight = 500;   // set this value to the desired height of your window
             //graphics.ApplyChanges();
-#if DEBUG
-            GameClient gc = new GameClient();
-            new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
-#endif
+//#if DEBUG
+//            GameClient gc = new GameClient();
+//            new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
+//#endif
             gameObjects = new List<GameObject>();
             gameMap = new GameMap(20, 20, 500, 400, new Vector2(0, 0));
+            gameMap.Borders(Color.White);
+
             playerStartPosition = new Vector2(10, 4);
 
             //Test player

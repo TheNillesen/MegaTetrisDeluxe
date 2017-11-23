@@ -140,6 +140,13 @@ namespace Server
 
                 // Convert it into a packet datatype
                 packet = NetworkPacket.Deserialize(packetBuffer);
+
+                switch(packet.Head)
+                {
+                    case "Move":
+                        await Move(packet);
+                        break;
+                }
             }
             catch (Exception e)
             {
@@ -149,6 +156,13 @@ namespace Server
             }
 
             return packet;
+        }
+
+        private static async Task Move (NetworkPacket packet)
+        {
+            SendPacketAll(packet);
+
+
         }
     }
 }
