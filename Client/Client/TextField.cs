@@ -15,7 +15,6 @@ namespace Client
     {
         private int centerX, centerY;
         private Rectangle rectangle;
-        private Rectangle buttonRect;
         private Vector2 pos;
         private Texture2D sprite;
         private string spriteName;
@@ -24,9 +23,6 @@ namespace Client
         private string text;
         private Vector2 scaleFactor;
 
-        public MouseState mouseInput;
-        public int ButtonX { get; }
-        public int ButtonY { get; }
         public string PlayerName { get { return text; } }
         public SpriteFont Font { get; }
 
