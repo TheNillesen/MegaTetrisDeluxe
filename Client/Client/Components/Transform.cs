@@ -25,20 +25,7 @@ namespace Client
 
         public Transform(GameObject gameObject, Vector2 position) : base(gameObject)
         {
-            this.Position = new Vector2[4];
-            rnd = new Random();
-
-            //For test, I have given a standard shape
-            ShapeAndColor();
-            angle = 0f;
-            //The shape's coordinates
-            Vector2I[] tempShapeCord = GameShapeHelper.GetShape(shape);
-            ShapeCord = new Vector2[4];
-            for(int i = 0; i < ShapeCord.Count(); i++)
-                ShapeCord[i] = new Vector2(tempShapeCord[i].X, tempShapeCord[i].Y);
-
-            for (int i = 0; i < Position.Count(); i++)
-                Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(position.X + ShapeCord[i].X, position.Y + ShapeCord[i].Y));         
+            Slave(position);
         }
         public Transform(GameObject gameObject, Vector2I position, GameShapes shape) 
             : base(gameObject)
@@ -54,30 +41,50 @@ namespace Client
 
             this.shape = shape;
         }
-        public Transform(GameObject gameObject, Vector2 position, bool placed) : base(gameObject)
+        /// <summary>
+        /// If it's a block on the map set placedblock = true. If it's other such as the border set other = true.
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="position"></param>
+        /// <param name="placedBlock"></param>
+        public Transform(GameObject gameObject, Vector2 position, bool placedBlock, bool other) : base(gameObject)
         {
-            if (placed)
+            if (placedBlock)
             {
                 placedBlockPosition = Gameworld.Instance.gameMap.Position(position);
                 gameObject.placedBlock = true;
             }
+            else if (other)
+            {
+                placedBlockPosition = position;
+                gameObject.placedBlock = true;
+            }
             else
             {
-                this.Position = new Vector2[4];
-                rnd = new Random();
-
-                //For test, I have given a standard shape
-                ShapeAndColor();
-                angle = 0f;
-                //The shape's coordinates
-                Vector2I[] tempShapeCord = GameShapeHelper.GetShape(shape);
-                ShapeCord = new Vector2[4];
-                for (int i = 0; i < ShapeCord.Count(); i++)
-                    ShapeCord[i] = new Vector2(tempShapeCord[i].X, tempShapeCord[i].Y);
-
-                for (int i = 0; i < Position.Count(); i++)
-                    Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(position.X + ShapeCord[i].X, position.Y + ShapeCord[i].Y));
+                Slave(position);
             }
+        }
+
+        /// <summary>
+        /// Slave function to the constructors.
+        /// </summary>
+        /// <param name="position"></param>
+        private void Slave(Vector2 position)
+        {
+            this.Position = new Vector2[4];
+            rnd = new Random();
+
+            //For test, I have given a standard shape
+            ShapeAndColor();
+            angle = 0f;
+            //The shape's coordinates
+            Vector2I[] tempShapeCord = GameShapeHelper.GetShape(shape);
+            ShapeCord = new Vector2[4];
+            for (int i = 0; i < ShapeCord.Count(); i++)
+                ShapeCord[i] = new Vector2(tempShapeCord[i].X, tempShapeCord[i].Y);
+
+            for (int i = 0; i < Position.Count(); i++)
+                Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(position.X + ShapeCord[i].X, position.Y + ShapeCord[i].Y));
         }
 
         public void Translate(Vector2 translation)
@@ -148,7 +155,7 @@ namespace Client
 
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
 
-            if (!Gameworld.Instance.gameMap.IsOutOfBound(tempPos, temp) 
+            if (!Gameworld.Instance.gameMap.IsOutOfBound(tempPos, temp)
                 && Gameworld.Instance.gameMap.IsItOccupied(tempPos, temp) == false)
             {
                 ShapeCord = temp;
@@ -156,6 +163,9 @@ namespace Client
                 Gameworld.Instance.gameMap.PlaceGameObject(gameObject, tempPos, ShapeCord);
                 for (int i = 0; i < Position.Count(); i++)
                     Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(tempPos.X + ShapeCord[i].X, tempPos.Y + ShapeCord[i].Y));
+                angle += rotationAngle;
+                if (angle == 360)
+                    angle = 0;
             }
         }
 
@@ -207,7 +217,31 @@ namespace Client
 
         public void PlaceBlockNow()
         {
+            Vector2 move = new Vector2(0, 1);
 
+            Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
+
+            for (int i = 0; i < Gameworld.Instance.gameMap.map.GetLength(0); i++)
+            {
+                move = new Vector2(0, 1 + i);
+
+                if (Gameworld.Instance.gameMap.IsOutOfBound(tempPos + move, ShapeCord))
+                {
+                    tempPos += move - new Vector2(0, 2);
+                    for (int j = 0; j < Position.Count(); j++)
+                        Position[j] = Gameworld.Instance.gameMap.Position(new Vector2(tempPos.X + ShapeCord[j].X, tempPos.Y + ShapeCord[j].Y));
+                    BlockPlaceCheck();
+                    return;
+                }
+                if (Gameworld.Instance.gameMap.IsItOccupied(tempPos + move, ShapeCord) == true)
+                {
+                    tempPos += move - new Vector2(0, 1);
+                    for (int j = 0; j < Position.Count(); j++)
+                        Position[j] = Gameworld.Instance.gameMap.Position(new Vector2(tempPos.X + ShapeCord[j].X, tempPos.Y + ShapeCord[j].Y));
+                    BlockPlaceCheck();
+                    return;
+                }
+            }
         }
 
         /// <summary>
