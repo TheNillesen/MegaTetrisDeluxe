@@ -16,6 +16,7 @@ namespace Client
         public Transform Transform { get { return transform; } }
         public Spriterendere Rendere { get { return renderer; } }
         public bool placedBlock;
+        public bool other;
 
         private List<Component> components;
 
@@ -26,6 +27,13 @@ namespace Client
         {
             this.components = new List<Component>();
             placedBlock = false;
+            other = false;
+        }
+        public GameObject(bool other)
+        {
+            this.components = new List<Component>();
+            placedBlock = false;
+            this.other = other;
         }
 
         public GameObject(params Component[] components)
