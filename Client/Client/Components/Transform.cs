@@ -218,7 +218,7 @@ namespace Client
                     Gameworld.Instance.Exit();
                 }
             }
-            
+
         }
         
         public void PlaceBlockNow()

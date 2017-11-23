@@ -29,6 +29,13 @@ namespace Client
             keyLast = keyCurrent;
             keyCurrent = Keyboard.GetState();
 
+            //Connect to server
+            if (Gameworld.Instance.textFieldActive == false && keyCurrent.IsKeyDown(Keys.J) && !keyLast.IsKeyDown(Keys.J))
+            {
+                Gameworld.Instance.textFieldActive = true;
+            }
+            if(Gameworld.Instance.textFieldActive == false)
+            {
             //Host server
             if (keyCurrent.IsKeyDown(Keys.H) && !keyLast.IsKeyDown(Keys.H))
             {
@@ -71,4 +78,5 @@ namespace Client
             }
         }
     }
+}
 }
