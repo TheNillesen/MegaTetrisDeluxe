@@ -21,11 +21,12 @@ namespace Client
         private TcpClient Client;
         private NetworkStream ServerStream = null;
         private bool jogging = false;
+        private Guid id;
 
         public GameClient()
         {
             commandHandlers = new Dictionary<string, Func<NetworkPacket, Task>>();
-            Client = new TcpClient();                       
+            Client = new TcpClient();                      
         }
 
         public void Connect(IPAddress ip, int port)
@@ -50,8 +51,17 @@ namespace Client
                 commandHandlers["Tick"] = HandleTick;
                 commandHandlers["Move"] = HandleMove;
                 commandHandlers["Spawn"] = HandleSpawn;
+                commandHandlers["ID"] = HandleID;
 
                 Run();
+            }
+        }
+
+        private async Task HandleID(NetworkPacket p)
+        {
+            if (s.Sender == "Server")
+            {
+                id = (Guid)p.Data[0];
             }
         }
 

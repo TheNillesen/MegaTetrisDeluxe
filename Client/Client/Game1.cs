@@ -24,11 +24,19 @@ namespace Client
             }
         }
 
+        public GameClient Client
+        {
+            get { return client; }
+            set { client = value; }
+        }
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
         private bool hasRun = false;
         private DateTime startup = DateTime.Now;
+        private Process server;
+        private GameClient client;
 
         public Song backGroundMusic;
         public List<GameObject> gameObjects;     
@@ -40,6 +48,7 @@ namespace Client
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            server = null;
         }
 
         /// <summary>
@@ -145,15 +154,28 @@ namespace Client
             base.Draw(gameTime);
         }
 
-        public static void startServer(int port, int gridWidth, int gridHeight, long tickCount)
+        public static void StartServer(int port, int gridWidth, int gridHeight, long tickCount)
         {
-            Process process = new Process();
+            if (Instance.server == null)
+            {
+                Process process = new Process();
 
-            process.StartInfo.Arguments = $"port:{port.ToString()} width:{gridWidth} height:{gridHeight} tickCount:{tickCount}";
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.FileName = "Server.exe";
+                process.StartInfo.Arguments = $"port:{port.ToString()} width:{gridWidth} height:{gridHeight} tickCount:{tickCount}";
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.FileName = "Server.exe";
 
-            process.Start();
+                process.Start();
+
+                instance.server = process;
+            }
+        }
+
+        public static void CloseServer()
+        {
+            if (Instance.server != null)
+            {
+                instance.server.Kill();
+            }
         }
 
         public void OnTick()

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Intermediate;
 
 namespace Client
 {
@@ -31,7 +32,10 @@ namespace Client
 
             //Handles the players input
             if (keyCurrent.IsKeyDown(Keys.Right) && !keyLast.IsKeyDown(Keys.Right) || keyCurrent.IsKeyDown(Keys.D) && !keyLast.IsKeyDown(Keys.D))
+            {
+                Gameworld.Instance.Client.SendPacket(new NetworkPacket("Move", this.GetHashCode().ToString(), new Vector2(1, 0).ToVector2I()));
                 gameObject.Transform.MoveRight();
+            }
             if (keyCurrent.IsKeyDown(Keys.Left) && !keyLast.IsKeyDown(Keys.Left) || keyCurrent.IsKeyDown(Keys.A) && !keyLast.IsKeyDown(Keys.A))
                 gameObject.Transform.MoveLeft();
             if (keyCurrent.IsKeyDown(Keys.Down) && !keyLast.IsKeyDown(Keys.Down) || keyCurrent.IsKeyDown(Keys.S) && !keyLast.IsKeyDown(Keys.S))
