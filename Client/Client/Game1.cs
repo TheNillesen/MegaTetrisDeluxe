@@ -3,23 +3,44 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using Anders.Vestergaard;
 using Andreas.Gade;
+using System.Collections.Generic;
 
 namespace Client
 {
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Gameworld : Game
+    class Gameworld : Game
     {
+        private static Gameworld instance;
+        public static Gameworld Instance
+        {
+            get
+            {
+                return instance == null ? instance = new Gameworld() : instance;
+            }
+        }
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
         private bool hasRun = false;
         private DateTime startup = DateTime.Now;
+        private TextField textField;
+        private Text text;
 
-        public Gameworld()
+        public Song backGroundMusic;
+        public List<GameObject> gameObjects;     
+        public GameMap gameMap;
+        public GameObject player;
+        public Vector2 playerStartPosition;
+        public bool textFieldActive;
+        public string IPForServerConnection;
+
+        private Gameworld()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -37,10 +58,38 @@ namespace Client
 
             base.Initialize();
 
-#if DEBUG
-            GameClient gc = new GameClient();
-            new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
-#endif
+            //graphics.PreferredBackBufferWidth = 500;  // set this value to the desired width of your window
+            //graphics.PreferredBackBufferHeight = 500;   // set this value to the desired height of your window
+            //graphics.ApplyChanges();
+            Gameworld.Instance.IsMouseVisible = true; //Makes the mouse visible within the gamewindow
+//#if DEBUG
+//            GameClient gc = new GameClient();
+//            new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
+//#endif
+            gameObjects = new List<GameObject>();
+            gameMap = new GameMap(20, 20, 500, 400, new Vector2(0, 0));
+            gameMap.Borders(Color.White);
+
+            playerStartPosition = new Vector2(10, 4);
+            textFieldActive = false;
+            textField = new TextField("Border", gameMap.gameAreaWidth / 2, gameMap.gameAreaHeight / 2, new Vector2(5, 1));
+            textField.LoadContent(this.Content);
+            text = new Text(Color.White, 20, new Vector2(20, - 300));
+            text.LoadContent(this.Content);
+
+            //Test player
+            player = new GameObject();
+            player.AddComponent(new Spriterendere(player, "GreyToneBlock", 1f));
+            player.AddComponent(new Transform(player, playerStartPosition));
+            player.AddComponent(new PlayerController(player));
+            player.LoadContent(this.Content);
+            gameObjects.Add(player);
+            
+        }
+
+        public GameObject GetGameobject(Predicate<GameObject> filter)
+        {
+            return gameObjects.Find(filter);
         }
 
         /// <summary>
@@ -51,7 +100,9 @@ namespace Client
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            backGroundMusic = Content.Load<Song>("Original Tetris Theme");
+            
+           
             // TODO: use this.Content to load your game content here
         }
 
@@ -75,6 +126,12 @@ namespace Client
                 Exit();
 
             // TODO: Add your update logic here
+            for (int i = 0; i < gameObjects.Count; i++)
+                gameObjects[i].Update();
+            player.Update();
+            if (textFieldActive)
+                textField.Update();
+            text.Update();
 
             base.Update(gameTime);
 
@@ -87,22 +144,48 @@ namespace Client
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             // TODO: Add your drawing code here
+            spriteBatch.Begin();
+
+            for (int i = 0; i < gameObjects.Count; i++)
+                gameObjects[i].Draw(spriteBatch);
+            player.Draw(spriteBatch);
+            if (textFieldActive)
+                textField.Draw(spriteBatch);
+            text.Draw(spriteBatch);
+
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
 
-        public static void startServer(int port)
+        public static void startServer(int port, int gridWidth, int gridHeight, long tickCount)
         {
             Process process = new Process();
 
-            process.StartInfo.Arguments = $"port:{port.ToString()}";
+            process.StartInfo.Arguments = $"port:{port.ToString()} width:{gridWidth} height:{gridHeight} tickCount:{tickCount}";
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.FileName = "Server.exe";
 
             process.Start();
+        }
+
+        public void OnTick()
+        {
+            foreach (GameObject go in gameObjects)
+                go.OnTick();
+        }
+
+        public void AddGameObject(GameObject go)
+        {
+            gameObjects.Add(go);
+        }
+
+        public void RemoveObject(GameObject go)
+        {
+            gameObjects.Remove(go);
         }
     }
 }

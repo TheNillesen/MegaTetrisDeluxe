@@ -9,14 +9,12 @@ namespace Client
     public static class Program
     {
         /// <summary>
-        /// The main entry point for the application.
+        /// The main entry point for the application..
         /// </summary>
         [STAThread]
         static void Main()
         {
-            Gameworld.startServer(6666);
-
-            using (var game = new Gameworld())
+            using (var game = Gameworld.Instance)
                 game.Run();
         }
     }

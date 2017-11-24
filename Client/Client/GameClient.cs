@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Intermediate;
+using Microsoft.Xna.Framework;
 using Andreas.Gade;
 using Anders.Vestergaard;
 using Nikolaj.Er.Kongen.Men.Han.gider.Ikke.Vise.Det;
@@ -15,14 +17,14 @@ namespace Client
 {
     class GameClient
     {
-        private Dictionary<string, Func<string, Task>> commandHandlers;
+        private Dictionary<string, Func<NetworkPacket, Task>> commandHandlers;
         private TcpClient Client;
         private NetworkStream ServerStream = null;
         private bool jogging = false;
 
         public GameClient()
         {
-            commandHandlers = new Dictionary<string, Func<string, Task>>();
+            commandHandlers = new Dictionary<string, Func<NetworkPacket, Task>>();
             Client = new TcpClient();                       
         }
 
@@ -45,9 +47,38 @@ namespace Client
 
                 commandHandlers["message"] = HandleMessage;
                 commandHandlers["input"] = HandleInput;
+                commandHandlers["Tick"] = HandleTick;
+                commandHandlers["Move"] = HandleMove;
+                commandHandlers["Spawn"] = HandleSpawn;
 
                 Run();
             }
+        }
+
+        private async Task HandleTick(NetworkPacket s)
+        {
+            if (s.Sender == "Server")
+            {
+                Gameworld.Instance.OnTick();
+            }
+        }
+
+        private async Task HandleMove(NetworkPacket packet)
+        {
+            Transform tf = Gameworld.Instance.GetGameobject(o => o.GetComponent<NetworkController>(n => n.ID.ToString() == packet.Sender) != null)?.Transform;
+
+            if (tf != null)
+                tf.Position[0] += ((Vector2I)packet.Data[0]).ToVector2();
+        }
+
+        private async Task HandleSpawn(NetworkPacket packet)
+        {
+            GameObject go = new GameObject();
+
+            go.AddComponent(new Transform(go, (Vector2I)packet.Data[0], (GameShapes)packet.Data[1]));
+            go.AddComponent(new NetworkController(go, new Guid(packet.Sender)));
+
+            Gameworld.Instance.AddGameObject(go);
         }
 
         private async Task HandleIncomingPackets()
@@ -55,63 +86,74 @@ namespace Client
             try
             {
                 // Check for new incomding messages
-                if (Client.Available > 0)
+                if (Client.Available > sizeof(ulong))
                 {
                     // There must be some incoming data, the first two bytes are the size of the Packet
-                    byte[] lengthBuffer = new byte[2];
-                    await ServerStream.ReadAsync(lengthBuffer, 0, 2);
-                    ushort packetByteSize = BitConverter.ToUInt16(lengthBuffer, 0);
+                    byte[] lengthBuffer = new byte[sizeof(ulong)];
+
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        lengthBuffer.Reverse();
+                    }
+
+                    await ServerStream.ReadAsync(lengthBuffer, 0, sizeof(ulong));
+                    ulong packetByteSize = BitConverter.ToUInt64(lengthBuffer, 0);
                     // Now read that many bytes from what's left in the stream, it must be the Packet
-                    byte[] jsonBuffer = new byte[packetByteSize];
-                    await ServerStream.ReadAsync(jsonBuffer, 0, jsonBuffer.Length);
+                    byte[] packetBuffer = new byte[packetByteSize];
+                    await ServerStream.ReadAsync(packetBuffer, 0, packetBuffer.Length);
                     // Convert it into a packet datatype
-                    string jsonString = Encoding.UTF8.GetString(jsonBuffer);
-                    GamePacket packet = GamePacket.FromJson(jsonString);
+                    NetworkPacket packet = NetworkPacket.Deserialize(packetBuffer);
                     // Dispatch it
                     try
                     {
-                        await commandHandlers[packet.Command](packet.Message);
+                        await commandHandlers[packet.Head](packet);
                     }
                     catch (KeyNotFoundException)
                     {
                     }
                 }
             }
-            catch (Exception) { }
+            catch (Exception ex)
+            { }
         }
 
-        private Task HandleMessage(string message)
+        private Task HandleMessage(NetworkPacket message)
         {
             return Task.FromResult(0);
         }
 
-        public async Task HandleInput(string message)
+        public async Task HandleInput(NetworkPacket message)
         {
             // Print the prompt and get a response to send
             string responseMsg = "\n\n\n\n\n\0floof";
 
             // Send the response
-            GamePacket resp = new GamePacket("input", responseMsg);
+            NetworkPacket resp = new NetworkPacket("input", responseMsg);
             await SendPacket(resp);
         }
 
-        public async Task SendPacket(GamePacket packet)
+        public async Task SendPacket(NetworkPacket packet)
         {
             try
             {
                 // Convert JSON to buffer and its length to a 16 bit unsigned integer buffer
-                byte[] jsonBuffer = Encoding.UTF8.GetBytes(packet.ToJson());
-                byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt16(jsonBuffer.Length));
+                byte[] packetBytes = packet.Serialize();
+                byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt64(packetBytes.Length));
+
+                if (BitConverter.IsLittleEndian)
+                {
+                    lengthBuffer.Reverse();
+                }
 
                 // Join the buffers
-                byte[] packetBuffer = new byte[lengthBuffer.Length + jsonBuffer.Length];
+                byte[] packetBuffer = new byte[lengthBuffer.Length + packetBytes.Length];
                 lengthBuffer.CopyTo(packetBuffer, 0);
-                jsonBuffer.CopyTo(packetBuffer, lengthBuffer.Length);
+                packetBytes.CopyTo(packetBuffer, lengthBuffer.Length);
 
                 // Send the packet
                 await ServerStream.WriteAsync(packetBuffer, 0, packetBuffer.Length);
             }
-            catch (Exception) { }
+            catch (Exception ex) { }
         }
 
         public void Run()

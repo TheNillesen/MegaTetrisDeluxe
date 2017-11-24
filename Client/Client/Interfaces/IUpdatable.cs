@@ -8,5 +8,7 @@ namespace Client
 {
     interface IUpdatable
     {
+
+        void Update();
     }
 }

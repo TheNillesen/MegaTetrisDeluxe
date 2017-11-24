@@ -45,7 +45,7 @@ namespace Server
             listner.Start();
             serverRunning = true;
 
-            new System.Threading.Thread(ServerLoop).Start();
+            new Thread(ServerLoop).Start();
         }
 
         public static void ServerLoop()
@@ -74,32 +74,47 @@ namespace Server
             //await Sendpacket(newClient, new GamePacket("message", msg));
         }
 
-        public static async Task SendPacket(TcpClient client, GamePacket packet)
+        public static async Task SendPacket(TcpClient client, NetworkPacket packet)
         {
             try
             {
                 // Convert JSON to buffer and its length to a 16 bit unsigned buffer
-                byte[] jsonBuffer = Encoding.UTF8.GetBytes(packet.ToJson());
-                byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt16(jsonBuffer.Length));
+                byte[] packetBuffer = packet.Serialize();
+                byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt64(packetBuffer.Length));
+
+                if (BitConverter.IsLittleEndian)
+                {
+                    lengthBuffer.Reverse();
+                }
 
                 // Join the buffers
-                byte[] msgBuffer = new byte[lengthBuffer.Length + jsonBuffer.Length];
+                byte[] msgBuffer = new byte[lengthBuffer.Length + packetBuffer.Length];
                 lengthBuffer.CopyTo(msgBuffer, 0);
-                jsonBuffer.CopyTo(msgBuffer, lengthBuffer.Length);
+                packetBuffer.CopyTo(msgBuffer, lengthBuffer.Length);
 
                 // Send the packet
                 await client.GetStream().WriteAsync(msgBuffer, 0, msgBuffer.Length);
             }
             catch (Exception e)
             {
+                if (!client.Connected)
+                    clients.Remove(client);
+
                 // There was and issue when sending
                 Console.WriteLine("There was an issue receiving a packet.");
                 Console.WriteLine("Reason {0}", e.Message);
             }
         }
-        public async static Task<GamePacket> ReceivePacket(TcpClient client)
+
+        public static async Task SendPacketAll(NetworkPacket packet)
         {
-            GamePacket packet = null;
+            for (int i = 0; i < clients.Count; i++)
+                await SendPacket(clients[i], packet);
+        }
+
+        public async static Task<NetworkPacket> ReceivePacket(TcpClient client)
+        {
+            NetworkPacket packet = null;
             try
             {
                 // First check there is data available
@@ -109,17 +124,29 @@ namespace Server
                 NetworkStream msgStream = client.GetStream();
 
                 // There must be some incoming data, the first two bytes are the size of the Packet
-                byte[] lengthBuffer = new byte[2];
-                await msgStream.ReadAsync(lengthBuffer, 0, 2);
-                ushort packetByteSize = BitConverter.ToUInt16(lengthBuffer, 0);
+                byte[] lengthBuffer = new byte[sizeof(ulong)];
+                await msgStream.ReadAsync(lengthBuffer, 0, sizeof(ulong));
+
+                if (BitConverter.IsLittleEndian)
+                {
+                    lengthBuffer.Reverse();
+                }
+
+                ulong packetByteSize = BitConverter.ToUInt64(lengthBuffer, 0);
 
                 // Now read that many bytes from what's left in the stream, it must be the Packet
-                byte[] jsonBuffer = new byte[packetByteSize];
-                await msgStream.ReadAsync(jsonBuffer, 0, jsonBuffer.Length);
+                byte[] packetBuffer = new byte[packetByteSize];
+                await msgStream.ReadAsync(packetBuffer, 0, packetBuffer.Length);
 
                 // Convert it into a packet datatype
-                string jsonString = Encoding.UTF8.GetString(jsonBuffer);
-                packet = GamePacket.FromJson(jsonString);
+                packet = NetworkPacket.Deserialize(packetBuffer);
+
+                switch(packet.Head)
+                {
+                    case "Move":
+                        await Move(packet);
+                        break;
+                }
             }
             catch (Exception e)
             {
@@ -129,6 +156,13 @@ namespace Server
             }
 
             return packet;
+        }
+
+        private static async Task Move (NetworkPacket packet)
+        {
+            SendPacketAll(packet);
+
+
         }
     }
 }

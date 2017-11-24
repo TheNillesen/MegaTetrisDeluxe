@@ -12,33 +12,33 @@ namespace Server
         static void Main(params string[] args)
         {
             int port = -1;
+            int gridWidth = -1;
+            int gridHeight = -1;
+            int tickCount = -1;
 
 #if DEBUG
-            args = new string[] { "port:6666" };
+            if (args.Length < 4)
+                args = new string[] { "port:6666", "width:50", "height:50", "tickCount:2" };
 #endif
 
             for (int i = 0; i < args.Length; i++)
+            {
                 if (args[i].Contains("port:"))
                     port = int.Parse(args[i].Split(':').Last());
+                else if (args[i].Contains("width:"))
+                    gridWidth = int.Parse(args[i].Split(':').Last());
+                else if (args[i].Contains("height:"))
+                    gridHeight = int.Parse(args[i].Split(':').Last());
+                else if (args[i].Contains("tickCount:"))
+                    tickCount = int.Parse(args[i].Split(':').Last());
+            }
 
-            if (port < 0)
+            if (port < 0 || gridWidth < 0 || gridHeight < 0 || tickCount < 0)
                 throw new Exception("No port parameter given");
 
-            Encryption encr = new Encryption();
-            Encryption decr = new Encryption(encr.GetPublicKey());
+            Console.WriteLine($"Starting server on port {port}, with a grid {gridWidth} wide and {gridHeight} high, one tick is {tickCount} ticks long");
 
-            byte[] message = Encoding.ASCII.GetBytes("blaaah");
-
-            byte[] encryptedPublic = decr.Encrypt(message);
-            byte[] decryptedPrivate = encr.Decrypt(encryptedPublic);
-
-            Console.WriteLine(Encoding.ASCII.GetString(message));
-
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(Encoding.ASCII.GetString(encryptedPublic));
-            Console.ForegroundColor = decryptedPrivate.All(o => message.Contains(o)) ? ConsoleColor.Green : ConsoleColor.Red;
-            Console.WriteLine(Encoding.ASCII.GetString(decryptedPrivate));
-
+            GameLogic.GameWorld.Init(gridWidth, gridHeight, tickCount);
             ConnectionHandler.Init(port);
 
             Console.ReadKey();
