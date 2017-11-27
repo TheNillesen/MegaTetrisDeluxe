@@ -20,6 +20,11 @@ namespace Client
         public float cellWidth;   //The width of a cell.
         public float cellHeight;  //The height of a cell.
 
+        //functions for Pause
+        private bool paused = false;
+        private Texture2D PausedTexture;
+        private Rectangle pausedRectangle;
+
         /// <summary>
         /// Auto generates the cells dimensions.
         /// </summary>
@@ -90,7 +95,14 @@ namespace Client
             Gameworld.Instance.AddGameObject(go3);
             go3.LoadContent(Gameworld.Instance.Content);
         }
-
+        //public void GameOver(Color color)
+        //{
+        //    GameObject gameOver = new GameObject();
+        //    gameOver.AddComponent(new Spriterendere(gameOver, "GameOver", 1f, color, true, new Vector2(gameAreaWidth, gameAreaHeight), true, new Rectangle(0, 0, gameAreaWidth, gameAreaHeight)));
+        //    gameOver.AddComponent(new Transform(gameOver, offset - new Vector2(1, 0), false, true));
+        //    Gameworld.Instance.AddGameObject(gameOver);
+        //    gameOver.LoadContent(Gameworld.Instance.Content);
+        //}
         /// <summary>
         /// Loads the map from a GridContainer received from Server
         /// </summary>
