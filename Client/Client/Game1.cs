@@ -51,6 +51,7 @@ namespace Client
         public Vector2 playerStartPosition;
         public string IPForServerConnection;
 
+
         private Gameworld()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -107,8 +108,6 @@ namespace Client
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             backGroundMusic = Content.Load<Song>("Original Tetris Theme");
-            
-           
             // TODO: use this.Content to load your game content here
         }
 
@@ -137,7 +136,7 @@ namespace Client
             if (connecting || hosting)
                 textField.Update();
             text.Update();
-
+            
             base.Update(gameTime);
 
             
@@ -159,6 +158,8 @@ namespace Client
             if (connecting || hosting)
                 textField.Draw(spriteBatch);
             text.Draw(spriteBatch);
+
+           
 
             spriteBatch.End();
 

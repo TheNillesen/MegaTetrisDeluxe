@@ -13,10 +13,6 @@ namespace Client
 {
     class SFX
     {
-        public bool isPlaying;
-        private Song backGround;
-        
-       
         public void PlayMusic()
         {
             MediaPlayer.Play(Gameworld.Instance.backGroundMusic);
@@ -33,6 +29,5 @@ namespace Client
         {
             MediaPlayer.Volume += 0.01f;
         }
-
     }
 }
