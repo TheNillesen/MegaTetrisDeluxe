@@ -32,12 +32,15 @@ namespace Client
         private TextField textField;
         private Text text;
 
+        //For the different times the textfield class is used, and indicates what it's used for.
+        public bool hosting;
+        public bool connecting;
+
         public Song backGroundMusic;
         public List<GameObject> gameObjects;     
         public GameMap gameMap;
         public GameObject player;
         public Vector2 playerStartPosition;
-        public bool textFieldActive;
         public string IPForServerConnection;
 
 
@@ -59,33 +62,27 @@ namespace Client
 
             base.Initialize();
 
-            //graphics.PreferredBackBufferWidth = 500;  // set this value to the desired width of your window
-            //graphics.PreferredBackBufferHeight = 500;   // set this value to the desired height of your window
-            //graphics.ApplyChanges();
+            graphics.PreferredBackBufferWidth = 1280;  // set this value to the desired width of your window
+            graphics.PreferredBackBufferHeight = 720;   // set this value to the desired height of your window
+            graphics.ApplyChanges();
             Gameworld.Instance.IsMouseVisible = true; //Makes the mouse visible within the gamewindow
 //#if DEBUG
 //            GameClient gc = new GameClient();
 //            new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
 //#endif
             gameObjects = new List<GameObject>();
-            gameMap = new GameMap(20, 20, 500, 400, new Vector2(0, 0));
+            gameMap = new GameMap(20f, 20f, 1000, 700, new Vector2(0, 0));
             gameMap.Borders(Color.White);
 
-            playerStartPosition = new Vector2(10, 4);
-            textFieldActive = false;
+            playerStartPosition = new Vector2(gameMap.map.GetLength(0) / 2, 4);
+            connecting = false;
             textField = new TextField("Border", gameMap.gameAreaWidth / 2, gameMap.gameAreaHeight / 2, new Vector2(5, 1));
             textField.LoadContent(this.Content);
-            text = new Text(Color.White, 20, new Vector2(20, - 220));
+            text = new Text(Color.White, 20, new Vector2(20, - 300));
             text.LoadContent(this.Content);
 
             //Test player
-            player = new GameObject();
-            player.AddComponent(new Spriterendere(player, "GreyToneBlock", 1f));
-            player.AddComponent(new Transform(player, playerStartPosition));
-            player.AddComponent(new PlayerController(player));
-            player.LoadContent(this.Content);
-            gameObjects.Add(player);
-            
+            CreatPlayer();
         }
 
         public GameObject GetGameobject(Predicate<GameObject> filter)
@@ -128,7 +125,7 @@ namespace Client
             for (int i = 0; i < gameObjects.Count; i++)
                 gameObjects[i].Update();
             player.Update();
-            if (textFieldActive)
+            if (connecting || hosting)
                 textField.Update();
             text.Update();
             
@@ -151,7 +148,7 @@ namespace Client
             for (int i = 0; i < gameObjects.Count; i++)
                 gameObjects[i].Draw(spriteBatch);
             player.Draw(spriteBatch);
-            if (textFieldActive)
+            if (connecting || hosting)
                 textField.Draw(spriteBatch);
             text.Draw(spriteBatch);
 
@@ -187,6 +184,16 @@ namespace Client
         public void RemoveObject(GameObject go)
         {
             gameObjects.Remove(go);
+        }
+
+        public void CreatPlayer()
+        {
+            player = new GameObject();
+            player.AddComponent(new Spriterendere(player, "GreyToneBlock", 1f));
+            player.AddComponent(new Transform(player, playerStartPosition));
+            player.AddComponent(new PlayerController(player));
+            player.LoadContent(this.Content);
+            gameObjects.Add(player);
         }
     }
 }

@@ -20,10 +20,7 @@ namespace Client
         public float cellWidth;   //The width of a cell.
         public float cellHeight;  //The height of a cell.
 
-        //functions for Pause
-        private bool paused = false;
-        private Texture2D PausedTexture;
-        private Rectangle pausedRectangle;
+        private List<GameObject> visual;
 
         /// <summary>
         /// Auto generates the cells dimensions.
@@ -38,6 +35,8 @@ namespace Client
             this.gameAreaWidth = gameAreaWidth;
             this.gameAreaHeight = gameAreaHeight;
             this.offset = offset;
+
+            visual = new List<GameObject>();
 
             map = new GameObject[numberOfCellsWidth, numberOfCellsHeight];
             SizeOfCell(numberOfCellsWidth, numberOfCellsHeight);
@@ -59,6 +58,33 @@ namespace Client
             this.offset = offset;
 
             map = new GameObject[(int)(gameAreaWidth / cellWidth), (int)(gameAreaHeight / cellHeight)];
+        }
+
+        /// <summary>
+        /// Redefines a new width and height.
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        public void NewGrid(int numberOfCellsWidth, int numberOfCellsHeight)
+        {
+            map = new GameObject[numberOfCellsWidth, numberOfCellsHeight];
+            SizeOfCell(numberOfCellsWidth, numberOfCellsHeight);
+
+            //Ensures that the content within the gameobjects fits the new grid.
+            for (int i = 0; i < Gameworld.Instance.gameObjects.Count(); i++)
+            {
+                if(Gameworld.Instance.gameObjects[i] is ILoadable)
+                    Gameworld.Instance.gameObjects[i].LoadContent(Gameworld.Instance.Content);
+            }
+            for (int i = 0; i < Gameworld.Instance.gameObjects.Count(); i++)
+            {
+                Gameworld.Instance.gameObjects.Clear();
+                Gameworld.Instance.playerStartPosition = new Vector2(map.GetLength(0) / 2, 4);
+                Gameworld.Instance.CreatPlayer();
+            }
+
+            //New borders.
+            Borders(Color.White);
         }
 
         public void Borders(Color color)
@@ -95,14 +121,7 @@ namespace Client
             Gameworld.Instance.AddGameObject(go3);
             go3.LoadContent(Gameworld.Instance.Content);
         }
-        //public void GameOver(Color color)
-        //{
-        //    GameObject gameOver = new GameObject();
-        //    gameOver.AddComponent(new Spriterendere(gameOver, "GameOver", 1f, color, true, new Vector2(gameAreaWidth, gameAreaHeight), true, new Rectangle(0, 0, gameAreaWidth, gameAreaHeight)));
-        //    gameOver.AddComponent(new Transform(gameOver, offset - new Vector2(1, 0), false, true));
-        //    Gameworld.Instance.AddGameObject(gameOver);
-        //    gameOver.LoadContent(Gameworld.Instance.Content);
-        //}
+
         /// <summary>
         /// Loads the map from a GridContainer received from Server
         /// </summary>
