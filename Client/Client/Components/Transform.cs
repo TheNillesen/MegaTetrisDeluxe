@@ -212,9 +212,15 @@ namespace Client
                 Vector2 newPos = Gameworld.Instance.playerStartPosition;
                 for (int i = 0; i < Position.Count(); i++)
                     Position[i] = Gameworld.Instance.gameMap.Position(new Vector2(newPos.X + ShapeCord[i].X, newPos.Y + ShapeCord[i].Y));
-            }
-        }
 
+                if (Gameworld.Instance.gameMap.IsBlockPlaced(newPos, ShapeCord) == true)
+                {
+                    Gameworld.Instance.Exit();
+                }
+            }
+
+        }
+        
         public void PlaceBlockNow()
         {
             Vector2 move = new Vector2(0, 1);

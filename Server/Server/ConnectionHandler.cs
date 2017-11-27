@@ -66,10 +66,11 @@ namespace Server
         {
             TcpClient newClient = await listner.AcceptTcpClientAsync();
             Console.WriteLine("New connection from {0}.", newClient.Client.RemoteEndPoint);
-
-
-            clients.Add(newClient);
             
+            clients.Add(newClient);
+
+            await SendPacket(newClient, new NetworkPacket("ID", "Server", Guid.NewGuid()));
+
             //await SendToAll(count);
             //await Sendpacket(newClient, new GamePacket("message", msg));
         }
@@ -146,6 +147,9 @@ namespace Server
                     case "Move":
                         await Move(packet);
                         break;
+                    case "Rotate":
+                        await Rotate(packet);
+                        break;
                 }
             }
             catch (Exception e)
@@ -158,11 +162,27 @@ namespace Server
             return packet;
         }
 
+        private static GameObject GetCorrospondingGameObject(NetworkPacket packet)
+        {
+            return GameLogic.GameWorld.GameObjects.Find(o => o.Guid == packet.Sender);
+        }
+
         private static async Task Move (NetworkPacket packet)
         {
             SendPacketAll(packet);
 
+            GameObject go = GetCorrospondingGameObject(packet);
 
+            go.Position[0] += (Vector2I)packet.Data[0];
+        }
+
+        private static async Task Rotate(NetworkPacket packet)
+        {
+            SendPacketAll(packet);
+
+            GameObject go = GetCorrospondingGameObject(packet);
+
+            
         }
     }
 }

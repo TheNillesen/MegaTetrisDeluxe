@@ -23,6 +23,12 @@ namespace Client
         private bool jogging = false;
         private Guid id;
 
+        public Guid Id
+        {
+            get { return id; }
+            set { id = value; }
+        }
+
         public GameClient()
         {
             commandHandlers = new Dictionary<string, Func<NetworkPacket, Task>>();
@@ -59,7 +65,7 @@ namespace Client
 
         private async Task HandleID(NetworkPacket p)
         {
-            if (s.Sender == "Server")
+            if (p.Sender == "Server")
             {
                 id = (Guid)p.Data[0];
             }
@@ -144,6 +150,9 @@ namespace Client
 
         public async Task SendPacket(NetworkPacket packet)
         {
+            if (packet.Sender == null)
+                packet.Sender = id.ToString();
+
             try
             {
                 // Convert JSON to buffer and its length to a 16 bit unsigned integer buffer

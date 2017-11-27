@@ -61,6 +61,8 @@
     <Compile Include="Components\Transform.cs" />
     <Compile Include="RotPointsAroundPointMath.cs" />
     <Compile Include="SFX.cs" />
+    <Compile Include="Text.cs" />
+    <Compile Include="TextField.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Intermediate, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">

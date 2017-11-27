@@ -15,6 +15,13 @@ namespace Server.GameLogic
         private static bool run;
 
         private static Thread updateThread;
+        private static List<GameObject> gameObjects;
+
+        public static List<GameObject> GameObjects
+        {
+            get { return gameObjects; }
+            set { gameObjects = value; }
+        }
 
         static GameWorld()
         { run = true; }

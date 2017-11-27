@@ -49,6 +49,7 @@
     <Compile Include="Helpers\GameShapeHelper.cs" />
     <Compile Include="NetworkPacket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RotPointsAroundPointMath.cs" />
     <Compile Include="Vector2I.cs" />
   </ItemGroup>
   <ItemGroup>
