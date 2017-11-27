@@ -76,12 +76,9 @@ namespace Client
                 if(Gameworld.Instance.gameObjects[i] is ILoadable)
                     Gameworld.Instance.gameObjects[i].LoadContent(Gameworld.Instance.Content);
             }
-            for (int i = 0; i < Gameworld.Instance.gameObjects.Count(); i++)
-            {
-                Gameworld.Instance.gameObjects.Clear();
-                Gameworld.Instance.playerStartPosition = new Vector2(map.GetLength(0) / 2, 4);
-                Gameworld.Instance.CreatPlayer();
-            }
+            Gameworld.Instance.gameObjects.Clear();
+            Gameworld.Instance.playerStartPosition = new Vector2(map.GetLength(0) / 2, 4);
+            Gameworld.Instance.CreatePlayer();
 
             //New borders.
             Borders(Color.White);
@@ -128,8 +125,7 @@ namespace Client
         /// <param name="gridContainer">The Gridcongainer received from the server</param>
         public void FromContainer(Intermediate.Game.GridContainer gridContainer)
         {
-            this.gameAreaWidth = gridContainer.Width;
-            this.gameAreaHeight = gridContainer.Height;
+            NewGrid(gridContainer.Width, gridContainer.Height);
 
             foreach(Intermediate.Game.GameObjectContainer gameObjectContainer in gridContainer.GameObjects)
             {
@@ -137,6 +133,11 @@ namespace Client
                 Intermediate.Vector2I[] positions = Intermediate.GameShapeHelper.GetShape(gameObjectContainer.Shape, gameObjectContainer.Postion);
 
                 //Spawn gameobjects and stuff
+                GameObject go = new GameObject();
+                go.AddComponent(new Transform(go, positions, gameObjectContainer.Shape));
+                go.AddComponent(new Spriterendere(go, "GreyToneBlock", 1));
+
+                Gameworld.Instance.AddGameObject(go);
             }
         }
 

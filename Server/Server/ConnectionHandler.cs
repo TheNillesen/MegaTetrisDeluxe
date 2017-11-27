@@ -58,7 +58,10 @@ namespace Server
                 {
                     newConnectionTasks.Add(HandleNewConnection());            
                 }
-                else Thread.Sleep(100);
+                for (int i = 0; i < clients.Count; i++)
+                {
+                    ReceivePacket(clients[i]);
+                }
             }
         }
 
@@ -69,7 +72,7 @@ namespace Server
             
             clients.Add(newClient);
 
-            await SendPacket(newClient, new NetworkPacket("ID", "Server", Guid.NewGuid()));
+            await SendPacket(newClient, new NetworkPacket("ID", "Server", Guid.NewGuid(), GameLogic.GameWorld.Grid.ToGridContainer()));
 
             //await SendToAll(count);
             //await Sendpacket(newClient, new GamePacket("message", msg));
@@ -85,7 +88,7 @@ namespace Server
 
                 if (BitConverter.IsLittleEndian)
                 {
-                    lengthBuffer.Reverse();
+                    Array.Reverse(lengthBuffer);
                 }
 
                 // Join the buffers
@@ -125,15 +128,20 @@ namespace Server
                 NetworkStream msgStream = client.GetStream();
 
                 // There must be some incoming data, the first two bytes are the size of the Packet
-                byte[] lengthBuffer = new byte[sizeof(ulong)];
-                await msgStream.ReadAsync(lengthBuffer, 0, sizeof(ulong));
+                byte[] lengthBuffer = new byte[4];
+                int recv = 0;
+
+                while (recv < lengthBuffer.Length)
+                {
+                    recv += await msgStream.ReadAsync(lengthBuffer, recv, lengthBuffer.Length - recv);
+                }                
 
                 if (BitConverter.IsLittleEndian)
                 {
-                    lengthBuffer.Reverse();
+                    Array.Reverse(lengthBuffer);
                 }
 
-                ulong packetByteSize = BitConverter.ToUInt64(lengthBuffer, 0);
+                int packetByteSize = BitConverter.ToInt32(lengthBuffer, 0);
 
                 // Now read that many bytes from what's left in the stream, it must be the Packet
                 byte[] packetBuffer = new byte[packetByteSize];
@@ -144,6 +152,9 @@ namespace Server
 
                 switch(packet.Head)
                 {
+                    case "Spawn":
+                        await Spawn(packet);
+                        break;
                     case "Move":
                         await Move(packet);
                         break;
@@ -183,6 +194,14 @@ namespace Server
             GameObject go = GetCorrospondingGameObject(packet);
 
             
+        }
+        private static async Task Spawn(NetworkPacket packet)
+        {
+            SendPacketAll(packet);
+            GameObject sGo = new GameObject();
+            sGo.Guid = packet.Sender;
+            sGo.Position = GameShapeHelper.GetShape((GameShapes)packet.Data[1], (Vector2I)packet.Data[0]);
+            GameLogic.GameWorld.Grid.AddGameObject(sGo);
         }
     }
 }

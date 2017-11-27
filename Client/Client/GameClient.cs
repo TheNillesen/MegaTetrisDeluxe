@@ -10,8 +10,7 @@ using Intermediate;
 using Microsoft.Xna.Framework;
 using Andreas.Gade;
 using Anders.Vestergaard;
-using Nikolaj.Er.Kongen.Men.Han.gider.Ikke.Vise.Det;
-
+using Microsoft.Xna.Framework.Media;
 
 namespace Client
 {
@@ -32,7 +31,8 @@ namespace Client
         public GameClient()
         {
             commandHandlers = new Dictionary<string, Func<NetworkPacket, Task>>();
-            Client = new TcpClient();                      
+            Client = new TcpClient(); 
+            
         }
 
         public void Connect(IPAddress ip, int port)
@@ -68,6 +68,7 @@ namespace Client
             if (p.Sender == "Server")
             {
                 id = (Guid)p.Data[0];
+                Gameworld.Instance.gameMap.FromContainer((Intermediate.Game.GridContainer)p.Data[1]);
             }
         }
 
@@ -93,7 +94,8 @@ namespace Client
 
             go.AddComponent(new Transform(go, (Vector2I)packet.Data[0], (GameShapes)packet.Data[1]));
             go.AddComponent(new NetworkController(go, new Guid(packet.Sender)));
-
+            go.AddComponent(new Spriterendere(go, "GreyToneBlock", 1f));
+            go.LoadContent(Gameworld.Instance.Content);
             Gameworld.Instance.AddGameObject(go);
         }
 
@@ -118,7 +120,12 @@ namespace Client
                     byte[] packetBuffer = new byte[packetByteSize];
                     await ServerStream.ReadAsync(packetBuffer, 0, packetBuffer.Length);
                     // Convert it into a packet datatype
+
+                    if (packetBuffer.Length != 492)
+                    { }
+
                     NetworkPacket packet = NetworkPacket.Deserialize(packetBuffer);
+
                     // Dispatch it
                     try
                     {
@@ -157,17 +164,19 @@ namespace Client
             {
                 // Convert JSON to buffer and its length to a 16 bit unsigned integer buffer
                 byte[] packetBytes = packet.Serialize();
-                byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt64(packetBytes.Length));
+                byte[] lengthBuffer = BitConverter.GetBytes(packetBytes.Length);
 
                 if (BitConverter.IsLittleEndian)
                 {
-                    lengthBuffer.Reverse();
+                    Array.Reverse(lengthBuffer);
                 }
 
                 // Join the buffers
                 byte[] packetBuffer = new byte[lengthBuffer.Length + packetBytes.Length];
                 lengthBuffer.CopyTo(packetBuffer, 0);
                 packetBytes.CopyTo(packetBuffer, lengthBuffer.Length);
+
+
 
                 // Send the packet
                 await ServerStream.WriteAsync(packetBuffer, 0, packetBuffer.Length);

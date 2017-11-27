@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Media;
 using Anders.Vestergaard;
 using Andreas.Gade;
 using System.Collections.Generic;
+using Intermediate;
 
 namespace Client
 {
@@ -91,7 +92,7 @@ namespace Client
             text.LoadContent(this.Content);
 
             //Test player
-            CreatPlayer();
+            CreatePlayer();
         }
 
         public GameObject GetGameobject(Predicate<GameObject> filter)
@@ -206,7 +207,7 @@ namespace Client
             gameObjects.Remove(go);
         }
 
-        public void CreatPlayer()
+        public void CreatePlayer()
         {
             player = new GameObject();
             player.AddComponent(new Spriterendere(player, "GreyToneBlock", 1f));
@@ -214,6 +215,13 @@ namespace Client
             player.AddComponent(new PlayerController(player));
             player.LoadContent(this.Content);
             gameObjects.Add(player);
+
+            if (Client != null)
+            {
+                Intermediate.NetworkPacket packet = new Intermediate.NetworkPacket("Spawn", null, player.Transform.Position[0].ToVector2I(), player.Transform.shape);
+                Client.SendPacket(packet);
+            }
+            
         }
     }
 }
