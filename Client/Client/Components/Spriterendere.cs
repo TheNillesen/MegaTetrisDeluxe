@@ -95,7 +95,7 @@ namespace Client
         }
         public void Draw(SpriteBatch spriteBatch)
         {
-            //Checks if the block is placed or not.
+            //Checks if the block is placed or not..
             if (!gameObject.placedBlock)
             {
                 for (int i = 0; i < gameObject.Transform.Position.Count(); i++)
