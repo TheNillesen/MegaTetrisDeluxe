@@ -73,9 +73,9 @@ namespace Server
             return new GridContainer(width, height, gameObjectContainers.ToArray());
         }
 
-        private void AddGameObject(GameObject go)
+        public void AddGameObject(GameObject go)
         {
-            Vector2I[] positions = GameShapeHelper.GetShape(go.Shape, go.Position);
+            Vector2I[] positions = GameShapeHelper.GetShape(go.Shape, go.Position[0]);
 
             for(int i = 0; i < positions.Length; i++)
             {

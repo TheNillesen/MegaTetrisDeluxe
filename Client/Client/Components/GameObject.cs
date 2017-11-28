@@ -106,7 +106,8 @@ namespace Client
             IUpdatable[] Updateables = (from Component component in components where component is IUpdatable select component as IUpdatable).ToArray();
 
             foreach (IUpdatable Updateable in Updateables)
-                Updateable.Update();
+                if ((Updateable as Component).Enabled)
+                    Updateable.Update();
         }
 
         public void Draw(SpriteBatch spriteBatch)
@@ -114,7 +115,8 @@ namespace Client
             IDrawable[] IDrawables = (from Component component in components where component is IDrawable select component as IDrawable).ToArray();
 
             foreach (IDrawable IDrawable in IDrawables)
-                IDrawable.Draw(spriteBatch);
+                if ((IDrawable as Component).Enabled)
+                    IDrawable.Draw(spriteBatch);
         }
 
         public void LoadContent(ContentManager content)
@@ -122,7 +124,8 @@ namespace Client
             ILoadable[] ILoadables = (from Component component in components where component is ILoadable select component as ILoadable).ToArray();
 
             foreach (ILoadable ILoadable in ILoadables)
-                ILoadable.LoadContent(content);
+                if ((ILoadable as Component).Enabled)
+                    ILoadable.LoadContent(content);
         }
 
         public void OnTick()
@@ -130,7 +133,8 @@ namespace Client
             ITickable[] ITickables = (from Component component in components where component is ITickable select component as ITickable).ToArray();
 
             foreach (ITickable ITickable in ITickables)
-                ITickable.OnTick();
+                if ((ITickable as Component).Enabled)
+                    ITickable.OnTick();
         }
     }
 }

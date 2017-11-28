@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Media;
 using Anders.Vestergaard;
 using Andreas.Gade;
 using System.Collections.Generic;
+using Intermediate;
 
 namespace Client
 {
@@ -24,11 +25,19 @@ namespace Client
             }
         }
 
+        public GameClient Client
+        {
+            get { return client; }
+            set { client = value; }
+        }
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
         private bool hasRun = false;
         private DateTime startup = DateTime.Now;
+        private Process server;
+        private GameClient client;
         private TextField textField;
         private Text text;
 
@@ -43,10 +52,12 @@ namespace Client
         public Vector2 playerStartPosition;
         public string IPForServerConnection;
 
+
         private Gameworld()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            server = null;
         }
 
         /// <summary>
@@ -81,7 +92,7 @@ namespace Client
             text.LoadContent(this.Content);
 
             //Test player
-            CreatPlayer();
+            CreatePlayer();
         }
 
         public GameObject GetGameobject(Predicate<GameObject> filter)
@@ -98,8 +109,6 @@ namespace Client
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             backGroundMusic = Content.Load<Song>("Original Tetris Theme");
-            
-           
             // TODO: use this.Content to load your game content here
         }
 
@@ -125,11 +134,10 @@ namespace Client
             // TODO: Add your update logic here
             for (int i = 0; i < gameObjects.Count; i++)
                 gameObjects[i].Update();
-            player.Update();
             if (connecting || hosting)
                 textField.Update();
             text.Update();
-
+            
             base.Update(gameTime);
 
             
@@ -148,25 +156,39 @@ namespace Client
 
             for (int i = 0; i < gameObjects.Count; i++)
                 gameObjects[i].Draw(spriteBatch);
-            player.Draw(spriteBatch);
             if (connecting || hosting)
                 textField.Draw(spriteBatch);
             text.Draw(spriteBatch);
+
+           
 
             spriteBatch.End();
 
             base.Draw(gameTime);
         }
 
-        public static void startServer(int port, int gridWidth, int gridHeight, long tickCount)
+        public static void StartServer(int port, int gridWidth, int gridHeight, long tickCount)
         {
-            Process process = new Process();
+            if (Instance.server == null)
+            {
+                Process process = new Process();
 
-            process.StartInfo.Arguments = $"port:{port.ToString()} width:{gridWidth} height:{gridHeight} tickCount:{tickCount}";
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.FileName = "Server.exe";
+                process.StartInfo.Arguments = $"port:{port.ToString()} width:{gridWidth} height:{gridHeight} tickCount:{tickCount}";
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.FileName = "Server.exe";
 
-            process.Start();
+                process.Start();
+
+                instance.server = process;
+            }
+        }
+
+        public static void CloseServer()
+        {
+            if (Instance.server != null)
+            {
+                instance.server.Kill();
+            }
         }
 
         public void OnTick()
@@ -185,7 +207,7 @@ namespace Client
             gameObjects.Remove(go);
         }
 
-        public void CreatPlayer()
+        public void CreatePlayer()
         {
             player = new GameObject();
             player.AddComponent(new Spriterendere(player, "GreyToneBlock", 1f));
@@ -193,6 +215,13 @@ namespace Client
             player.AddComponent(new PlayerController(player));
             player.LoadContent(this.Content);
             gameObjects.Add(player);
+
+            if (Client != null)
+            {
+                Intermediate.NetworkPacket packet = new Intermediate.NetworkPacket("Spawn", null, player.Transform.Position[0].ToVector2I(), player.Transform.shape);
+                Client.SendPacket(packet);
+            }
+            
         }
     }
 }

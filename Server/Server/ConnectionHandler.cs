@@ -10,9 +10,20 @@ using Intermediate;
 
 namespace Server
 {
-    
+    struct Shipping
+    {
+        public NetworkPacket NetworkPacket;
+        public TcpClient TcpClient;
+
+        public Shipping(NetworkPacket networkPacket, TcpClient tcpClient)
+        {
+            NetworkPacket = networkPacket;
+            TcpClient = tcpClient;
+        }
+    }
     internal static class ConnectionHandler
     {
+        private static Queue<Shipping> networkPakages;
         private static TcpListener listner;
         private static int port;
         private static bool serverRunning;
@@ -33,6 +44,7 @@ namespace Server
 
         static ConnectionHandler()
         {
+            networkPakages = new Queue<Shipping>();
             ConnectionHandler.clients = new List<TcpClient>();
         }
 
@@ -58,7 +70,15 @@ namespace Server
                 {
                     newConnectionTasks.Add(HandleNewConnection());            
                 }
-                else Thread.Sleep(100);
+                for (int i = 0; i < clients.Count; i++)
+                {
+                    ReceivePacket(clients[i]);
+                }
+                while (networkPakages.Count > 0)
+                {
+                    Shipping cargo = networkPakages.Dequeue();
+                    SendPacketInternal(cargo.TcpClient, cargo.NetworkPacket);
+                }
             }
         }
 
@@ -66,15 +86,20 @@ namespace Server
         {
             TcpClient newClient = await listner.AcceptTcpClientAsync();
             Console.WriteLine("New connection from {0}.", newClient.Client.RemoteEndPoint);
-
-
-            clients.Add(newClient);
             
+            clients.Add(newClient);
+
+            SendPacket(newClient, new NetworkPacket("ID", "Server", Guid.NewGuid(), GameLogic.GameWorld.Grid.ToGridContainer()));
+
             //await SendToAll(count);
             //await Sendpacket(newClient, new GamePacket("message", msg));
         }
-
-        public static async Task SendPacket(TcpClient client, NetworkPacket packet)
+        public static void SendPacket(TcpClient client, NetworkPacket packet)
+        {
+            //this is a packet
+            networkPakages.Enqueue(new Shipping(packet, client));
+        }
+        private static void SendPacketInternal(TcpClient client, NetworkPacket packet)
         {
             try
             {
@@ -84,7 +109,7 @@ namespace Server
 
                 if (BitConverter.IsLittleEndian)
                 {
-                    lengthBuffer.Reverse();
+                    Array.Reverse(lengthBuffer);
                 }
 
                 // Join the buffers
@@ -93,7 +118,7 @@ namespace Server
                 packetBuffer.CopyTo(msgBuffer, lengthBuffer.Length);
 
                 // Send the packet
-                await client.GetStream().WriteAsync(msgBuffer, 0, msgBuffer.Length);
+                client.GetStream().Write(msgBuffer, 0, msgBuffer.Length);
             }
             catch (Exception e)
             {
@@ -109,7 +134,7 @@ namespace Server
         public static async Task SendPacketAll(NetworkPacket packet)
         {
             for (int i = 0; i < clients.Count; i++)
-                await SendPacket(clients[i], packet);
+                 SendPacket(clients[i], packet);
         }
 
         public async static Task<NetworkPacket> ReceivePacket(TcpClient client)
@@ -117,34 +142,30 @@ namespace Server
             NetworkPacket packet = null;
             try
             {
-                // First check there is data available
-                if (client.Available == 0)
+                if (client.Available < sizeof(ulong))
                     return null;
-
-                NetworkStream msgStream = client.GetStream();
-
-                // There must be some incoming data, the first two bytes are the size of the Packet
                 byte[] lengthBuffer = new byte[sizeof(ulong)];
-                await msgStream.ReadAsync(lengthBuffer, 0, sizeof(ulong));
-
-                if (BitConverter.IsLittleEndian)
-                {
-                    lengthBuffer.Reverse();
-                }
-
+                await client.GetStream().ReadAsync(lengthBuffer, 0, sizeof(ulong));
+               
                 ulong packetByteSize = BitConverter.ToUInt64(lengthBuffer, 0);
 
                 // Now read that many bytes from what's left in the stream, it must be the Packet
                 byte[] packetBuffer = new byte[packetByteSize];
-                await msgStream.ReadAsync(packetBuffer, 0, packetBuffer.Length);
+                await client.GetStream().ReadAsync(packetBuffer, 0, packetBuffer.Length);
 
                 // Convert it into a packet datatype
                 packet = NetworkPacket.Deserialize(packetBuffer);
 
                 switch(packet.Head)
                 {
+                    case "Spawn":
+                        await Spawn(packet);
+                        break;
                     case "Move":
                         await Move(packet);
+                        break;
+                    case "Rotate":
+                        await Rotate(packet);
                         break;
                 }
             }
@@ -158,11 +179,35 @@ namespace Server
             return packet;
         }
 
+        private static GameObject GetCorrospondingGameObject(NetworkPacket packet)
+        {
+            return GameLogic.GameWorld.GameObjects.Find(o => o.Guid == packet.Sender);
+        }
+
         private static async Task Move (NetworkPacket packet)
         {
             SendPacketAll(packet);
 
+            GameObject go = GetCorrospondingGameObject(packet);
 
+            go.Position[0] += (Vector2I)packet.Data[0];
+        }
+
+        private static async Task Rotate(NetworkPacket packet)
+        {
+            SendPacketAll(packet);
+
+            GameObject go = GetCorrospondingGameObject(packet);
+
+            
+        }
+        private static async Task Spawn(NetworkPacket packet)
+        {
+            SendPacketAll(packet);
+            GameObject sGo = new GameObject();
+            sGo.Guid = packet.Sender;
+            sGo.Position = GameShapeHelper.GetShape((GameShapes)packet.Data[1], (Vector2I)packet.Data[0]);
+            GameLogic.GameWorld.Grid.AddGameObject(sGo);
         }
     }
 }

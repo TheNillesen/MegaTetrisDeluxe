@@ -10,11 +10,11 @@ namespace Server
 {
     class GameObject
     {
-        private Vector2I position;
+        private Vector2I[] position;
         private GameShapes shape;
         private string guid;
 
-        public Vector2I Position
+        public Vector2I[] Position
         {
             get
             {
@@ -50,7 +50,7 @@ namespace Server
 
         public void Translate(Vector2I direction)
         {
-            position += direction;
+            position[0] += direction;
         }
 
         public bool ValidateMove(Vector2I direction)
@@ -60,7 +60,7 @@ namespace Server
 
         public GameObjectContainer ToGameObjectContainer()
         {
-            return new GameObjectContainer(position, shape, guid);
+            return new GameObjectContainer(position[0], shape, guid);
         }
     }
 }

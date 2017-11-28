@@ -65,6 +65,16 @@ namespace Client
             }
         }
 
+        public Transform(GameObject gameObject, Vector2I[] positions, GameShapes shape) : base(gameObject)
+        {
+            this.Position = new Vector2[positions.Length];
+
+            for (int i = 0; i < positions.Length; i++)
+                Position[i] = positions[i].ToVector2();
+
+            this.shape = shape;
+        }
+
         /// <summary>
         /// Slave function to the constructors.
         /// </summary>
@@ -112,8 +122,14 @@ namespace Client
         /// </summary>
         public void MoveDown(bool enforced = false)
         {
-            BlockPlaceCheck();
-            Move(new Vector2(0, 1));
+            if (Position != null)
+            {
+                if (!enforced)
+                {
+                    BlockPlaceCheck();
+                }
+                Move(new Vector2(0, 1));
+            }
         }
 
         private void Move(Vector2 move)
@@ -174,6 +190,8 @@ namespace Client
         /// </summary>
         private void BlockPlaceCheck()
         {
+            if (Position == null) return;
+
             bool placed = false;
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
             //We move the blocks one down, as we need to check the next position befor we move to it
@@ -302,7 +320,7 @@ namespace Client
 
         public void OnTick()
         {
-            MoveDown(true);
+            MoveDown();
         }
     }
 }
