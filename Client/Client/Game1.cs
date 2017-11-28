@@ -25,7 +25,7 @@ namespace Client
             }
         }
 
-        public GameClient Client
+        public Client Client
         {
             get { return client; }
             set { client = value; }
@@ -37,7 +37,7 @@ namespace Client
         private bool hasRun = false;
         private DateTime startup = DateTime.Now;
         private Process server;
-        private GameClient client;
+        private Client client;
         private TextField textField;
         private Text text;
 
@@ -219,7 +219,7 @@ namespace Client
             if (Client != null)
             {
                 Intermediate.NetworkPacket packet = new Intermediate.NetworkPacket("Spawn", null, player.Transform.Position[0].ToVector2I(), player.Transform.shape);
-                Client.SendPacket(packet);
+                Client.Send(packet);
             }
             
         }

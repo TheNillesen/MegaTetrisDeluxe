@@ -64,7 +64,7 @@ namespace Server.GameLogic
 
             byte[] temp = new Intermediate.NetworkPacket("Tick", "Server", null).Serialize();
 
-            ConnectionHandler.SendPacketAll(new Intermediate.NetworkPacket("Tick", "Server", null));
+            NewConnectionHandler.SendAll(new Intermediate.NetworkPacket("Tick", "Server", null));
         }
     }
 }

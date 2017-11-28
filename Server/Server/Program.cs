@@ -39,7 +39,7 @@ namespace Server
             Console.WriteLine($"Starting server on port {port}, with a grid {gridWidth} wide and {gridHeight} high, one tick is {tickCount} ticks long");
 
             GameLogic.GameWorld.Init(gridWidth, gridHeight, tickCount);
-            ConnectionHandler.Init(port);
+            NewConnectionHandler.Init(port);
 
             Console.ReadKey();
         }

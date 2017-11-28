@@ -101,7 +101,7 @@ namespace Client
                     ipBytes[i] = byte.Parse(values[i]);
 
                 //Starts game client
-                Gameworld.Instance.Client = new GameClient();
+                Gameworld.Instance.Client = new Client();
                 new System.Threading.Thread(() => Gameworld.Instance.Client.Connect(new System.Net.IPAddress(ipBytes), 6666)).Start();
                 
                 //Resets the text for later use.
@@ -120,7 +120,7 @@ namespace Client
                 //Starts server
                 Gameworld.StartServer(6666, a, b, 2);
                 //Starts game client
-                Gameworld.Instance.Client = new GameClient();
+                Gameworld.Instance.Client = new Client();
                 new System.Threading.Thread(() => Gameworld.Instance.Client.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
 
                 Gameworld.Instance.hosting = false;

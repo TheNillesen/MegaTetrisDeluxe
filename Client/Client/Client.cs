@@ -104,6 +104,8 @@ namespace Client
         }
         private void HandlePakage(NetworkPacket nPacket)
         {
+            if (nPacket.Sender == ID.ToString())
+                return;
             switch (nPacket.Head)
             {
                 case "Move":
@@ -125,6 +127,14 @@ namespace Client
                     Gameworld.Instance.AddGameObject(go);
                     go.LoadContent(Gameworld.Instance.Content);
                     break;
+                case "Tick":
+                    if(nPacket.Sender == "Server")
+                    {
+                        Gameworld.Instance.OnTick();
+                    }
+                    
+                    break;
+
                 default:
                     return;
                     
