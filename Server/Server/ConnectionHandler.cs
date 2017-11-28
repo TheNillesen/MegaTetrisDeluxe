@@ -10,9 +10,20 @@ using Intermediate;
 
 namespace Server
 {
-    
+    struct Shipping
+    {
+        public NetworkPacket NetworkPacket;
+        public TcpClient TcpClient;
+
+        public Shipping(NetworkPacket networkPacket, TcpClient tcpClient)
+        {
+            NetworkPacket = networkPacket;
+            TcpClient = tcpClient;
+        }
+    }
     internal static class ConnectionHandler
     {
+        private static Queue<Shipping> networkPakages;
         private static TcpListener listner;
         private static int port;
         private static bool serverRunning;
@@ -33,6 +44,7 @@ namespace Server
 
         static ConnectionHandler()
         {
+            networkPakages = new Queue<Shipping>();
             ConnectionHandler.clients = new List<TcpClient>();
         }
 
@@ -62,6 +74,11 @@ namespace Server
                 {
                     ReceivePacket(clients[i]);
                 }
+                while (networkPakages.Count > 0)
+                {
+                    Shipping cargo = networkPakages.Dequeue();
+                    SendPacketInternal(cargo.TcpClient, cargo.NetworkPacket);
+                }
             }
         }
 
@@ -72,13 +89,17 @@ namespace Server
             
             clients.Add(newClient);
 
-            await SendPacket(newClient, new NetworkPacket("ID", "Server", Guid.NewGuid(), GameLogic.GameWorld.Grid.ToGridContainer()));
+            SendPacket(newClient, new NetworkPacket("ID", "Server", Guid.NewGuid(), GameLogic.GameWorld.Grid.ToGridContainer()));
 
             //await SendToAll(count);
             //await Sendpacket(newClient, new GamePacket("message", msg));
         }
-
-        public static async Task SendPacket(TcpClient client, NetworkPacket packet)
+        public static void SendPacket(TcpClient client, NetworkPacket packet)
+        {
+            //this is a packet
+            networkPakages.Enqueue(new Shipping(packet, client));
+        }
+        private static void SendPacketInternal(TcpClient client, NetworkPacket packet)
         {
             try
             {
@@ -97,7 +118,7 @@ namespace Server
                 packetBuffer.CopyTo(msgBuffer, lengthBuffer.Length);
 
                 // Send the packet
-                await client.GetStream().WriteAsync(msgBuffer, 0, msgBuffer.Length);
+                client.GetStream().Write(msgBuffer, 0, msgBuffer.Length);
             }
             catch (Exception e)
             {
@@ -113,7 +134,7 @@ namespace Server
         public static async Task SendPacketAll(NetworkPacket packet)
         {
             for (int i = 0; i < clients.Count; i++)
-                await SendPacket(clients[i], packet);
+                 SendPacket(clients[i], packet);
         }
 
         public async static Task<NetworkPacket> ReceivePacket(TcpClient client)
@@ -121,31 +142,16 @@ namespace Server
             NetworkPacket packet = null;
             try
             {
-                // First check there is data available
-                if (client.Available == 0)
+                if (client.Available < sizeof(ulong))
                     return null;
-
-                NetworkStream msgStream = client.GetStream();
-
-                // There must be some incoming data, the first two bytes are the size of the Packet
-                byte[] lengthBuffer = new byte[4];
-                int recv = 0;
-
-                while (recv < lengthBuffer.Length)
-                {
-                    recv += await msgStream.ReadAsync(lengthBuffer, recv, lengthBuffer.Length - recv);
-                }                
-
-                if (BitConverter.IsLittleEndian)
-                {
-                    Array.Reverse(lengthBuffer);
-                }
-
-                int packetByteSize = BitConverter.ToInt32(lengthBuffer, 0);
+                byte[] lengthBuffer = new byte[sizeof(ulong)];
+                await client.GetStream().ReadAsync(lengthBuffer, 0, sizeof(ulong));
+               
+                ulong packetByteSize = BitConverter.ToUInt64(lengthBuffer, 0);
 
                 // Now read that many bytes from what's left in the stream, it must be the Packet
                 byte[] packetBuffer = new byte[packetByteSize];
-                await msgStream.ReadAsync(packetBuffer, 0, packetBuffer.Length);
+                await client.GetStream().ReadAsync(packetBuffer, 0, packetBuffer.Length);
 
                 // Convert it into a packet datatype
                 packet = NetworkPacket.Deserialize(packetBuffer);

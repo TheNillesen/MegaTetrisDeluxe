@@ -16,6 +16,8 @@ namespace Client
 {
     class GameClient
     {
+
+        private Queue<NetworkPacket> networkPakages; 
         private Dictionary<string, Func<NetworkPacket, Task>> commandHandlers;
         private TcpClient Client;
         private NetworkStream ServerStream = null;
@@ -30,6 +32,7 @@ namespace Client
 
         public GameClient()
         {
+            networkPakages = new Queue<NetworkPacket>();
             commandHandlers = new Dictionary<string, Func<NetworkPacket, Task>>();
             Client = new TcpClient(); 
             
@@ -120,10 +123,6 @@ namespace Client
                     byte[] packetBuffer = new byte[packetByteSize];
                     await ServerStream.ReadAsync(packetBuffer, 0, packetBuffer.Length);
                     // Convert it into a packet datatype
-
-                    if (packetBuffer.Length != 492)
-                    { }
-
                     NetworkPacket packet = NetworkPacket.Deserialize(packetBuffer);
 
                     // Dispatch it
@@ -152,10 +151,13 @@ namespace Client
 
             // Send the response
             NetworkPacket resp = new NetworkPacket("input", responseMsg);
-            await SendPacket(resp);
+            SendPacket(resp);
         }
-
-        public async Task SendPacket(NetworkPacket packet)
+        public void SendPacket(NetworkPacket networkPacket)
+        {
+            networkPakages.Enqueue(networkPacket);
+        }
+        private void SendPacketInternal(NetworkPacket packet)
         {
             if (packet.Sender == null)
                 packet.Sender = id.ToString();
@@ -164,7 +166,7 @@ namespace Client
             {
                 // Convert JSON to buffer and its length to a 16 bit unsigned integer buffer
                 byte[] packetBytes = packet.Serialize();
-                byte[] lengthBuffer = BitConverter.GetBytes(packetBytes.Length);
+                byte[] lengthBuffer = BitConverter.GetBytes(Convert.ToUInt64(packetBytes.Length));
 
                 if (BitConverter.IsLittleEndian)
                 {
@@ -176,10 +178,8 @@ namespace Client
                 lengthBuffer.CopyTo(packetBuffer, 0);
                 packetBytes.CopyTo(packetBuffer, lengthBuffer.Length);
 
-
-
                 // Send the packet
-                await ServerStream.WriteAsync(packetBuffer, 0, packetBuffer.Length);
+                ServerStream.Write(packetBuffer, 0, packetBuffer.Length);
             }
             catch (Exception ex) { }
         }
@@ -193,7 +193,10 @@ namespace Client
             {
                 // Check for new packets
                 tasks.Add(HandleIncomingPackets());
-                Thread.Sleep(10);
+                while (networkPakages.Count > 0)
+                {
+                    SendPacketInternal(networkPakages.Dequeue());
+                }
             }
             // Just incase we have anymore packets, give them one second to be processed
             Task.WaitAll(tasks.ToArray(), 1000);
