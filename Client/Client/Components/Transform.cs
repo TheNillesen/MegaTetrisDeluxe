@@ -200,12 +200,6 @@ namespace Client
             //Checks if the blocks should be placed.
             if (Gameworld.Instance.gameMap.IsBlockPlaced(tempPos, ShapeCord))
             {
-                ////Since there is blocks at the new position, then we move the blocks one tick up.
-                //for (int i = 0; i < ShapeCord.Count(); i++)
-                //    ShapeCord[i] += new Vector2(0, -1);
-                ////Places the blocks.
-                //Gameworld.Instance.gameMap.PlaceBlocks(tempPos, ShapeCord);
-
                 //Since there is blocks at the new position, then we move the blocks one tick up.
                 tempPos += new Vector2(0, -1);
                 //Places the blocks.

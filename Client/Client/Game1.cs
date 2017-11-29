@@ -138,9 +138,7 @@ namespace Client
                 textField.Update();
             text.Update();
             
-            base.Update(gameTime);
-
-            
+            base.Update(gameTime);         
         }
 
         /// <summary>
