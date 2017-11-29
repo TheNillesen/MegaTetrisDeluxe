@@ -69,6 +69,13 @@ namespace Client
             if (keyCurrent.IsKeyDown(Keys.Enter) && !keyLast.IsKeyDown(Keys.Enter))
                 EnterButton();
 
+            //Exit writing "mode"
+            if (keyCurrent.IsKeyDown(Keys.H) && !keyLast.IsKeyDown(Keys.H) || keyCurrent.IsKeyDown(Keys.J) && !keyLast.IsKeyDown(Keys.J))
+            {
+                Gameworld.Instance.hosting = false;
+                Gameworld.Instance.connecting = false;
+            }
+
             //Used to write the player name
             currentKeyboardState = Keyboard.GetState();
             foreach (Keys key in keysToCheck)
