@@ -90,7 +90,7 @@ namespace Client
             connecting = false;
             textField = new TextField("Border", gameMap.gameAreaWidth / 2, gameMap.gameAreaHeight / 2, new Vector2(5, 1));
             textField.LoadContent(this.Content);
-            text = new Text(Color.White, 20, new Vector2(20, - 320));
+            text = new Text(Color.White, 20, new Vector2(20, - 360));
             text.LoadContent(this.Content);
 
             //Test player
@@ -142,9 +142,7 @@ namespace Client
                 textField.Update();
             text.Update();
             
-            base.Update(gameTime);
-
-            
+            base.Update(gameTime);         
         }
 
         /// <summary>

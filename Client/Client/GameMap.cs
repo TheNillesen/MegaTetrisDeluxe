@@ -259,7 +259,7 @@ namespace Client
         }
 
         /// <summary>
-        /// Places the given gameobject at the given grid positions.
+        /// Places the given gameobject(shape) at the given grid positions.
         /// </summary>
         /// <param name="pos"></param>
         /// <returns></returns>
@@ -269,6 +269,15 @@ namespace Client
 
             for (int i = 0; i < shapeCord.Count(); i++)
                 map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] = obj;
+        }
+        /// <summary>
+        /// Places the given gameobject at the given grid positions.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public void PlaceGameObject(GameObject obj, Vector2 pos)
+        {
+            map[(int)(pos.X), (int)(pos.Y] = obj;
         }
 
         /// <summary>

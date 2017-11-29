@@ -51,18 +51,16 @@ namespace Client
             spriteBatch.DrawString(font, "Move down: S / down-arrow", keyPos + new Vector2(0, 5 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
             spriteBatch.DrawString(font, "Place now: Space", keyPos + new Vector2(0, 6 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
 
-            spriteBatch.DrawString(font, "", keyPos + new Vector2(0, 7 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-
             spriteBatch.DrawString(font, "Turn music on: P", keyPos + new Vector2(0, 8 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
             spriteBatch.DrawString(font, "Pause music: O", keyPos + new Vector2(0, 9 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
             spriteBatch.DrawString(font, "Turn music down: L", keyPos + new Vector2(0, 10 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
             spriteBatch.DrawString(font, "Turn music Up: K", keyPos + new Vector2(0, 11 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
 
-            spriteBatch.DrawString(font, "", keyPos + new Vector2(0, 12 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-
             spriteBatch.DrawString(font, "Host a game press H", keyPos + new Vector2(0, 13 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
             spriteBatch.DrawString(font, "Connect to a host press J", keyPos + new Vector2(0, 14 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
             spriteBatch.DrawString(font, "Abort connection or hosting press U", keyPos + new Vector2(0, 15 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+
+            spriteBatch.DrawString(font, "To exit game press ESC", keyPos + new Vector2(0, 17 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
         }
     }
 }
