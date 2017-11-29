@@ -81,14 +81,14 @@ namespace Client
 //            new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
 //#endif
             gameObjects = new List<GameObject>();
-            gameMap = new GameMap(20f, 20f, 1000, 700, new Vector2(0, 0));
+            gameMap = new GameMap(10f, 10f, 1000, 700, new Vector2(0, 0));
             gameMap.Borders(Color.White);
 
             playerStartPosition = new Vector2(gameMap.map.GetLength(0) / 2, 4);
             connecting = false;
             textField = new TextField("Border", gameMap.gameAreaWidth / 2, gameMap.gameAreaHeight / 2, new Vector2(5, 1));
             textField.LoadContent(this.Content);
-            text = new Text(Color.White, 20, new Vector2(20, - 300));
+            text = new Text(Color.White, 20, new Vector2(20, - 320));
             text.LoadContent(this.Content);
 
             //Test player
