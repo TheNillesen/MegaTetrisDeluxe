@@ -277,7 +277,7 @@ namespace Client
         /// <returns></returns>
         public void PlaceGameObject(GameObject obj, Vector2 pos)
         {
-            map[(int)(pos.X), (int)(pos.Y] = obj;
+            map[(int)(pos.X), (int)(pos.Y)] = obj;
         }
 
         /// <summary>

@@ -34,37 +34,37 @@ namespace Client
             if (keyCurrent.IsKeyDown(Keys.Right) && !keyLast.IsKeyDown(Keys.Right) || keyCurrent.IsKeyDown(Keys.D) && !keyLast.IsKeyDown(Keys.D))
             {
                 if(Gameworld.Instance.Client != null)
-                    Gameworld.Instance.Client.Send(new NetworkPacket("Move", null, new Vector2(1, 0).ToVector2I()));
+                    Gameworld.Instance.Client.Send(new NetworkPacket("Action", null, Intermediate.Action.Rigth));
                 gameObject.Transform.MoveRight();
             }
             if (keyCurrent.IsKeyDown(Keys.Left) && !keyLast.IsKeyDown(Keys.Left) || keyCurrent.IsKeyDown(Keys.A) && !keyLast.IsKeyDown(Keys.A))
             {
                 if (Gameworld.Instance.Client != null)
-                    Gameworld.Instance.Client.Send(new NetworkPacket("Move", null, new Vector2(-1, 0).ToVector2I()));
+                    Gameworld.Instance.Client.Send(new NetworkPacket("Action", null, Intermediate.Action.Left));
                 gameObject.Transform.MoveLeft();
             }
             if (keyCurrent.IsKeyDown(Keys.Down) && !keyLast.IsKeyDown(Keys.Down) || keyCurrent.IsKeyDown(Keys.S) && !keyLast.IsKeyDown(Keys.S))
             {
                 if (Gameworld.Instance.Client != null)
-                    Gameworld.Instance.Client.Send(new NetworkPacket("Move", null, new Vector2(0, 1).ToVector2I()));
+                    Gameworld.Instance.Client.Send(new NetworkPacket("Action", null, Intermediate.Action.Down));
                 gameObject.Transform.MoveDown();
             }
             if (keyCurrent.IsKeyDown(Keys.Q) && !keyLast.IsKeyDown(Keys.Q))
             {
                 if (Gameworld.Instance.Client != null)
-                    Gameworld.Instance.Client.Send(new NetworkPacket("Rotate", null, false));
+                    Gameworld.Instance.Client.Send(new NetworkPacket("Action", null, Intermediate.Action.RotateLeft));
                 gameObject.Transform.RotateLeft();
             }
             if (keyCurrent.IsKeyDown(Keys.E) && !keyLast.IsKeyDown(Keys.E))
             {
                 if (Gameworld.Instance.Client != null)
-                    Gameworld.Instance.Client.Send(new NetworkPacket("Rotate", null, true));
+                    Gameworld.Instance.Client.Send(new NetworkPacket("Action", null, Intermediate.Action.RotateRight));
                 gameObject.Transform.RotateRight();
             }
             if (keyCurrent.IsKeyDown(Keys.Space) && !keyLast.IsKeyDown(Keys.Space))
             {
                 if (Gameworld.Instance.Client != null)
-                    Gameworld.Instance.Client.Send(new NetworkPacket("PBN", null));
+                    Gameworld.Instance.Client.Send(new NetworkPacket("Action", null, Intermediate.Action.Instant));
                 gameObject.Transform.PlaceBlockNow();
             }
             //Connect to server
