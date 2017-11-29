@@ -168,7 +168,6 @@ namespace Client
                     if (nPacket.Sender == "Server")
                     {
                         ID = (Guid)nPacket.Data[0];
-                        Gameworld.Instance.gameMap.FromContainer((GridContainer)nPacket.Data[1]);
                     }
                     break;
                 case "Spawn":
