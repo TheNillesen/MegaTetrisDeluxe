@@ -1,15 +1,7 @@
-Move {
+Action {
 	Sender : ID (Guid as String)
 
-	Data 0 : Direction (Vector2I)
-
-	Expected Reply : None
-}
-
-Rotate {
-	Sender : ID (Guid as String)
-
-	Data 0 : Angle (Float)
+	Data 0 : Action (Action)
 
 	Expected Reply : None
 }

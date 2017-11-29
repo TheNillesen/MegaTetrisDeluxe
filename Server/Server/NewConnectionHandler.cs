@@ -56,7 +56,7 @@ namespace Server
                 {
                     Ship s = bytes.Dequeue();
 
-                    s.client.GetStream().Write(s.mess, 0, s.mess.Length);
+                    Send(s.mess, s.client);
                 }
             }
         }
@@ -84,6 +84,7 @@ namespace Server
                 else
                 {
                     NetworkPacket networkPacket = new NetworkPacket("Grid", "Server", GameLogic.GameWorld.Grid.ToGridContainer());
+                    Send(networkPacket.Serialize(), client);
                 }
             }
 
@@ -187,16 +188,10 @@ namespace Server
         {
             switch (nPacket.Head)
             {
-                case "Move":
-                    GameLogic.GameWorld.Grid.Objects.Find(o => o.Guid == nPacket.Sender).Position[0] += (Vector2I)nPacket.Data[0];
+                case "Action":
                     SendAll(nPacket);
                     break;
                 case "Spawn":
-                    GameObject go = new GameObject();
-                    go.Guid = nPacket.Sender;
-                    go.Position = GameShapeHelper.GetShape((GameShapes)nPacket.Data[1], (Vector2I)nPacket.Data[0]);
-                    go.Shape = (GameShapes)nPacket.Data[1];
-                    GameLogic.GameWorld.Grid.AddGameObject(go);
                     SendAll(nPacket);
                     break;
                 case "Grid":

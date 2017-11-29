@@ -62,6 +62,7 @@ namespace Client
 
             spriteBatch.DrawString(font, "Host a game press H", keyPos + new Vector2(0, 13 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
             spriteBatch.DrawString(font, "Connect to a host press J", keyPos + new Vector2(0, 14 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+            spriteBatch.DrawString(font, "Abort connection or hosting press U", keyPos + new Vector2(0, 15 * lineSpacing), color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
         }
     }
 }

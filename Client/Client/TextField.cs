@@ -69,11 +69,11 @@ namespace Client
             if (keyCurrent.IsKeyDown(Keys.Enter) && !keyLast.IsKeyDown(Keys.Enter))
                 EnterButton();
 
-            //Exit writing "mode"
-            if (keyCurrent.IsKeyDown(Keys.H) && !keyLast.IsKeyDown(Keys.H) || keyCurrent.IsKeyDown(Keys.J) && !keyLast.IsKeyDown(Keys.J))
+            if(keyCurrent.IsKeyDown(Keys.U) && !keyLast.IsKeyDown(Keys.U))
             {
-                Gameworld.Instance.hosting = false;
                 Gameworld.Instance.connecting = false;
+                Gameworld.Instance.hosting = false;
+                Gameworld.Instance.player.GetComponent<PlayerController>().Enabled = true;
             }
 
             //Used to write the player name
@@ -152,7 +152,7 @@ namespace Client
             if (Gameworld.Instance.hosting)
             {
                 spriteBatch.DrawString(font, "Enter grid size consisting of two integers with a space splitting them.", new Vector2(centerX - 60 * 4, centerY - 50), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 0.9f);
-                spriteBatch.DrawString(font, "Exameple:   12 12", new Vector2(centerX - 60 * 4, centerY - 35), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 0.9f);
+                spriteBatch.DrawString(font, "Exameple:   100 70", new Vector2(centerX - 60 * 4, centerY - 35), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 0.9f);
             }
         }
 

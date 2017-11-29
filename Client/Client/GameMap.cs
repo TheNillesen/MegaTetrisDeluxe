@@ -90,7 +90,7 @@ namespace Client
             GameObject go = new GameObject();
             go.AddComponent(new Spriterendere(go, "Border", 0.8f, color, true, new Vector2(gameAreaWidth, 1), true, new Rectangle(0, 0, 1, 1)));
             go.AddComponent(new Transform(go, offset, false, true));
-            Gameworld.Instance.AddGameObject(go);
+            Gameworld.Instance.AddGameObject(go, true);
             go.LoadContent(Gameworld.Instance.Content);
 
             //Bottom
@@ -99,14 +99,14 @@ namespace Client
             Vector2 temp = offset;
             temp.Y += gameAreaHeight;
             go1.AddComponent(new Transform(go1, temp, false, true));
-            Gameworld.Instance.AddGameObject(go1);
+            Gameworld.Instance.AddGameObject(go1, true);
             go1.LoadContent(Gameworld.Instance.Content);
 
             //Left
             GameObject go2 = new GameObject();
             go2.AddComponent(new Spriterendere(go2, "Border", 0.8f, color, true, new Vector2(1, gameAreaHeight), true, new Rectangle(0, 0, 1, 1)));
             go2.AddComponent(new Transform(go2, offset - new Vector2(1, 0), false, true));
-            Gameworld.Instance.AddGameObject(go2);
+            Gameworld.Instance.AddGameObject(go2, true);
             go2.LoadContent(Gameworld.Instance.Content);
 
             //Right
@@ -115,7 +115,7 @@ namespace Client
             temp = offset;
             temp.X += gameAreaWidth;
             go3.AddComponent(new Transform(go3, temp, false, true));
-            Gameworld.Instance.AddGameObject(go3);
+            Gameworld.Instance.AddGameObject(go3, true);
             go3.LoadContent(Gameworld.Instance.Content);
         }
 
@@ -137,20 +137,24 @@ namespace Client
                 go.AddComponent(new Transform(go, positions, gameObjectContainer.Shape));
                 go.AddComponent(new Spriterendere(go, "GreyToneBlock", 1));
 
+                if (gameObjectContainer.Guid != default(Guid).ToString())
+                    go.AddComponent(new NetworkController(go, new Guid(gameObjectContainer.Guid)));
+
                 Gameworld.Instance.AddGameObject(go);
+                go.LoadContent(Gameworld.Instance.Content);
             }
         }
 
         public Intermediate.Game.GridContainer ToContainer()
         {
-            Intermediate.Game.GridContainer container = new Intermediate.Game.GridContainer();
-
-            container.Width = map.GetLength(0);
-            container.Height = map.GetLength(1);
+            Intermediate.Game.GridContainer container = new Intermediate.Game.GridContainer(map.GetLength(0), map.GetLength(1));
 
             for (int i = 0; i < Gameworld.Instance.gameObjects.Count; i++)
             {
                 GameObject go = Gameworld.Instance.gameObjects[i];
+
+                if (go?.Transform?.Position == null)
+                    continue;
 
                 Vector2[] positions = go.Transform.Position;
                 Vector2I[] positionsI = new Vector2I[positions.Length];
@@ -161,6 +165,16 @@ namespace Client
                 }
                 
                 Intermediate.Game.GameObjectContainer goContainer = new Intermediate.Game.GameObjectContainer(positionsI, go.Transform.shape, go.GetComponent<NetworkController>()?.ID.ToString());
+
+                NetworkController con;
+
+                if (go.GetComponent<PlayerController>() != null)
+                    goContainer.Guid = Gameworld.Instance.Client.Guid.ToString();
+                else if ((con = go.GetComponent<NetworkController>()) != null)
+                    goContainer.Guid = con.ID.ToString();
+                else
+                    goContainer.Guid = default(Guid).ToString();
+
                 container.GameObjects.Add(goContainer);
             }
 

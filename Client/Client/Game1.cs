@@ -46,7 +46,8 @@ namespace Client
         public bool connecting;
 
         public Song backGroundMusic;
-        public List<GameObject> gameObjects;     
+        public List<GameObject> gameObjects;
+        public List<GameObject> uis;
         public GameMap gameMap;
         public GameObject player;
         public Vector2 playerStartPosition;
@@ -56,6 +57,7 @@ namespace Client
         private Gameworld()
         {
             graphics = new GraphicsDeviceManager(this);
+            uis = new List<GameObject>();
             Content.RootDirectory = "Content";
             server = null;
         }
@@ -81,14 +83,14 @@ namespace Client
 //            new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
 //#endif
             gameObjects = new List<GameObject>();
-            gameMap = new GameMap(20f, 20f, 1000, 700, new Vector2(0, 0));
+            gameMap = new GameMap(10f, 10f, 1000, 700, new Vector2(0, 0));
             gameMap.Borders(Color.White);
 
             playerStartPosition = new Vector2(gameMap.map.GetLength(0) / 2, 4);
             connecting = false;
             textField = new TextField("Border", gameMap.gameAreaWidth / 2, gameMap.gameAreaHeight / 2, new Vector2(5, 1));
             textField.LoadContent(this.Content);
-            text = new Text(Color.White, 20, new Vector2(20, - 300));
+            text = new Text(Color.White, 20, new Vector2(20, - 320));
             text.LoadContent(this.Content);
 
             //Test player
@@ -134,6 +136,8 @@ namespace Client
             // TODO: Add your update logic here
             for (int i = 0; i < gameObjects.Count; i++)
                 gameObjects[i].Update();
+            for (int i = 0; i < uis.Count; i++)
+                uis[i].Update();
             if (connecting || hosting)
                 textField.Update();
             text.Update();
@@ -156,6 +160,8 @@ namespace Client
 
             for (int i = 0; i < gameObjects.Count; i++)
                 gameObjects[i].Draw(spriteBatch);
+            for (int i = 0; i < uis.Count; i++)
+                uis[i].Draw(spriteBatch);
             if (connecting || hosting)
                 textField.Draw(spriteBatch);
             text.Draw(spriteBatch);
@@ -193,18 +199,26 @@ namespace Client
 
         public void OnTick()
         {
-            foreach (GameObject go in gameObjects)
-                go.OnTick();
+            for(int i = 0; i < gameObjects.Count; i++)
+                gameObjects[i].OnTick();
+            for (int i = 0; i < uis.Count; i++)
+                uis[i].OnTick();
         }
 
-        public void AddGameObject(GameObject go)
+        public void AddGameObject(GameObject go, bool isUI = false)
         {
-            gameObjects.Add(go);
+            if (isUI)
+                uis.Add(go);
+            else
+                gameObjects.Add(go);
         }
 
-        public void RemoveObject(GameObject go)
+        public void RemoveObject(GameObject go, bool isUI = false)
         {
-            gameObjects.Remove(go);
+            if (isUI)
+                uis.Remove(go);
+            else
+                gameObjects.Remove(go);
         }
 
         public void CreatePlayer()

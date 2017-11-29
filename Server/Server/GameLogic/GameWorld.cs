@@ -62,8 +62,6 @@ namespace Server.GameLogic
         {
             grid.Objects.ForEach(o => o.Position[0] += new Intermediate.Vector2I(0, 1));
 
-            byte[] temp = new Intermediate.NetworkPacket("Tick", "Server", null).Serialize();
-
             NewConnectionHandler.SendAll(new Intermediate.NetworkPacket("Tick", "Server", null));
         }
     }

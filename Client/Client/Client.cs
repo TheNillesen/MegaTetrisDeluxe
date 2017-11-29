@@ -20,6 +20,10 @@ namespace Client
         Thread loopster;
         Queue<NetworkPacket> messages;
 
+        public Guid Guid { get { return ID; } }
+
+        private IPEndPoint connectionInfo;
+
         public Client()
         {
             messages = new Queue<NetworkPacket>();
@@ -27,9 +31,11 @@ namespace Client
 
         public void Connect(IPAddress address, int port)
         {
+            connectionInfo = new IPEndPoint(address, port);
+
             client = new TcpClient();
 
-            client.Connect(address, port);
+            client.Connect(connectionInfo);
 
             loopster = new Thread(Loopster);
             loopster.Start();
@@ -42,7 +48,13 @@ namespace Client
                 while (client.Available > sizeof(ulong))
                     Receive();
                 while (messages.Count > 0)
-                    SendInternal(messages.Dequeue().Serialize());
+                {
+                    NetworkPacket np = messages.Dequeue();
+                    if (!SendInternal(np.Serialize()))
+                    {
+                        messages.Enqueue(np);
+                    }
+                }
             }
         }
 
@@ -60,7 +72,7 @@ namespace Client
             return NetworkPacket.Deserialize(mess);  
         }
 
-        private void SendInternal(byte[] mess)
+        private bool SendInternal(byte[] mess)
         {
             try
             {
@@ -77,9 +89,17 @@ namespace Client
                 mess.CopyTo(packet, length.Length);
 
                 client.GetStream().Write(packet, 0, packet.Length);
+
+                return true;
             }
             catch (Exception ex)
-            { }
+            {
+                if (!client.Connected)
+                {
+                    client.Connect(connectionInfo);
+                }
+                return false;
+            }
         }
 
         private void Receive()
@@ -99,6 +119,8 @@ namespace Client
 
                 client.GetStream().Read(mess, 0, mess.Length);
                 NetworkPacket nPacket = NetworkPacket.Deserialize(mess);
+
+                HandlePakage(nPacket);
             }
             catch (Exception ex) { }
         }
@@ -108,9 +130,39 @@ namespace Client
                 return;
             switch (nPacket.Head)
             {
-                case "Move":
+                case "Action":
                     Guid senderID = new Guid(nPacket.Sender);
-                    Gameworld.Instance.gameObjects.Find(o => o.GetComponent<NetworkController>(n => n.ID == senderID) != null).Transform.Translate(((Vector2I)(nPacket.Data[0])).ToVector2());
+
+                    Transform transform = Gameworld.Instance.gameObjects.Find(o => o.GetComponent<NetworkController>(n => n.ID == senderID) != null)?.Transform;
+
+                    if (transform == null)
+                    { 
+                        //Do Stuff
+                    }
+                    else
+                    {
+                        switch((Intermediate.Action)nPacket.Data[0])
+                        {
+                            case Intermediate.Action.Down:
+                                transform.MoveDown();
+                                break;
+                            case Intermediate.Action.Left:
+                                transform.MoveLeft();
+                                break;
+                            case Intermediate.Action.Rigth:
+                                transform.MoveRight();
+                                break;
+                            case Intermediate.Action.RotateLeft:
+                                transform.RotateLeft();
+                                break;
+                            case Intermediate.Action.RotateRight:
+                                transform.RotateRight();
+                                break;
+                            case Intermediate.Action.Instant:
+                                transform.PlaceBlockNow();
+                                break;
+                        }
+                    }
                     break;
                 case "ID":
                     if (nPacket.Sender == "Server")
@@ -148,6 +200,8 @@ namespace Client
                     if (nPacket.Sender == "Server")
                     {
                         Gameworld.Instance.gameMap.FromContainer((GridContainer)nPacket.Data[0]);
+
+                        Gameworld.Instance.CreatePlayer();
                     }
                     break;
                 default:
