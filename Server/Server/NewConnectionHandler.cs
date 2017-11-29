@@ -159,7 +159,6 @@ namespace Server
                     break;
                 default:
                     return;
-
             }
         }
     }
