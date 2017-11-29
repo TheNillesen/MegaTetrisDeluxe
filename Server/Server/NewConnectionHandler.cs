@@ -14,8 +14,8 @@ namespace Server
 {
     struct Ship
     {
-        public  TcpClient client;
-        public  byte[] mess;
+        public TcpClient client;
+        public byte[] mess;
     }
 
     static class NewConnectionHandler
@@ -26,10 +26,14 @@ namespace Server
         static List<TcpClient> clients;
         static Queue<Ship> bytes;
 
+        static bool requestingGridContainer;
+        static Queue<TcpClient> awaitingGrid;
+
         static NewConnectionHandler()
         {
             clients = new List<TcpClient>();
             bytes = new Queue<Ship>();
+            awaitingGrid = new Queue<TcpClient>();
         }
         public static void Init(int port)
         {
@@ -61,11 +65,30 @@ namespace Server
         {
             TcpClient client = list.AcceptTcpClient();
 
-            clients.Add(client);
-
-            NetworkPacket nPacket = new NetworkPacket("ID","Server",Guid.NewGuid(),GameLogic.GameWorld.Grid.ToGridContainer());
+            NetworkPacket nPacket = new NetworkPacket("ID", "Server", Guid.NewGuid());
             Send(nPacket.Serialize(), client);
             Console.WriteLine($"New connection from: {client.Client.RemoteEndPoint.ToString()}");
+
+            if (!requestingGridContainer)
+            {
+                if (clients.Count > 0)
+                {
+                    requestingGridContainer = true;
+
+                    NetworkPacket networkPacket = new NetworkPacket("Grid_Request", "Server");
+
+                    for (int i = 0; i < clients.Count; i++)
+                        if (Send(networkPacket.Serialize(), clients[i]))
+                            break;
+                }
+                else
+                {
+                    NetworkPacket networkPacket = new NetworkPacket("Grid", "Server", GameLogic.GameWorld.Grid.ToGridContainer());
+                }
+            }
+
+            clients.Add(client);
+            awaitingGrid.Enqueue(client);
         }
 
         private static void Receive(TcpClient client)
@@ -103,7 +126,7 @@ namespace Server
             return res;
         }
 
-        private static void Send(byte[] message, TcpClient client)
+        private static bool Send(byte[] message, TcpClient client)
         {
             try
             {
@@ -118,9 +141,18 @@ namespace Server
                 message.CopyTo(pack, length.Length);
 
                 client.GetStream().Write(pack, 0, pack.Length);
+
+                return true;
             }
+
             catch (Exception ex)
-            { Console.WriteLine(ex.Message); }
+            {
+                if (!client.Connected)
+                    clients.Remove(client);
+
+                Console.WriteLine(ex.Message);
+                return false;
+            }
         }
         public static void SendAll(NetworkPacket nPacket, TcpClient ignore = null)
         {
@@ -156,6 +188,14 @@ namespace Server
                     go.Shape = (GameShapes)nPacket.Data[1];
                     GameLogic.GameWorld.Grid.AddGameObject(go);
                     SendAll(nPacket);
+                    break;
+                case "Grid":
+                    nPacket.Sender = "Server";
+
+                    while(awaitingGrid.Count != 0)
+                    {
+                        Send(nPacket.Serialize(), awaitingGrid.Dequeue());
+                    }
                     break;
                 default:
                     return;
