@@ -161,7 +161,12 @@ namespace Server
                 TcpClient[] tcpArray = clients.FindAll(o => o != ignore).ToArray();
                 for (int i = 0; i < tcpArray.Length; i++)
                 {
-                    Send(nPacket.Serialize(), tcpArray[i]);
+                    Ship s = new Ship();
+
+                    s.client = tcpArray[i];
+                    s.mess = nPacket.Serialize();
+
+                    bytes.Enqueue(s);
                 }
                 
             }
@@ -169,7 +174,12 @@ namespace Server
             {
                 for (int i = 0; i < clients.Count; i++)
                 {
-                    Send(nPacket.Serialize(), clients[i]);
+                    Ship s = new Ship();
+
+                    s.client = clients[i];
+                    s.mess = nPacket.Serialize();
+
+                    bytes.Enqueue(s);
                 }
             }
         }
