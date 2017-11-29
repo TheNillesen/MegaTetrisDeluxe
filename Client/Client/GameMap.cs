@@ -73,7 +73,7 @@ namespace Client
             //Ensures that the content within the gameobjects fits the new grid.
             for (int i = 0; i < Gameworld.Instance.gameObjects.Count(); i++)
             {
-                if(Gameworld.Instance.gameObjects[i] is ILoadable)
+                if (Gameworld.Instance.gameObjects[i] is ILoadable)
                     Gameworld.Instance.gameObjects[i].LoadContent(Gameworld.Instance.Content);
             }
             Gameworld.Instance.gameObjects.Clear();
@@ -127,10 +127,10 @@ namespace Client
         {
             NewGrid(gridContainer.Width, gridContainer.Height);
 
-            foreach(Intermediate.Game.GameObjectContainer gameObjectContainer in gridContainer.GameObjects)
+            foreach (Intermediate.Game.GameObjectContainer gameObjectContainer in gridContainer.GameObjects)
             {
                 //Please note, positions[0] is the only Global position, All other are positioned as if positions[0] is the center of the world
-                Intermediate.Vector2I[] positions = Intermediate.GameShapeHelper.GetShape(gameObjectContainer.Shape, gameObjectContainer.Postion);
+                Intermediate.Vector2I[] positions = gameObjectContainer.Postion;
 
                 //Spawn gameobjects and stuff
                 GameObject go = new GameObject();
@@ -139,6 +139,32 @@ namespace Client
 
                 Gameworld.Instance.AddGameObject(go);
             }
+        }
+
+        public Intermediate.Game.GridContainer ToContainer()
+        {
+            Intermediate.Game.GridContainer container = new Intermediate.Game.GridContainer();
+
+            container.Width = map.GetLength(0);
+            container.Height = map.GetLength(1);
+
+            for (int i = 0; i < Gameworld.Instance.gameObjects.Count; i++)
+            {
+                GameObject go = Gameworld.Instance.gameObjects[i];
+
+                Vector2[] positions = go.Transform.Position;
+                Vector2I[] positionsI = new Vector2I[positions.Length];
+
+                for (int j = 0; j < positions.Length; j++)
+                {
+                    positionsI[j] = positions[j].ToVector2I();
+                }
+                
+                Intermediate.Game.GameObjectContainer goContainer = new Intermediate.Game.GameObjectContainer(positionsI, go.Transform.shape, go.GetComponent<NetworkController>()?.ID.ToString());
+                container.GameObjects.Add(goContainer);
+            }
+
+            return container;
         }
 
         /// <summary>
@@ -184,7 +210,7 @@ namespace Client
             yTemp -= offset.Y;
             //finds the map grid position.
             xTemp = (int)(xTemp / cellWidth);
-            yTemp = (int)(yTemp / cellHeight);       
+            yTemp = (int)(yTemp / cellHeight);
 
             return new Vector2(xTemp, yTemp);
         }
@@ -212,7 +238,7 @@ namespace Client
         /// <returns></returns>
         public GameObject GetObjAtPosition(Vector2 pos)
         {
-            if(map[(int)(pos.X), (int)(pos.Y)] != null)
+            if (map[(int)(pos.X), (int)(pos.Y)] != null)
                 return map[(int)(pos.X), (int)(pos.Y)];
 
             return null;
@@ -320,7 +346,7 @@ namespace Client
             //Handles if there is a complete line of blocks.
             int line = 0;
             int lineMax = map.GetLength(0);
-            for(int y = 0; y < map.GetLength(1); y++)
+            for (int y = 0; y < map.GetLength(1); y++)
             {
                 for (int x = 0; x < map.GetLength(0); x++)
                 {
@@ -338,7 +364,7 @@ namespace Client
         /// <param name="line"></param>
         private void RemoveLine(int line)
         {
-            for(int i = 0; i < map.GetLength(0); i++)
+            for (int i = 0; i < map.GetLength(0); i++)
             {
                 Gameworld.Instance.RemoveObject(map[i, line]);
                 map[i, line] = null;
@@ -348,7 +374,7 @@ namespace Client
             {
                 for (int x = 0; x < map.GetLength(0); x++)
                 {
-                    if(map[x, y] != null && map[x, y].placedBlock == true)
+                    if (map[x, y] != null && map[x, y].placedBlock == true)
                     {
                         GameObject tempObj = map[x, y];
                         map[x, y] = null;

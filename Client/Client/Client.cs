@@ -134,7 +134,22 @@ namespace Client
                     }
                     
                     break;
+                case "Grid_Request":
+                    if (nPacket.Sender == "Server")
+                    {
+                        NetworkPacket pack = new NetworkPacket("Grid", ID.ToString());
 
+                        pack.Data.Add(Gameworld.Instance.gameMap.ToContainer());
+
+                        SendInternal(pack.Serialize());
+                    }
+                    break;
+                case "Grid":
+                    if (nPacket.Sender == "Server")
+                    {
+                        Gameworld.Instance.gameMap.FromContainer((GridContainer)nPacket.Data[0]);
+                    }
+                    break;
                 default:
                     return;
                     

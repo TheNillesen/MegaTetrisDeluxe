@@ -85,7 +85,7 @@ namespace Client
         {
             return components.Find(o => o is T && filter(o as T)) as T;
         }
-        
+
         public T[] GetComponents<T>() where T : Component
         {
             return (from Component comp in components where comp is T select comp as T).ToArray();
@@ -103,38 +103,34 @@ namespace Client
 
         public void Update()
         {
-            IUpdatable[] Updateables = (from Component component in components where component is IUpdatable select component as IUpdatable).ToArray();
+            IUpdatable[] Updateables = (from Component component in components where component.Enabled && component is IUpdatable select component as IUpdatable).ToArray();
 
             foreach (IUpdatable Updateable in Updateables)
-                if ((Updateable as Component).Enabled)
-                    Updateable.Update();
+                Updateable.Update();
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            IDrawable[] IDrawables = (from Component component in components where component is IDrawable select component as IDrawable).ToArray();
+            IDrawable[] IDrawables = (from Component component in components where component.Enabled && component is IDrawable select component as IDrawable).ToArray();
 
             foreach (IDrawable IDrawable in IDrawables)
-                if ((IDrawable as Component).Enabled)
-                    IDrawable.Draw(spriteBatch);
+                IDrawable.Draw(spriteBatch);
         }
 
         public void LoadContent(ContentManager content)
         {
-            ILoadable[] ILoadables = (from Component component in components where component is ILoadable select component as ILoadable).ToArray();
+            ILoadable[] ILoadables = (from Component component in components where component.Enabled && component is ILoadable select component as ILoadable).ToArray();
 
             foreach (ILoadable ILoadable in ILoadables)
-                if ((ILoadable as Component).Enabled)
-                    ILoadable.LoadContent(content);
+                ILoadable.LoadContent(content);
         }
 
         public void OnTick()
         {
-            ITickable[] ITickables = (from Component component in components where component is ITickable select component as ITickable).ToArray();
+            ITickable[] ITickables = (from Component component in components where component.Enabled && component is ITickable select component as ITickable).ToArray();
 
             foreach (ITickable ITickable in ITickables)
-                if ((ITickable as Component).Enabled)
-                    ITickable.OnTick();
+                ITickable.OnTick();
         }
     }
 }

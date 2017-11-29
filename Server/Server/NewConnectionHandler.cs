@@ -206,6 +206,8 @@ namespace Server
                     {
                         Send(nPacket.Serialize(), awaitingGrid.Dequeue());
                     }
+
+                    requestingGridContainer = false;
                     break;
                 default:
                     return;
