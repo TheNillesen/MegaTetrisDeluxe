@@ -143,6 +143,7 @@ namespace Client
                 Gameworld.Instance.AddGameObject(go);
                 go.LoadContent(Gameworld.Instance.Content);
             }
+            List<GameObject> gos = Gameworld.Instance.gameObjects;
         }
 
         public Intermediate.Game.GridContainer ToContainer()
@@ -156,7 +157,9 @@ namespace Client
                 if (go?.Transform?.Position == null)
                     continue;
 
-                Vector2[] positions = go.Transform.Position;
+                Vector2[] positions = new Vector2[4];
+                for (int j = 0; j < positions.Count(); j++)
+                    positions[j] = Gameworld.Instance.gameMap.MapPosition(go.Transform.Position[j]);
                 Vector2I[] positionsI = new Vector2I[positions.Length];
 
                 for (int j = 0; j < positions.Length; j++)
