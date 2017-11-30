@@ -207,8 +207,6 @@ namespace Client
                     if (nPacket.Sender == "Server")
                     {
                         Gameworld.Instance.gameMap.FromContainer((GridContainer)nPacket.Data[0]);
-
-                        Gameworld.Instance.CreatePlayer();
                     }
                     break;
                 default:

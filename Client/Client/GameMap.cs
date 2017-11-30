@@ -62,7 +62,7 @@ namespace Client
         }
 
         /// <summary>
-        /// Redefines a new width and height.
+        /// Redefines a new width and height, and makes a new player in the process.
         /// </summary>
         /// <param name="width"></param>
         /// <param name="height"></param>
@@ -71,11 +71,11 @@ namespace Client
             map = new GameObject[numberOfCellsWidth, numberOfCellsHeight];
             SizeOfCell(numberOfCellsWidth, numberOfCellsHeight);
 
-            //Ensures that the content within the gameobjects fits the new grid.
+            //Ensures that the content within the uis fits the new grid.
             for (int i = 0; i < Gameworld.Instance.gameObjects.Count(); i++)
             {
-                if (Gameworld.Instance.gameObjects[i] is ILoadable)
-                    Gameworld.Instance.gameObjects[i].LoadContent(Gameworld.Instance.Content);
+                if (Gameworld.Instance.uis[i] is ILoadable)
+                    Gameworld.Instance.uis[i].LoadContent(Gameworld.Instance.Content);
             }
             Gameworld.Instance.gameObjects.Clear();
             Gameworld.Instance.playerStartPosition = new Vector2(map.GetLength(0) / 2, 4);
@@ -159,9 +159,7 @@ namespace Client
                     if (go?.Transform?.Position == null)
                         continue;
 
-                Vector2[] positions = new Vector2[4];
-                for (int j = 0; j < positions.Count(); j++)
-                    positions[j] = Gameworld.Instance.gameMap.MapPosition(go.Transform.Position[j]);
+                Vector2[] positions = go.Transform.Position;
                 Vector2I[] positionsI = new Vector2I[positions.Length];
 
                     for (int j = 0; j < positions.Length; j++)

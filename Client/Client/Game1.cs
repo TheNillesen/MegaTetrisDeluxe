@@ -90,10 +90,10 @@ namespace Client
             connecting = false;
             textField = new TextField("Border", gameMap.gameAreaWidth / 2, gameMap.gameAreaHeight / 2, new Vector2(5, 1));
             textField.LoadContent(this.Content);
-            text = new Text(Color.White, 20, new Vector2(20, - 360));
+            text = new Text(Color.White, 20, new Vector2(20, -360));
             text.LoadContent(this.Content);
 
-            //Menu Player
+            ////Menu Player
             CreatePlayer();
         }
 
@@ -140,7 +140,7 @@ namespace Client
                 uis[i].Update();
             if (connecting || hosting)
                 textField.Update();
-            text.Update();
+            //text.Update();
             
             base.Update(gameTime);         
         }
@@ -164,7 +164,7 @@ namespace Client
                 textField.Draw(spriteBatch);
             text.Draw(spriteBatch);
 
-           
+
 
             spriteBatch.End();
 
@@ -201,9 +201,6 @@ namespace Client
                 gameObjects[i].OnTick();
             for (int i = 0; i < uis.Count; i++)
                 uis[i].OnTick();
-
-            Intermediate.Game.GridContainer cont = gameMap.ToContainer();
-            gameMap.FromContainer(cont);
         }
 
         public void AddGameObject(GameObject go, bool isUI = false)
@@ -229,7 +226,7 @@ namespace Client
             player.AddComponent(new Transform(player, playerStartPosition));
             player.AddComponent(new PlayerController(player));
             player.LoadContent(this.Content);
-            gameObjects.Add(player);
+            AddGameObject(player);
 
             if (Client != null)
             {
