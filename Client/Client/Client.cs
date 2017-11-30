@@ -55,6 +55,7 @@ namespace Client
                         messages.Enqueue(np);
                     }
                 }
+                Thread.Sleep(10);
             }
         }
 
