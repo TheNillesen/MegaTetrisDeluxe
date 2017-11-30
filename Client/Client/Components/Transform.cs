@@ -96,6 +96,7 @@ namespace Client
         {
             this.Position = new Vector2[4];
             rnd = new Random();
+            ShapeCord = new Vector2[4];
 
             //For test, I have given a standard shape
             ShapeAndColor();
@@ -317,12 +318,16 @@ namespace Client
                     gameObject.GetComponent<Spriterendere>().color = Color.Red;
                     break;
             }
+
+            Vector2I[] tempShapeCord = GameShapeHelper.GetShape(shape);
+            for (int i = 0; i < tempShapeCord.Count(); i++)
+                ShapeCord[i] = new Vector2(tempShapeCord[i].X, tempShapeCord[i].Y);
         }
 
-            /// <summary>
-            /// Get shape's color.
-            /// </summary>
-            private void SColor(GameShapes shape)
+        /// <summary>
+        /// Get shape's color.
+        /// </summary>
+        private void SColor(GameShapes shape)
             {
                 switch (shape)
                 {
@@ -351,10 +356,9 @@ namespace Client
                         gameObject.GetComponent<Spriterendere>().color = Color.Red;
                         break;
                 }
+        }
 
-            }
-
-            public void OnTick()
+        public void OnTick()
             {
                 MoveDown();
             }
