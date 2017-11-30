@@ -180,8 +180,8 @@ namespace Client
                     break;
                 case "Spawn":
                     GameObject go = new GameObject();
-                    go.AddComponent(new Transform(go, (Vector2I)nPacket.Data[0], (GameShapes)nPacket.Data[1]));
                     go.AddComponent(new Spriterendere(go, "GreyToneBlock", 1));
+                    go.AddComponent(new Transform(go, (Vector2I)nPacket.Data[0], (GameShapes)nPacket.Data[1]));
                     go.AddComponent(new NetworkController(go, new Guid(nPacket.Sender)));
                     Gameworld.Instance.AddGameObject(go);
                     go.LoadContent(Gameworld.Instance.Content);

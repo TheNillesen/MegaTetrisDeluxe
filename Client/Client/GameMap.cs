@@ -135,14 +135,15 @@ namespace Client
 
                 //Spawn gameobjects and stuff
                 GameObject go = new GameObject();
-                go.AddComponent(new Transform(go, positions, gameObjectContainer.Shape));
+
                 go.AddComponent(new Spriterendere(go, "GreyToneBlock", 1));
+                go.AddComponent(new Transform(go, positions, gameObjectContainer.Shape));
 
                 if (gameObjectContainer.Guid != default(Guid).ToString())
                     go.AddComponent(new NetworkController(go, new Guid(gameObjectContainer.Guid)));
-
+                
                 go.LoadContent(Gameworld.Instance.Content);
-                Gameworld.Instance.AddGameObject(go);                
+                Gameworld.Instance.AddGameObject(go);
             }
         }
 

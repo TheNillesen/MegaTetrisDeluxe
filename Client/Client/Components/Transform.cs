@@ -74,10 +74,15 @@ namespace Client
         public Transform(GameObject gameObject, Vector2I[] positions, GameShapes shape) : base(gameObject)
         {
             this.Position = new Vector2[positions.Length];
+            this.ShapeCord = new Vector2[positions.Length];
 
             for (int i = 0; i < positions.Length; i++)
+            {
                 Position[i] = positions[i].ToVector2();
+                ShapeCord[i] = (positions[i] - positions[0]).ToVector2();
+            }
 
+            SColor(shape);
             this.shape = shape;
         }
 
