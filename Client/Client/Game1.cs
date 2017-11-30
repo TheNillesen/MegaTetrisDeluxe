@@ -140,8 +140,8 @@ namespace Client
                 uis[i].Update();
             if (connecting || hosting)
                 textField.Update();
-            //text.Update();
-            
+            text.Update();
+
             base.Update(gameTime);         
         }
 
@@ -163,8 +163,6 @@ namespace Client
             if (connecting || hosting)
                 textField.Draw(spriteBatch);
             text.Draw(spriteBatch);
-
-
 
             spriteBatch.End();
 
