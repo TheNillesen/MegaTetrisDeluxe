@@ -46,6 +46,7 @@ namespace Client
 
             SColor(shape);
             this.shape = shape;
+            rnd = new Random();
         }
         /// <summary>
         /// If it's a block on the map set placedblock = true. If it's other such as the border set other = true.
@@ -86,6 +87,7 @@ namespace Client
 
             SColor(shape);
             this.shape = shape;
+            rnd = new Random();
         }
 
         /// <summary>
@@ -322,6 +324,10 @@ namespace Client
             Vector2I[] tempShapeCord = GameShapeHelper.GetShape(shape);
             for (int i = 0; i < tempShapeCord.Count(); i++)
                 ShapeCord[i] = new Vector2(tempShapeCord[i].X, tempShapeCord[i].Y);
+
+            //Sends the new shape to all other players in the game.
+            if (Gameworld.Instance.Client != null)
+                Gameworld.Instance.Client.Send(new NetworkPacket("Shape", null, shape));
         }
 
         /// <summary>
@@ -356,6 +362,25 @@ namespace Client
                         gameObject.GetComponent<Spriterendere>().color = Color.Red;
                         break;
                 }
+        }
+
+        /// <summary>
+        /// Changes the shape to the given.
+        /// </summary>
+        /// <param name="shape"></param>
+        public void NewShape(GameShapes shape)
+        {
+            Vector2I[] tempShapeCord = GameShapeHelper.GetShape(shape);
+            for (int i = 0; i < tempShapeCord.Length; i++)
+                ShapeCord[i] = new Vector2(tempShapeCord[i].X, tempShapeCord[i].Y);
+
+            Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
+            for (int i = 0; i < Position.Length; i++)
+                Position[i] = Gameworld.Instance.gameMap.Position(tempPos + ShapeCord[i]);
+
+            this.shape = shape;
+
+            SColor(shape);
         }
 
         public void OnTick()

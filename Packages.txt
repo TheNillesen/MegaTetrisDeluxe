@@ -6,6 +6,14 @@ Action {
 	Expected Reply : None
 }
 
+Shape {
+	Sender : ID (Guid as String)
+
+	Data 0 : Shape (GameShape)
+
+	Expected Reply : None
+}
+
 Grid_Request {
 	Sender : Server (String)
 

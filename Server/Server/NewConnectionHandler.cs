@@ -165,6 +165,9 @@ namespace Server
                 case "Spawn":
                     SendAll(nPacket);
                     break;
+                case "Shape":
+                    SendAll(nPacket);
+                    break;
                 case "Grid":
                     nPacket.Sender = "Server";
 
@@ -178,6 +181,7 @@ namespace Server
                     requestingGridContainer = false;
                     break;
                 default:
+                    SendAll(nPacket);
                     return;
             }
         }
