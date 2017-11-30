@@ -234,7 +234,8 @@ namespace Client
             if (placed)
             {
                 //New shape and color.
-                ShapeAndColor();
+                if(this.gameObject.GetComponent<PlayerController>() != null)
+                    ShapeAndColor();
 
                 //Moves back to start position.
                 Vector2 newPos = Gameworld.Instance.playerStartPosition;
