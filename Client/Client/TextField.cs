@@ -69,6 +69,13 @@ namespace Client
             if (keyCurrent.IsKeyDown(Keys.Enter) && !keyLast.IsKeyDown(Keys.Enter))
                 EnterButton();
 
+            if(keyCurrent.IsKeyDown(Keys.U) && !keyLast.IsKeyDown(Keys.U))
+            {
+                Gameworld.Instance.connecting = false;
+                Gameworld.Instance.hosting = false;
+                Gameworld.Instance.player.GetComponent<PlayerController>().Enabled = true;
+            }
+
             //Used to write the player name
             currentKeyboardState = Keyboard.GetState();
             foreach (Keys key in keysToCheck)
@@ -88,6 +95,12 @@ namespace Client
         /// <returns></returns>
         public void EnterButton()
         {
+            if (Gameworld.Instance.player != null)
+            {
+                Gameworld.Instance.RemoveObject(Gameworld.Instance.player);
+                Gameworld.Instance.player = null;
+            }
+
             //If your connecting to a server.
             if (Gameworld.Instance.connecting)
             {
@@ -101,7 +114,7 @@ namespace Client
                     ipBytes[i] = byte.Parse(values[i]);
 
                 //Starts game client
-                Gameworld.Instance.Client = new GameClient();
+                Gameworld.Instance.Client = new Client();
                 new System.Threading.Thread(() => Gameworld.Instance.Client.Connect(new System.Net.IPAddress(ipBytes), 6666)).Start();
                 
                 //Resets the text for later use.
@@ -120,7 +133,7 @@ namespace Client
                 //Starts server
                 Gameworld.StartServer(6666, a, b, 2);
                 //Starts game client
-                Gameworld.Instance.Client = new GameClient();
+                Gameworld.Instance.Client = new Client();
                 new System.Threading.Thread(() => Gameworld.Instance.Client.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
 
                 Gameworld.Instance.hosting = false;
@@ -145,7 +158,7 @@ namespace Client
             if (Gameworld.Instance.hosting)
             {
                 spriteBatch.DrawString(font, "Enter grid size consisting of two integers with a space splitting them.", new Vector2(centerX - 60 * 4, centerY - 50), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 0.9f);
-                spriteBatch.DrawString(font, "Exameple:   12 12", new Vector2(centerX - 60 * 4, centerY - 35), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 0.9f);
+                spriteBatch.DrawString(font, "Exameple:   100 70", new Vector2(centerX - 60 * 4, centerY - 35), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 0.9f);
             }
         }
 

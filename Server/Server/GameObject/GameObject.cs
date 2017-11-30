@@ -60,7 +60,7 @@ namespace Server
 
         public GameObjectContainer ToGameObjectContainer()
         {
-            return new GameObjectContainer(position[0], shape, guid);
+            return new GameObjectContainer(position, shape, guid);
         }
     }
 }

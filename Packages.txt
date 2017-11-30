@@ -1,0 +1,52 @@
+Action {
+	Sender : ID (Guid as String)
+
+	Data 0 : Action (Action)
+
+	Expected Reply : None
+}
+
+Grid_Request {
+	Sender : Server (String)
+
+	Expected Reply : Grid
+}
+
+Grid {
+	Sender : ID when Sending as Client / Server when Receiving as Client
+
+	Data 0 : Grid (GridContainer)
+
+	Expected Reply : None
+}
+
+ID {
+	Sender : Server (String)
+
+	Data 0 : Client ID (Guid)
+
+	Expected Reply : None
+}
+
+Spawn {
+	Sender : ID (Guid as String)
+
+	Data 0 : Location (Vector2I)
+	Data 1 : Shape (GameShapes)
+
+	Excpected Reply : None
+}
+
+Tick {
+	Sender : Server (String)
+
+	Expected Reply : None
+
+	// Advances the game by 1 tick, making every block move down 1 space
+}
+
+
+
+
+
+
