@@ -95,6 +95,12 @@ namespace Client
         /// <returns></returns>
         public void EnterButton()
         {
+            if (Gameworld.Instance.player != null)
+            {
+                Gameworld.Instance.RemoveObject(Gameworld.Instance.player);
+                Gameworld.Instance.player = null;
+            }
+
             //If your connecting to a server.
             if (Gameworld.Instance.connecting)
             {

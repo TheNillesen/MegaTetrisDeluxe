@@ -63,7 +63,7 @@ namespace Client
             if(message.Sender == null)
             {
                 message.Sender = ID.ToString();
-            } 
+            }
             messages.Enqueue(message);
         }
 
@@ -76,9 +76,9 @@ namespace Client
         {
             try
             {
-                byte[] length = new byte[sizeof(ulong)];
+                byte[] length = new byte[sizeof(int)];
 
-                length = BitConverter.GetBytes((ulong)mess.Length);
+                length = BitConverter.GetBytes(mess.Length);
 
                 if (BitConverter.IsLittleEndian)
                     Array.Reverse(length);
@@ -96,6 +96,7 @@ namespace Client
             {
                 if (!client.Connected)
                 {
+                    client = new TcpClient();
                     client.Connect(connectionInfo);
                 }
                 return false;
@@ -106,28 +107,35 @@ namespace Client
         {
             try
             {
-                byte[] length = new byte[sizeof(ulong)];
+                byte[] length = new byte[sizeof(int)];
+                int recv = 0;
 
-                client.GetStream().Read(length, 0, sizeof(ulong));
+                while (recv < sizeof(int))
+                    recv += client.GetStream().Read(length, recv, sizeof(int) - recv);
 
                 if (BitConverter.IsLittleEndian)
                     Array.Reverse(length);
 
-                ulong ulength = BitConverter.ToUInt64(length, 0);
+                int ulength = BitConverter.ToInt32(length, 0);
 
                 byte[] mess = new byte[ulength];
+                recv = 0;
+                
+                while(recv < ulength)
+                    recv += client.GetStream().Read(mess, recv, mess.Length - recv);
 
-                client.GetStream().Read(mess, 0, mess.Length);
                 NetworkPacket nPacket = NetworkPacket.Deserialize(mess);
 
-                HandlePakage(nPacket);
+                HandlePackage(nPacket);
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            { }
         }
-        private void HandlePakage(NetworkPacket nPacket)
+        private void HandlePackage(NetworkPacket nPacket)
         {
             if (nPacket.Sender == ID.ToString())
                 return;
+
             switch (nPacket.Head)
             {
                 case "Action":

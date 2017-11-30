@@ -77,9 +77,19 @@ namespace Server
 
                     NetworkPacket networkPacket = new NetworkPacket("Grid_Request", "Server");
 
-                    for (int i = 0; i < clients.Count; i++)
+                    int i = 0;
+
+                    for (i = 0; i < clients.Count; i++)
                         if (Send(networkPacket.Serialize(), clients[i]))
                             break;
+
+                    if (i == clients.Count)
+                    {
+                        NetworkPacket pack = new NetworkPacket("Grid", "Server", GameLogic.GameWorld.Grid.ToGridContainer());
+                        Send(pack.Serialize(), client);
+
+                        requestingGridContainer = false;
+                    }
                 }
                 else
                 {
@@ -96,42 +106,35 @@ namespace Server
         {
             try
             {
-                byte[] length = new byte[sizeof(ulong)];
+                byte[] length = new byte[sizeof(int)];
+                int recv = 0;
 
-                client.GetStream().Read(length, 0, sizeof(ulong));
+                while(recv < sizeof(int))
+                    recv += client.GetStream().Read(length, recv, sizeof(int) - recv);
 
                 if (BitConverter.IsLittleEndian)
                     Array.Reverse(length);
 
-                ulong lengths = BitConverter.ToUInt64(length, 0);
+                int lengths = BitConverter.ToInt32(length, 0);
 
                 byte[] message = new byte[lengths];
-                client.GetStream().Read(message, 0, (int)lengths);
+                recv = 0;
+
+                while (recv < lengths)
+                    recv += client.GetStream().Read(message, recv, lengths - recv);
+
                 NetworkPacket nPacket = NetworkPacket.Deserialize(message);
-                HandlePakage(nPacket);
+                HandlePackage(nPacket);
             }
             catch (Exception ex)
             { Console.WriteLine(ex.Message); }
-        }
-
-        private static string ToString(byte[] mess)
-        {
-            BinaryFormatter bf = new BinaryFormatter();
-            string res;
-
-            using (MemoryStream memS = new MemoryStream(mess))
-            {
-                res = bf.Deserialize(memS) as string;
-            }
-
-            return res;
         }
 
         private static bool Send(byte[] message, TcpClient client)
         {
             try
             {
-                byte[] length = BitConverter.GetBytes((ulong)message.Length);
+                byte[] length = BitConverter.GetBytes(message.Length);
 
                 if (BitConverter.IsLittleEndian)
                     Array.Reverse(length);
@@ -149,12 +152,16 @@ namespace Server
             catch (Exception ex)
             {
                 if (!client.Connected)
-                    clients.Remove(client);
+                {
+                    Console.WriteLine($"Closing connection to {client.Client.RemoteEndPoint.ToString()}, Reason: {ex.Message}");
 
-                Console.WriteLine(ex.Message);
+                    clients.Remove(client);
+                }
+
                 return false;
             }
         }
+
         public static void SendAll(NetworkPacket nPacket, TcpClient ignore = null)
         {
             if(ignore != null)
@@ -169,7 +176,6 @@ namespace Server
 
                     bytes.Enqueue(s);
                 }
-                
             }
             else
             {
@@ -184,7 +190,7 @@ namespace Server
                 }
             }
         }
-        private static void HandlePakage(NetworkPacket nPacket)
+        private static void HandlePackage(NetworkPacket nPacket)
         {
             switch (nPacket.Head)
             {
