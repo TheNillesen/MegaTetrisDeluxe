@@ -31,6 +31,7 @@ namespace Client
             : base(gameObject)
         {
             Vector2I[] tempPos = GameShapeHelper.GetShape(shape, position);
+            ShapeCord = new Vector2[tempPos.Length];
 
             Position = new Vector2[tempPos.Length];
 

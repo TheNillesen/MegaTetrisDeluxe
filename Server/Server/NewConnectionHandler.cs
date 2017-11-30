@@ -81,7 +81,10 @@ namespace Server
 
                     for (i = 0; i < clients.Count; i++)
                         if (Send(networkPacket.Serialize(), clients[i]))
+                        {
+                            awaitingGrid.Enqueue(client);
                             break;
+                        }
 
                     if (i == clients.Count)
                     {
@@ -99,7 +102,6 @@ namespace Server
             }
 
             clients.Add(client);
-            awaitingGrid.Enqueue(client);
         }
 
         private static void Receive(TcpClient client)
