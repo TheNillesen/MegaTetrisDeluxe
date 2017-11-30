@@ -29,11 +29,16 @@ namespace Server
         static bool requestingGridContainer;
         static Queue<Client> awaitingGrid;
 
+        static Encryption decrypter;
+
+        public static Encryption Decrypter { get { return decrypter; } }
+
         static NewConnectionHandler()
         {
             clients = new List<Client>();
             bytes = new Queue<Ship>();
             awaitingGrid = new Queue<Client>();
+            decrypter = new Encryption();
         }
         public static void Init(int port)
         {
@@ -56,13 +61,12 @@ namespace Server
         private static void AcceptClient()
         {
             TcpClient client = list.AcceptTcpClient();
-
-
+            
             Console.WriteLine($"New connection from: {client.Client.RemoteEndPoint.ToString()}");
             Client cl = new Client(client, HandlePackage, Disconnect, Guid.NewGuid());
 
-            NetworkPacket nPacket = new NetworkPacket("ID", "Server", Guid.NewGuid());
-            cl.packet.Enqueue(nPacket);
+            NetworkPacket nPacket = new NetworkPacket("ID", "Server", cl.id, decrypter.GetPublicKey());
+            SendUnEncrypted(nPacket.Serialize(), cl);
 
             if (!requestingGridContainer)
             {
@@ -75,7 +79,7 @@ namespace Server
                     int i = 0;
 
                     for (i = 0; i < clients.Count; i++)
-                        if (Send(networkPacket.Serialize(), clients[i].client))
+                        if (Send(networkPacket.Serialize(), clients[i]))
                         {
                             awaitingGrid.Enqueue(cl);
                             break;
@@ -107,11 +111,11 @@ namespace Server
             client.Run = false;
         }
 
-        private static bool Send(byte[] message, TcpClient client)
+        private static bool SendUnEncrypted(byte[] message, Client client)
         {
             try
             {
-                lock (client)
+                lock (client.client)
                 {
                     byte[] length = BitConverter.GetBytes(message.Length);
 
@@ -123,7 +127,7 @@ namespace Server
                     length.CopyTo(pack, 0);
                     message.CopyTo(pack, length.Length);
 
-                    client.GetStream().Write(pack, 0, pack.Length);
+                    client.client.GetStream().Write(pack, 0, pack.Length);
                 }
 
                 return true;
@@ -131,14 +135,50 @@ namespace Server
 
             catch (Exception ex)
             {
-                if (!client.Connected)
+                if (!client.client.Connected)
                 {
-                    Console.WriteLine($"Closing connection to {client.Client.RemoteEndPoint.ToString()}, Reason: {ex.Message}");
+                    Console.WriteLine($"Closing connection to {client.client.Client.RemoteEndPoint.ToString()}, Reason: {ex.Message}");
 
-                    Client cl = clients.Find(o => o.client == client);
-                    
-                    clients.Remove(cl);
-                    cl.Run = false;
+                    clients.Remove(client);
+                    client.Run = false;
+                }
+
+                return false;
+            }
+        }
+
+        private static bool Send(byte[] mess, Client client)
+        {
+            try
+            {
+                lock (client.client)
+                {
+                    byte[] message = client.encrypter.Encrypt(mess);
+
+                    byte[] length = BitConverter.GetBytes(message.Length);
+
+                    if (BitConverter.IsLittleEndian)
+                        Array.Reverse(length);
+
+                    byte[] pack = new byte[length.Length + message.Length];
+
+                    length.CopyTo(pack, 0);
+                    message.CopyTo(pack, length.Length);
+
+                    client.client.GetStream().Write(pack, 0, pack.Length);
+                }
+
+                return true;
+            }
+
+            catch (Exception ex)
+            {
+                if (!client.client.Connected)
+                {
+                    Console.WriteLine($"Closing connection to {client.client.Client.RemoteEndPoint.ToString()}, Reason: {ex.Message}");
+
+                    clients.Remove(client);
+                    client.Run = false;
                 }
 
                 return false;
@@ -165,6 +205,9 @@ namespace Server
                 case "Spawn":
                     SendAll(nPacket);
                     break;
+                case "Shape":
+                    SendAll(nPacket);
+                    break;
                 case "Grid":
                     nPacket.Sender = "Server";
 
@@ -177,7 +220,13 @@ namespace Server
 
                     requestingGridContainer = false;
                     break;
+                case "Key":
+                    Client c = clients.Find(o => o.id.ToString() == nPacket.Sender);
+
+                    c.encrypter = new Encryption((byte[])nPacket.Data[0]);
+                    break;
                 default:
+                    SendAll(nPacket);
                     return;
             }
         }

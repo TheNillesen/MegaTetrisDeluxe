@@ -38,12 +38,48 @@ namespace Intermediate
 
         public byte[] Encrypt(byte[] message)
         {
-            return rsa.Encrypt(message, true);
+            //11 is the minimum padding allowed
+            int packSize = (rsa.KeySize / 8) - 11;
+
+            int currentIndex = 0;
+
+            byte[] final = new byte[0];
+
+            for(currentIndex = 0; currentIndex < message.Length; currentIndex += packSize)
+            {
+                int count = packSize + currentIndex > message.Length ? message.Length - currentIndex : packSize;
+
+                byte[] currentPack = new byte[count];
+
+                for (int i = 0; i < currentPack.Length; i++)
+                    currentPack[i] = message[currentIndex + i];
+
+                final = final.Concat(rsa.Encrypt(currentPack, false)).ToArray();
+            }
+
+            return final;
         }
 
         public byte[] Decrypt(byte[] message)
         {
-            return rsa.Decrypt(message, true);
+            int packSize = rsa.KeySize / 8;
+            int currentIndex = 0;
+
+            byte[] final = new byte[0];
+
+            for(currentIndex = 0; currentIndex < message.Length; currentIndex += packSize)
+            {
+                int count = packSize + currentIndex > message.Length ? message.Length - currentIndex : packSize;
+
+                byte[] currentPack = new byte[count];
+
+                for (int i = 0; i < currentPack.Length; i++)
+                    currentPack[i] = message[currentIndex + i];
+
+                final = final.Concat(rsa.Decrypt(currentPack, false)).ToArray();
+            }
+
+            return final;
         }
 
         public byte[] BitFlip(byte[] bytes)
