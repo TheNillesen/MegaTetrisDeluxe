@@ -200,6 +200,10 @@ namespace Client
                     Gameworld.Instance.AddGameObject(go);
                     go.LoadContent(Gameworld.Instance.Content);
                     break;
+                case "Shape":
+                    Guid senderIDTemp = new Guid(nPacket.Sender);
+                    Gameworld.Instance.gameObjects.Find(o => o.GetComponent<NetworkController>(n => n.ID == senderIDTemp) != null)?.Transform.NewShape((GameShapes)nPacket.Data[0]);
+                    break;
                 case "Tick":
                     if(nPacket.Sender == "Server")
                     {

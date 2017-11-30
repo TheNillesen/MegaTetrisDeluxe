@@ -205,6 +205,9 @@ namespace Server
                 case "Spawn":
                     SendAll(nPacket);
                     break;
+                case "Shape":
+                    SendAll(nPacket);
+                    break;
                 case "Grid":
                     nPacket.Sender = "Server";
 
@@ -223,6 +226,7 @@ namespace Server
                     c.encrypter = new Encryption((byte[])nPacket.Data[0]);
                     break;
                 default:
+                    SendAll(nPacket);
                     return;
             }
         }
