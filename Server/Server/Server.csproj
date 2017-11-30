@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client.cs" />
     <Compile Include="ConnectionHandler.cs" />
     <Compile Include="GameLogic\GameWorld.cs" />
     <Compile Include="GameObject\GameObject.cs" />

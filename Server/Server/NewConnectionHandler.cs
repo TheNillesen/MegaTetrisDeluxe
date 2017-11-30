@@ -23,17 +23,17 @@ namespace Server
         static TcpListener list;
         static Thread loopster;
 
-        static List<TcpClient> clients;
+        static List<Client> clients;
         static Queue<Ship> bytes;
 
         static bool requestingGridContainer;
-        static Queue<TcpClient> awaitingGrid;
+        static Queue<Client> awaitingGrid;
 
         static NewConnectionHandler()
         {
-            clients = new List<TcpClient>();
+            clients = new List<Client>();
             bytes = new Queue<Ship>();
-            awaitingGrid = new Queue<TcpClient>();
+            awaitingGrid = new Queue<Client>();
         }
         public static void Init(int port)
         {
@@ -43,21 +43,13 @@ namespace Server
             loopster = new Thread(InternalLoop);
             loopster.Start();
         }
-        private  static void InternalLoop()
+        private static void InternalLoop()
         {
             while (true)
             {
                 while (list.Pending())
                     AcceptClient();
-                for (int i = 0; i < clients.Count; i++)
-                    if (clients[i].Available > sizeof(ulong))
-                        Receive(clients[i]);
-                for (int i = 0; i < bytes.Count; i++)
-                {
-                    Ship s = bytes.Dequeue();
-
-                    Send(s.mess, s.client);
-                }
+                Thread.Sleep(10);
             }
         }
 
@@ -65,9 +57,12 @@ namespace Server
         {
             TcpClient client = list.AcceptTcpClient();
 
-            NetworkPacket nPacket = new NetworkPacket("ID", "Server", Guid.NewGuid());
-            Send(nPacket.Serialize(), client);
+
             Console.WriteLine($"New connection from: {client.Client.RemoteEndPoint.ToString()}");
+            Client cl = new Client(client, HandlePackage, Disconnect, Guid.NewGuid());
+
+            NetworkPacket nPacket = new NetworkPacket("ID", "Server", Guid.NewGuid());
+            cl.packet.Enqueue(nPacket);
 
             if (!requestingGridContainer)
             {
@@ -80,16 +75,16 @@ namespace Server
                     int i = 0;
 
                     for (i = 0; i < clients.Count; i++)
-                        if (Send(networkPacket.Serialize(), clients[i]))
+                        if (Send(networkPacket.Serialize(), clients[i].client))
                         {
-                            awaitingGrid.Enqueue(client);
+                            awaitingGrid.Enqueue(cl);
                             break;
                         }
 
                     if (i == clients.Count)
                     {
                         NetworkPacket pack = new NetworkPacket("Grid", "Server", GameLogic.GameWorld.Grid.ToGridContainer());
-                        Send(pack.Serialize(), client);
+                        cl.packet.Enqueue(pack);
 
                         requestingGridContainer = false;
                     }
@@ -97,56 +92,39 @@ namespace Server
                 else
                 {
                     NetworkPacket networkPacket = new NetworkPacket("Grid", "Server", GameLogic.GameWorld.Grid.ToGridContainer());
-                    Send(networkPacket.Serialize(), client);
+                    cl.packet.Enqueue(networkPacket);
                 }
             }
 
-            clients.Add(client);
+            clients.Add(cl);
         }
 
-        private static void Receive(TcpClient client)
+        private static void Disconnect(Client client)
         {
-            try
-            {
-                byte[] length = new byte[sizeof(int)];
-                int recv = 0;
+            Console.WriteLine($"Disconnecting {client.id.ToString()} from {client.client.Client.RemoteEndPoint.ToString()}");
 
-                while(recv < sizeof(int))
-                    recv += client.GetStream().Read(length, recv, sizeof(int) - recv);
-
-                if (BitConverter.IsLittleEndian)
-                    Array.Reverse(length);
-
-                int lengths = BitConverter.ToInt32(length, 0);
-
-                byte[] message = new byte[lengths];
-                recv = 0;
-
-                while (recv < lengths)
-                    recv += client.GetStream().Read(message, recv, lengths - recv);
-
-                NetworkPacket nPacket = NetworkPacket.Deserialize(message);
-                HandlePackage(nPacket);
-            }
-            catch (Exception ex)
-            { Console.WriteLine(ex.Message); }
+            clients.Remove(client);
+            client.Run = false;
         }
 
         private static bool Send(byte[] message, TcpClient client)
         {
             try
             {
-                byte[] length = BitConverter.GetBytes(message.Length);
+                lock (client)
+                {
+                    byte[] length = BitConverter.GetBytes(message.Length);
 
-                if (BitConverter.IsLittleEndian)
-                    Array.Reverse(length);
+                    if (BitConverter.IsLittleEndian)
+                        Array.Reverse(length);
 
-                byte[] pack = new byte[length.Length + message.Length];
+                    byte[] pack = new byte[length.Length + message.Length];
 
-                length.CopyTo(pack, 0);
-                message.CopyTo(pack, length.Length);
+                    length.CopyTo(pack, 0);
+                    message.CopyTo(pack, length.Length);
 
-                client.GetStream().Write(pack, 0, pack.Length);
+                    client.GetStream().Write(pack, 0, pack.Length);
+                }
 
                 return true;
             }
@@ -157,7 +135,10 @@ namespace Server
                 {
                     Console.WriteLine($"Closing connection to {client.Client.RemoteEndPoint.ToString()}, Reason: {ex.Message}");
 
-                    clients.Remove(client);
+                    Client cl = clients.Find(o => o.client == client);
+                    
+                    clients.Remove(cl);
+                    cl.Run = false;
                 }
 
                 return false;
@@ -166,34 +147,16 @@ namespace Server
 
         public static void SendAll(NetworkPacket nPacket, TcpClient ignore = null)
         {
-            if(ignore != null)
+            for (int i = 0; i < clients.Count; i++)
             {
-                TcpClient[] tcpArray = clients.FindAll(o => o != ignore).ToArray();
-                for (int i = 0; i < tcpArray.Length; i++)
-                {
-                    Ship s = new Ship();
-
-                    s.client = tcpArray[i];
-                    s.mess = nPacket.Serialize();
-
-                    bytes.Enqueue(s);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < clients.Count; i++)
-                {
-                    Ship s = new Ship();
-
-                    s.client = clients[i];
-                    s.mess = nPacket.Serialize();
-
-                    bytes.Enqueue(s);
-                }
+                clients[i].packet.Enqueue(nPacket);
             }
         }
         private static void HandlePackage(NetworkPacket nPacket)
         {
+            if (nPacket.Head != "Action")
+                Console.WriteLine($"Handling {nPacket.Head} from {nPacket.Sender}");
+
             switch (nPacket.Head)
             {
                 case "Action":
@@ -205,9 +168,11 @@ namespace Server
                 case "Grid":
                     nPacket.Sender = "Server";
 
-                    while(awaitingGrid.Count != 0)
+                    while (awaitingGrid.Count != 0)
                     {
-                        Send(nPacket.Serialize(), awaitingGrid.Dequeue());
+                        Client cl = awaitingGrid.Dequeue();
+
+                        cl.packet.Enqueue(nPacket);
                     }
 
                     requestingGridContainer = false;
