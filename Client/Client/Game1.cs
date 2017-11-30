@@ -93,7 +93,7 @@ namespace Client
             text = new Text(Color.White, 20, new Vector2(20, - 360));
             text.LoadContent(this.Content);
 
-            //Test player
+            //Menu Player
             CreatePlayer();
         }
 
@@ -201,6 +201,9 @@ namespace Client
                 gameObjects[i].OnTick();
             for (int i = 0; i < uis.Count; i++)
                 uis[i].OnTick();
+
+            Intermediate.Game.GridContainer cont = gameMap.ToContainer();
+            gameMap.FromContainer(cont);
         }
 
         public void AddGameObject(GameObject go, bool isUI = false)
@@ -230,7 +233,7 @@ namespace Client
 
             if (Client != null)
             {
-                Intermediate.NetworkPacket packet = new Intermediate.NetworkPacket("Spawn", null, player.Transform.Position[0].ToVector2I(), player.Transform.shape);
+                NetworkPacket packet = new NetworkPacket("Spawn", null, player.Transform.Position[0].ToVector2I(), player.Transform.shape);
                 Client.Send(packet);
             }
             

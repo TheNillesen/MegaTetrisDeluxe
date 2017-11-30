@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Intermediate;
+using Intermediate.Game;
 
 namespace Client
 {
@@ -140,44 +141,49 @@ namespace Client
                 if (gameObjectContainer.Guid != default(Guid).ToString())
                     go.AddComponent(new NetworkController(go, new Guid(gameObjectContainer.Guid)));
 
-                Gameworld.Instance.AddGameObject(go);
                 go.LoadContent(Gameworld.Instance.Content);
+                Gameworld.Instance.AddGameObject(go);                
             }
         }
 
-        public Intermediate.Game.GridContainer ToContainer()
+        public GridContainer ToContainer()
         {
-            List<GameObject> gos = Gameworld.Instance.gameObjects;
-
-            Intermediate.Game.GridContainer container = new Intermediate.Game.GridContainer(map.GetLength(0), map.GetLength(1));
+            GridContainer container = new GridContainer(map.GetLength(0), map.GetLength(1));
 
             for (int i = 0; i < Gameworld.Instance.gameObjects.Count; i++)
             {
                 GameObject go = Gameworld.Instance.gameObjects[i];
 
-                if (go?.Transform?.Position == null)
-                    continue;
+                try
+                {
+                    if (go?.Transform?.Position == null)
+                        continue;
 
                 Vector2[] positions = new Vector2[4];
                 for (int j = 0; j < positions.Count(); j++)
                     positions[j] = Gameworld.Instance.gameMap.MapPosition(go.Transform.Position[j]);
                 Vector2I[] positionsI = new Vector2I[positions.Length];
 
-                for (int j = 0; j < positions.Length; j++)
-                    positionsI[j] = positions[j].ToVector2I();
-                
-                Intermediate.Game.GameObjectContainer goContainer = new Intermediate.Game.GameObjectContainer(positionsI, go.Transform.shape, go.GetComponent<NetworkController>()?.ID.ToString());
+                    for (int j = 0; j < positions.Length; j++)
+                    {
+                        positionsI[j] = positions[j].ToVector2I();
+                    }
 
-                NetworkController con;
+                    GameObjectContainer goContainer = new GameObjectContainer(positionsI, go.Transform.shape, go.GetComponent<NetworkController>()?.ID.ToString());
 
-                if (go.GetComponent<PlayerController>() != null)
-                    goContainer.Guid = Gameworld.Instance.Client.Guid.ToString();
-                else if ((con = go.GetComponent<NetworkController>()) != null)
-                    goContainer.Guid = con.ID.ToString();
-                else
-                    goContainer.Guid = default(Guid).ToString();
+                    NetworkController con;
 
-                container.GameObjects.Add(goContainer);
+                    if (go.GetComponent<PlayerController>() != null)
+                        goContainer.Guid = Gameworld.Instance.Client.Guid.ToString();
+                    else if ((con = go.GetComponent<NetworkController>()) != null)
+                        goContainer.Guid = con.ID.ToString();
+                    else
+                        goContainer.Guid = default(Guid).ToString();
+
+                    container.GameObjects.Add(goContainer);
+                }
+                catch
+                { }
             }
 
             return container;
