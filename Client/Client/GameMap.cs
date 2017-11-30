@@ -143,11 +143,12 @@ namespace Client
                 Gameworld.Instance.AddGameObject(go);
                 go.LoadContent(Gameworld.Instance.Content);
             }
-            List<GameObject> gos = Gameworld.Instance.gameObjects;
         }
 
         public Intermediate.Game.GridContainer ToContainer()
         {
+            List<GameObject> gos = Gameworld.Instance.gameObjects;
+
             Intermediate.Game.GridContainer container = new Intermediate.Game.GridContainer(map.GetLength(0), map.GetLength(1));
 
             for (int i = 0; i < Gameworld.Instance.gameObjects.Count; i++)
@@ -163,9 +164,7 @@ namespace Client
                 Vector2I[] positionsI = new Vector2I[positions.Length];
 
                 for (int j = 0; j < positions.Length; j++)
-                {
                     positionsI[j] = positions[j].ToVector2I();
-                }
                 
                 Intermediate.Game.GameObjectContainer goContainer = new Intermediate.Game.GameObjectContainer(positionsI, go.Transform.shape, go.GetComponent<NetworkController>()?.ID.ToString());
 
