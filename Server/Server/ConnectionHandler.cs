@@ -27,6 +27,9 @@ namespace Server
         private static TcpListener listner;
         private static int port;
         private static bool serverRunning;
+        private static Encryption decrypter;
+
+        public static Encryption Decrypter { get { return decrypter; } }
             
         public static int Port
         {
@@ -46,6 +49,7 @@ namespace Server
         {
             networkPakages = new Queue<Shipping>();
             ConnectionHandler.clients = new List<TcpClient>();
+            decrypter = new Encryption();
         }
 
         public static void Init(int port)

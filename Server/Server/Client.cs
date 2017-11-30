@@ -17,6 +17,8 @@ namespace Server
         public Action<Intermediate.NetworkPacket> handlePacket;
         public Action<Client> disconnect;
 
+        public Intermediate.Encryption encrypter;
+
         public bool Run;
 
         public Client(TcpClient client, Action<Intermediate.NetworkPacket> packetHandler, Action<Client> disconnect, Guid id)
@@ -41,7 +43,7 @@ namespace Server
             {
                 while (client.Available > 0)
                     Receive();
-                while (packet.Count > 0)
+                while (encrypter != null && packet.Count > 0)
                 {
                     Intermediate.NetworkPacket pack = packet.Dequeue();
 
@@ -73,6 +75,8 @@ namespace Server
                 while (recv < lengths)
                     recv += client.GetStream().Read(message, recv, lengths - recv);
 
+                message = NewConnectionHandler.Decrypter.Decrypt(message);
+
                 Intermediate.NetworkPacket nPacket = Intermediate.NetworkPacket.Deserialize(message);
                 handlePacket(nPacket);
             }
@@ -86,6 +90,9 @@ namespace Server
             {
                 lock (client)
                 {
+                    if (encrypter != null)
+                        message = encrypter.Encrypt(message);
+
                     byte[] length = BitConverter.GetBytes(message.Length);
 
                     if (BitConverter.IsLittleEndian)

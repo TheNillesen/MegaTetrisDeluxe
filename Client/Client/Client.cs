@@ -20,6 +20,9 @@ namespace Client
         Thread loopster;
         Queue<NetworkPacket> messages;
 
+        Encryption encrypter;
+        Encryption decrypter;
+
         public Guid Guid { get { return ID; } }
 
         private IPEndPoint connectionInfo;
@@ -27,6 +30,7 @@ namespace Client
         public Client()
         {
             messages = new Queue<NetworkPacket>();
+            decrypter = new Encryption();
         }
 
         public void Connect(IPAddress address, int port)
@@ -73,10 +77,12 @@ namespace Client
             return NetworkPacket.Deserialize(mess);  
         }
 
-        private bool SendInternal(byte[] mess)
+        private bool SendInternal(byte[] message)
         {
             try
             {
+                byte[] mess = encrypter.Encrypt(message);
+
                 byte[] length = new byte[sizeof(int)];
 
                 length = BitConverter.GetBytes(mess.Length);
@@ -124,6 +130,9 @@ namespace Client
                 
                 while(recv < ulength)
                     recv += client.GetStream().Read(mess, recv, mess.Length - recv);
+
+                if (encrypter != null)
+                    mess = decrypter.Decrypt(mess);
 
                 NetworkPacket nPacket = NetworkPacket.Deserialize(mess);
 
@@ -177,6 +186,10 @@ namespace Client
                     if (nPacket.Sender == "Server")
                     {
                         ID = (Guid)nPacket.Data[0];
+                        encrypter = new Encryption((byte[])nPacket.Data[1]);
+
+                        NetworkPacket pack = new NetworkPacket("Key", ID.ToString(), decrypter.GetPublicKey());
+                        messages.Enqueue(pack);
                     }
                     break;
                 case "Spawn":
