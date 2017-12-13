@@ -9,11 +9,11 @@ namespace Intermediate.Game
     [Serializable]
     public class GameObjectContainer
     {
-        private Vector2I position;
+        private Vector2I[] position;
         private GameShapes shape;
         private string guid;
 
-        public Vector2I Postion
+        public Vector2I[] Postion
         {
             get
             {
@@ -49,7 +49,7 @@ namespace Intermediate.Game
             }
         }
 
-        public GameObjectContainer(Vector2I position, GameShapes shape, string guid)
+        public GameObjectContainer(Vector2I[] position, GameShapes shape, string guid)
         {
             this.position = position;
             this.shape = shape;

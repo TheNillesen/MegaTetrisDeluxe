@@ -27,19 +27,26 @@ namespace Client
         {
             Slave(position);
         }
-        public Transform(GameObject gameObject, Vector2I position, GameShapes shape) 
+        public Transform(GameObject gameObject, Vector2I position, GameShapes shape)
             : base(gameObject)
         {
             Vector2I[] tempPos = GameShapeHelper.GetShape(shape, position);
+            ShapeCord = new Vector2[tempPos.Length];
 
             Position = new Vector2[tempPos.Length];
 
-            for(int i = 0; i < tempPos.Length; i++)
+            Vector2I[] tempShapeCord = GameShapeHelper.GetShape(shape);
+            for (int i = 0; i < tempShapeCord.Count(); i++)
+                ShapeCord[i] = new Vector2(tempShapeCord[i].X, tempShapeCord[i].Y);
+
+            for (int i = 0; i < tempPos.Length; i++)
             {
                 Position[i] = tempPos[i].ToVector2();
             }
 
+            SColor(shape);
             this.shape = shape;
+            rnd = new Random();
         }
         /// <summary>
         /// If it's a block on the map set placedblock = true. If it's other such as the border set other = true.
@@ -65,6 +72,24 @@ namespace Client
             }
         }
 
+        public Transform(GameObject gameObject, Vector2I[] positions, GameShapes shape) : base(gameObject)
+        {
+            this.Position = new Vector2[positions.Length];
+            this.ShapeCord = new Vector2[positions.Length];
+            Vector2[] temp = new Vector2[positions.Length];
+
+            for (int i = 0; i < positions.Length; i++)
+            {
+                Position[i] = positions[i].ToVector2();
+                temp[i] = Gameworld.Instance.gameMap.MapPosition(positions[i].ToVector2());
+                ShapeCord[i] = temp[i] - temp[0];
+            }
+
+            SColor(shape);
+            this.shape = shape;
+            rnd = new Random();
+        }
+
         /// <summary>
         /// Slave function to the constructors.
         /// </summary>
@@ -73,6 +98,7 @@ namespace Client
         {
             this.Position = new Vector2[4];
             rnd = new Random();
+            ShapeCord = new Vector2[4];
 
             //For test, I have given a standard shape
             ShapeAndColor();
@@ -112,15 +138,21 @@ namespace Client
         /// </summary>
         public void MoveDown(bool enforced = false)
         {
-            BlockPlaceCheck();
-            Move(new Vector2(0, 1));
+            if (Position != null)
+            {
+                if (!enforced)
+                {
+                    BlockPlaceCheck();
+                }
+                Move(new Vector2(0, 1));
+            }
         }
 
         private void Move(Vector2 move)
         {
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
 
-            if (!Gameworld.Instance.gameMap.IsOutOfBound(tempPos + move, ShapeCord) 
+            if (!Gameworld.Instance.gameMap.IsOutOfBound(tempPos + move, ShapeCord)
                 && Gameworld.Instance.gameMap.IsItOccupied(tempPos + move, ShapeCord) == false)
             {
                 Gameworld.Instance.gameMap.EmptyPosition(tempPos, ShapeCord);
@@ -174,6 +206,8 @@ namespace Client
         /// </summary>
         private void BlockPlaceCheck()
         {
+            if (Position == null) return;
+
             bool placed = false;
             Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
             //We move the blocks one down, as we need to check the next position befor we move to it
@@ -182,12 +216,6 @@ namespace Client
             //Checks if the blocks should be placed.
             if (Gameworld.Instance.gameMap.IsBlockPlaced(tempPos, ShapeCord))
             {
-                ////Since there is blocks at the new position, then we move the blocks one tick up.
-                //for (int i = 0; i < ShapeCord.Count(); i++)
-                //    ShapeCord[i] += new Vector2(0, -1);
-                ////Places the blocks.
-                //Gameworld.Instance.gameMap.PlaceBlocks(tempPos, ShapeCord);
-
                 //Since there is blocks at the new position, then we move the blocks one tick up.
                 tempPos += new Vector2(0, -1);
                 //Places the blocks.
@@ -206,7 +234,8 @@ namespace Client
             if (placed)
             {
                 //New shape and color.
-                ShapeAndColor();
+                if(this.gameObject.GetComponent<PlayerController>() != null)
+                    ShapeAndColor();
 
                 //Moves back to start position.
                 Vector2 newPos = Gameworld.Instance.playerStartPosition;
@@ -220,7 +249,7 @@ namespace Client
             }
 
         }
-        
+
         public void PlaceBlockNow()
         {
             Vector2 move = new Vector2(0, 1);
@@ -293,16 +322,72 @@ namespace Client
                     break;
             }
 
-            //The shape's coordinates
             Vector2I[] tempShapeCord = GameShapeHelper.GetShape(shape);
-            ShapeCord = new Vector2[4];
-            for (int i = 0; i < ShapeCord.Count(); i++)
+            for (int i = 0; i < tempShapeCord.Count(); i++)
                 ShapeCord[i] = new Vector2(tempShapeCord[i].X, tempShapeCord[i].Y);
+
+            //Sends the new shape to all other players in the game.
+            if (Gameworld.Instance.Client != null)
+                Gameworld.Instance.Client.Send(new NetworkPacket("Shape", null, shape));
+        }
+
+        /// <summary>
+        /// Get shape's color.
+        /// </summary>
+        private void SColor(GameShapes shape)
+            {
+                switch (shape)
+                {
+                    case GameShapes.I:
+                        gameObject.GetComponent<Spriterendere>().color = Color.Red;
+                        break;
+                    case GameShapes.L:
+                        gameObject.GetComponent<Spriterendere>().color = Color.Pink;
+                        break;
+                    case GameShapes.Lightning:
+                        gameObject.GetComponent<Spriterendere>().color = Color.Green;
+                        break;
+                    case GameShapes.Lightning_Inverse:
+                        gameObject.GetComponent<Spriterendere>().color = Color.LightBlue;
+                        break;
+                    case GameShapes.L_Inverse:
+                        gameObject.GetComponent<Spriterendere>().color = Color.White;
+                        break;
+                    case GameShapes.Square:
+                        gameObject.GetComponent<Spriterendere>().color = Color.Blue;
+                        break;
+                    case GameShapes.T:
+                        gameObject.GetComponent<Spriterendere>().color = Color.Brown;
+                        break;
+                    default:
+                        gameObject.GetComponent<Spriterendere>().color = Color.Red;
+                        break;
+                }
+        }
+
+        /// <summary>
+        /// Changes the shape to the given.
+        /// </summary>
+        /// <param name="shape"></param>
+        public void NewShape(GameShapes shape)
+        {
+            Vector2I[] tempShapeCord = GameShapeHelper.GetShape(shape);
+            for (int i = 0; i < tempShapeCord.Length; i++)
+                ShapeCord[i] = new Vector2(tempShapeCord[i].X, tempShapeCord[i].Y);
+
+            Vector2 tempPos = Gameworld.Instance.gameMap.MapPosition(Position[0]);
+            for (int i = 0; i < Position.Length; i++)
+                Position[i] = Gameworld.Instance.gameMap.Position(tempPos + ShapeCord[i]);
+
+            this.shape = shape;
+
+            SColor(shape);
         }
 
         public void OnTick()
-        {
-            MoveDown(true);
-        }
+            {
+                MoveDown();
+            }
+        
     }
 }

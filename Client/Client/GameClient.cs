@@ -10,22 +10,32 @@ using Intermediate;
 using Microsoft.Xna.Framework;
 using Andreas.Gade;
 using Anders.Vestergaard;
-using Nikolaj.Er.Kongen.Men.Han.gider.Ikke.Vise.Det;
-
+using Microsoft.Xna.Framework.Media;
 
 namespace Client
 {
     class GameClient
     {
+
+        private Queue<NetworkPacket> networkPakages; 
         private Dictionary<string, Func<NetworkPacket, Task>> commandHandlers;
         private TcpClient Client;
         private NetworkStream ServerStream = null;
         private bool jogging = false;
+        private Guid id;
+
+        public Guid Id
+        {
+            get { return id; }
+            set { id = value; }
+        }
 
         public GameClient()
         {
+            networkPakages = new Queue<NetworkPacket>();
             commandHandlers = new Dictionary<string, Func<NetworkPacket, Task>>();
-            Client = new TcpClient();                       
+            Client = new TcpClient(); 
+            
         }
 
         public void Connect(IPAddress ip, int port)
@@ -50,8 +60,18 @@ namespace Client
                 commandHandlers["Tick"] = HandleTick;
                 commandHandlers["Move"] = HandleMove;
                 commandHandlers["Spawn"] = HandleSpawn;
+                commandHandlers["ID"] = HandleID;
 
                 Run();
+            }
+        }
+
+        private async Task HandleID(NetworkPacket p)
+        {
+            if (p.Sender == "Server")
+            {
+                id = (Guid)p.Data[0];
+                Gameworld.Instance.gameMap.FromContainer((Intermediate.Game.GridContainer)p.Data[1]);
             }
         }
 
@@ -77,7 +97,8 @@ namespace Client
 
             go.AddComponent(new Transform(go, (Vector2I)packet.Data[0], (GameShapes)packet.Data[1]));
             go.AddComponent(new NetworkController(go, new Guid(packet.Sender)));
-
+            go.AddComponent(new Spriterendere(go, "GreyToneBlock", 1f));
+            go.LoadContent(Gameworld.Instance.Content);
             Gameworld.Instance.AddGameObject(go);
         }
 
@@ -103,6 +124,7 @@ namespace Client
                     await ServerStream.ReadAsync(packetBuffer, 0, packetBuffer.Length);
                     // Convert it into a packet datatype
                     NetworkPacket packet = NetworkPacket.Deserialize(packetBuffer);
+
                     // Dispatch it
                     try
                     {
@@ -129,11 +151,17 @@ namespace Client
 
             // Send the response
             NetworkPacket resp = new NetworkPacket("input", responseMsg);
-            await SendPacket(resp);
+            SendPacket(resp);
         }
-
-        public async Task SendPacket(NetworkPacket packet)
+        public void SendPacket(NetworkPacket networkPacket)
         {
+            networkPakages.Enqueue(networkPacket);
+        }
+        private void SendPacketInternal(NetworkPacket packet)
+        {
+            if (packet.Sender == null)
+                packet.Sender = id.ToString();
+
             try
             {
                 // Convert JSON to buffer and its length to a 16 bit unsigned integer buffer
@@ -142,7 +170,7 @@ namespace Client
 
                 if (BitConverter.IsLittleEndian)
                 {
-                    lengthBuffer.Reverse();
+                    Array.Reverse(lengthBuffer);
                 }
 
                 // Join the buffers
@@ -151,7 +179,7 @@ namespace Client
                 packetBytes.CopyTo(packetBuffer, lengthBuffer.Length);
 
                 // Send the packet
-                await ServerStream.WriteAsync(packetBuffer, 0, packetBuffer.Length);
+                ServerStream.Write(packetBuffer, 0, packetBuffer.Length);
             }
             catch (Exception ex) { }
         }
@@ -165,7 +193,10 @@ namespace Client
             {
                 // Check for new packets
                 tasks.Add(HandleIncomingPackets());
-                Thread.Sleep(10);
+                while (networkPakages.Count > 0)
+                {
+                    SendPacketInternal(networkPakages.Dequeue());
+                }
             }
             // Just incase we have anymore packets, give them one second to be processed
             Task.WaitAll(tasks.ToArray(), 1000);

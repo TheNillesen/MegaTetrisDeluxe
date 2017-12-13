@@ -11,10 +11,18 @@ namespace Client
         public GameObject gameObject;
         public Spriterendere Spriterendere { get { return gameObject.Rendere; } }
         public Transform Transform { get { return gameObject.Transform; } }
+        public bool Enabled
+        {
+            get { return enabled; }
+            set { enabled = value; }
+        }
+
+        private bool enabled;
 
         public Component(GameObject gameObject)
         {
             this.gameObject = gameObject;
+            enabled = true;
         }
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Media;
 using Anders.Vestergaard;
 using Andreas.Gade;
 using System.Collections.Generic;
+using Intermediate;
 
 namespace Client
 {
@@ -24,11 +25,19 @@ namespace Client
             }
         }
 
+        public Client Client
+        {
+            get { return client; }
+            set { client = value; }
+        }
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
         private bool hasRun = false;
         private DateTime startup = DateTime.Now;
+        private Process server;
+        private Client client;
         private TextField textField;
         private Text text;
 
@@ -37,7 +46,8 @@ namespace Client
         public bool connecting;
 
         public Song backGroundMusic;
-        public List<GameObject> gameObjects;     
+        public List<GameObject> gameObjects;
+        public List<GameObject> uis;
         public GameMap gameMap;
         public GameObject player;
         public Vector2 playerStartPosition;
@@ -47,7 +57,9 @@ namespace Client
         private Gameworld()
         {
             graphics = new GraphicsDeviceManager(this);
+            uis = new List<GameObject>();
             Content.RootDirectory = "Content";
+            server = null;
         }
 
         /// <summary>
@@ -71,18 +83,18 @@ namespace Client
 //            new System.Threading.Thread(() => gc.Connect(new System.Net.IPAddress(new byte[] { 127, 0, 0, 1 }), 6666)).Start();
 //#endif
             gameObjects = new List<GameObject>();
-            gameMap = new GameMap(20f, 20f, 1000, 700, new Vector2(0, 0));
+            gameMap = new GameMap(10f, 10f, 1000, 700, new Vector2(0, 0));
             gameMap.Borders(Color.White);
 
             playerStartPosition = new Vector2(gameMap.map.GetLength(0) / 2, 4);
             connecting = false;
             textField = new TextField("Border", gameMap.gameAreaWidth / 2, gameMap.gameAreaHeight / 2, new Vector2(5, 1));
             textField.LoadContent(this.Content);
-            text = new Text(Color.White, 20, new Vector2(20, - 300));
+            text = new Text(Color.White, 20, new Vector2(20, -360));
             text.LoadContent(this.Content);
 
-            //Test player
-            CreatPlayer();
+            ////Menu Player
+            CreatePlayer();
         }
 
         public GameObject GetGameobject(Predicate<GameObject> filter)
@@ -124,14 +136,13 @@ namespace Client
             // TODO: Add your update logic here
             for (int i = 0; i < gameObjects.Count; i++)
                 gameObjects[i].Update();
-            player.Update();
+            for (int i = 0; i < uis.Count; i++)
+                uis[i].Update();
             if (connecting || hosting)
                 textField.Update();
             text.Update();
-            
-            base.Update(gameTime);
 
-            
+            base.Update(gameTime);         
         }
 
         /// <summary>
@@ -147,53 +158,80 @@ namespace Client
 
             for (int i = 0; i < gameObjects.Count; i++)
                 gameObjects[i].Draw(spriteBatch);
-            player.Draw(spriteBatch);
+            for (int i = 0; i < uis.Count; i++)
+                uis[i].Draw(spriteBatch);
             if (connecting || hosting)
                 textField.Draw(spriteBatch);
             text.Draw(spriteBatch);
-
-           
 
             spriteBatch.End();
 
             base.Draw(gameTime);
         }
 
-        public static void startServer(int port, int gridWidth, int gridHeight, long tickCount)
+        public static void StartServer(int port, int gridWidth, int gridHeight, long tickCount)
         {
-            Process process = new Process();
+            if (Instance.server == null)
+            {
+                Process process = new Process();
 
-            process.StartInfo.Arguments = $"port:{port.ToString()} width:{gridWidth} height:{gridHeight} tickCount:{tickCount}";
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.FileName = "Server.exe";
+                process.StartInfo.Arguments = $"port:{port.ToString()} width:{gridWidth} height:{gridHeight} tickCount:{tickCount}";
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.FileName = "Server.exe";
 
-            process.Start();
+                process.Start();
+
+                instance.server = process;
+            }
+        }
+
+        public static void CloseServer()
+        {
+            if (Instance.server != null)
+            {
+                instance.server.Kill();
+            }
         }
 
         public void OnTick()
         {
-            foreach (GameObject go in gameObjects)
-                go.OnTick();
+            for(int i = 0; i < gameObjects.Count; i++)
+                gameObjects[i].OnTick();
+            for (int i = 0; i < uis.Count; i++)
+                uis[i].OnTick();
         }
 
-        public void AddGameObject(GameObject go)
+        public void AddGameObject(GameObject go, bool isUI = false)
         {
-            gameObjects.Add(go);
+            if (isUI)
+                uis.Add(go);
+            else
+                gameObjects.Add(go);
         }
 
-        public void RemoveObject(GameObject go)
+        public void RemoveObject(GameObject go, bool isUI = false)
         {
-            gameObjects.Remove(go);
+            if (isUI)
+                uis.Remove(go);
+            else
+                gameObjects.Remove(go);
         }
 
-        public void CreatPlayer()
+        public void CreatePlayer()
         {
             player = new GameObject();
             player.AddComponent(new Spriterendere(player, "GreyToneBlock", 1f));
             player.AddComponent(new Transform(player, playerStartPosition));
             player.AddComponent(new PlayerController(player));
             player.LoadContent(this.Content);
-            gameObjects.Add(player);
+            AddGameObject(player);
+
+            if (Client != null)
+            {
+                NetworkPacket packet = new NetworkPacket("Spawn", null, player.Transform.Position[0].ToVector2I(), player.Transform.shape);
+                Client.Send(packet);
+            }
+            
         }
     }
 }

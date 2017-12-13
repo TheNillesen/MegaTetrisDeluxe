@@ -15,6 +15,19 @@ namespace Server.GameLogic
         private static bool run;
 
         private static Thread updateThread;
+        private static List<GameObject> gameObjects;
+
+        public static List<GameObject> GameObjects
+        {
+            get { return gameObjects; }
+            set { gameObjects = value; }
+        }
+
+        public static Grid Grid
+        {
+            get { return grid; }
+            set { grid = value; }
+        }
 
         static GameWorld()
         { run = true; }
@@ -47,11 +60,9 @@ namespace Server.GameLogic
 
         public static void OnTick()
         {
-            grid.Objects.ForEach(o => o.Position += new Intermediate.Vector2I(0, 1));
+            grid.Objects.ForEach(o => o.Position[0] += new Intermediate.Vector2I(0, 1));
 
-            byte[] temp = new Intermediate.NetworkPacket("Tick", "Server", null).Serialize();
-
-            ConnectionHandler.SendPacketAll(new Intermediate.NetworkPacket("Tick", "Server", null));
+            NewConnectionHandler.SendAll(new Intermediate.NetworkPacket("Tick", "Server", null));
         }
     }
 }

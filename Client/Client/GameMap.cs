@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Intermediate;
+using Intermediate.Game;
 
 namespace Client
 {
@@ -61,7 +62,7 @@ namespace Client
         }
 
         /// <summary>
-        /// Redefines a new width and height.
+        /// Redefines a new width and height, and makes a new player in the process.
         /// </summary>
         /// <param name="width"></param>
         /// <param name="height"></param>
@@ -70,18 +71,15 @@ namespace Client
             map = new GameObject[numberOfCellsWidth, numberOfCellsHeight];
             SizeOfCell(numberOfCellsWidth, numberOfCellsHeight);
 
-            //Ensures that the content within the gameobjects fits the new grid.
+            //Ensures that the content within the uis fits the new grid.
             for (int i = 0; i < Gameworld.Instance.gameObjects.Count(); i++)
             {
-                if(Gameworld.Instance.gameObjects[i] is ILoadable)
-                    Gameworld.Instance.gameObjects[i].LoadContent(Gameworld.Instance.Content);
+                if (Gameworld.Instance.uis[i] is ILoadable)
+                    Gameworld.Instance.uis[i].LoadContent(Gameworld.Instance.Content);
             }
-            for (int i = 0; i < Gameworld.Instance.gameObjects.Count(); i++)
-            {
-                Gameworld.Instance.gameObjects.Clear();
-                Gameworld.Instance.playerStartPosition = new Vector2(map.GetLength(0) / 2, 4);
-                Gameworld.Instance.CreatPlayer();
-            }
+            Gameworld.Instance.gameObjects.Clear();
+            Gameworld.Instance.playerStartPosition = new Vector2(map.GetLength(0) / 2, 4);
+            Gameworld.Instance.CreatePlayer();
 
             //New borders.
             Borders(Color.White);
@@ -93,7 +91,7 @@ namespace Client
             GameObject go = new GameObject();
             go.AddComponent(new Spriterendere(go, "Border", 0.8f, color, true, new Vector2(gameAreaWidth, 1), true, new Rectangle(0, 0, 1, 1)));
             go.AddComponent(new Transform(go, offset, false, true));
-            Gameworld.Instance.AddGameObject(go);
+            Gameworld.Instance.AddGameObject(go, true);
             go.LoadContent(Gameworld.Instance.Content);
 
             //Bottom
@@ -102,14 +100,14 @@ namespace Client
             Vector2 temp = offset;
             temp.Y += gameAreaHeight;
             go1.AddComponent(new Transform(go1, temp, false, true));
-            Gameworld.Instance.AddGameObject(go1);
+            Gameworld.Instance.AddGameObject(go1, true);
             go1.LoadContent(Gameworld.Instance.Content);
 
             //Left
             GameObject go2 = new GameObject();
             go2.AddComponent(new Spriterendere(go2, "Border", 0.8f, color, true, new Vector2(1, gameAreaHeight), true, new Rectangle(0, 0, 1, 1)));
             go2.AddComponent(new Transform(go2, offset - new Vector2(1, 0), false, true));
-            Gameworld.Instance.AddGameObject(go2);
+            Gameworld.Instance.AddGameObject(go2, true);
             go2.LoadContent(Gameworld.Instance.Content);
 
             //Right
@@ -118,7 +116,7 @@ namespace Client
             temp = offset;
             temp.X += gameAreaWidth;
             go3.AddComponent(new Transform(go3, temp, false, true));
-            Gameworld.Instance.AddGameObject(go3);
+            Gameworld.Instance.AddGameObject(go3, true);
             go3.LoadContent(Gameworld.Instance.Content);
         }
 
@@ -128,16 +126,66 @@ namespace Client
         /// <param name="gridContainer">The Gridcongainer received from the server</param>
         public void FromContainer(Intermediate.Game.GridContainer gridContainer)
         {
-            this.gameAreaWidth = gridContainer.Width;
-            this.gameAreaHeight = gridContainer.Height;
+            NewGrid(gridContainer.Width, gridContainer.Height);
 
-            foreach(Intermediate.Game.GameObjectContainer gameObjectContainer in gridContainer.GameObjects)
+            foreach (Intermediate.Game.GameObjectContainer gameObjectContainer in gridContainer.GameObjects)
             {
                 //Please note, positions[0] is the only Global position, All other are positioned as if positions[0] is the center of the world
-                Intermediate.Vector2I[] positions = Intermediate.GameShapeHelper.GetShape(gameObjectContainer.Shape, gameObjectContainer.Postion);
+                Intermediate.Vector2I[] positions = gameObjectContainer.Postion;
 
                 //Spawn gameobjects and stuff
+                GameObject go = new GameObject();
+
+                go.AddComponent(new Spriterendere(go, "GreyToneBlock", 1));
+                go.AddComponent(new Transform(go, positions, gameObjectContainer.Shape));
+
+                if (gameObjectContainer.Guid != default(Guid).ToString())
+                    go.AddComponent(new NetworkController(go, new Guid(gameObjectContainer.Guid)));
+                
+                go.LoadContent(Gameworld.Instance.Content);
+                Gameworld.Instance.AddGameObject(go);
             }
+        }
+
+        public GridContainer ToContainer()
+        {
+            GridContainer container = new GridContainer(map.GetLength(0), map.GetLength(1));
+
+            for (int i = 0; i < Gameworld.Instance.gameObjects.Count; i++)
+            {
+                GameObject go = Gameworld.Instance.gameObjects[i];
+
+                try
+                {
+                    if (go?.Transform?.Position == null)
+                        continue;
+
+                Vector2[] positions = go.Transform.Position;
+                Vector2I[] positionsI = new Vector2I[positions.Length];
+
+                    for (int j = 0; j < positions.Length; j++)
+                    {
+                        positionsI[j] = positions[j].ToVector2I();
+                    }
+
+                    GameObjectContainer goContainer = new GameObjectContainer(positionsI, go.Transform.shape, go.GetComponent<NetworkController>()?.ID.ToString());
+
+                    NetworkController con;
+
+                    if (go.GetComponent<PlayerController>() != null)
+                        goContainer.Guid = Gameworld.Instance.Client.Guid.ToString();
+                    else if ((con = go.GetComponent<NetworkController>()) != null)
+                        goContainer.Guid = con.ID.ToString();
+                    else
+                        goContainer.Guid = default(Guid).ToString();
+
+                    container.GameObjects.Add(goContainer);
+                }
+                catch
+                { }
+            }
+
+            return container;
         }
 
         /// <summary>
@@ -183,7 +231,7 @@ namespace Client
             yTemp -= offset.Y;
             //finds the map grid position.
             xTemp = (int)(xTemp / cellWidth);
-            yTemp = (int)(yTemp / cellHeight);       
+            yTemp = (int)(yTemp / cellHeight);
 
             return new Vector2(xTemp, yTemp);
         }
@@ -211,14 +259,14 @@ namespace Client
         /// <returns></returns>
         public GameObject GetObjAtPosition(Vector2 pos)
         {
-            if(map[(int)(pos.X), (int)(pos.Y)] != null)
+            if (map[(int)(pos.X), (int)(pos.Y)] != null)
                 return map[(int)(pos.X), (int)(pos.Y)];
 
             return null;
         }
 
         /// <summary>
-        /// Places the given gameobject at the given grid positions.
+        /// Places the given gameobject(shape) at the given grid positions.
         /// </summary>
         /// <param name="pos"></param>
         /// <returns></returns>
@@ -228,6 +276,15 @@ namespace Client
 
             for (int i = 0; i < shapeCord.Count(); i++)
                 map[(int)(pos.X + shapeCord[i].X), (int)(pos.Y + shapeCord[i].Y)] = obj;
+        }
+        /// <summary>
+        /// Places the given gameobject at the given grid positions.
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public void PlaceGameObject(GameObject obj, Vector2 pos)
+        {
+            map[(int)(pos.X), (int)(pos.Y)] = obj;
         }
 
         /// <summary>
@@ -319,7 +376,7 @@ namespace Client
             //Handles if there is a complete line of blocks.
             int line = 0;
             int lineMax = map.GetLength(0);
-            for(int y = 0; y < map.GetLength(1); y++)
+            for (int y = 0; y < map.GetLength(1); y++)
             {
                 for (int x = 0; x < map.GetLength(0); x++)
                 {
@@ -337,7 +394,7 @@ namespace Client
         /// <param name="line"></param>
         private void RemoveLine(int line)
         {
-            for(int i = 0; i < map.GetLength(0); i++)
+            for (int i = 0; i < map.GetLength(0); i++)
             {
                 Gameworld.Instance.RemoveObject(map[i, line]);
                 map[i, line] = null;
@@ -347,7 +404,7 @@ namespace Client
             {
                 for (int x = 0; x < map.GetLength(0); x++)
                 {
-                    if(map[x, y] != null && map[x, y].placedBlock == true)
+                    if (map[x, y] != null && map[x, y].placedBlock == true)
                     {
                         GameObject tempObj = map[x, y];
                         map[x, y] = null;

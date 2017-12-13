@@ -47,10 +47,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client.cs" />
     <Compile Include="ConnectionHandler.cs" />
     <Compile Include="GameLogic\GameWorld.cs" />
     <Compile Include="GameObject\GameObject.cs" />
     <Compile Include="GameLogic\Grid.cs" />
+    <Compile Include="NewConnectionHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
