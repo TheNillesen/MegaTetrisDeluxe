@@ -123,7 +123,7 @@ namespace Client
         }
 
         /// <summary>
-        /// Loads the map from a GridContainer received from Server
+        /// Loads the map from a GridContainer received from Server.
         /// </summary>
         /// <param name="gridContainer">The Gridcongainer received from the server</param>
         public void FromContainer(Intermediate.Game.GridContainer gridContainer)
